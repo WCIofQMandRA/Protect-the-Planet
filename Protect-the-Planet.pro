@@ -39,6 +39,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp
 
+LIBS += -lmpfr -lgmp
+
 HEADERS += \
     kernel.h \
     draw.h \
