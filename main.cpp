@@ -1,0 +1,32 @@
+//main.cpp: 主函数的定义
+
+//	-* mode: C++		encoding:UTF-8 *-
+//	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
+//
+//	This file is part of the game 保卫行星
+//
+//	This game is free software; you can redistribute it and/or modify it
+//	under the terms of the GNU Lesser General Public License as published by
+//	the Free Software Foundation; either version 3, or (at your option) any
+//	later version.
+//
+//	This game is distributed in the hope that it will be useful, but
+//	WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+//	or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+//	License for more details.
+//
+//	You should have received copies of the GNU Lesser General Public License
+//	along with 保卫行星 .
+//	If not, see https://www.gnu.org/licenses/.
+#include "mainwindow.h"
+
+#include <QApplication>
+
+int main(int argc, char **argv)
+{
+	QApplication app(argc, argv);
+	mainwindow window;
+	window.resize(1000,750);
+	window.show();
+	return app.exec();
+}
