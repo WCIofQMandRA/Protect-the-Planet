@@ -1,4 +1,4 @@
-//mainwindow.cpp: 类mainwindow的实现
+//kernel/weapon.h: 只能被kernel.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,29 +18,16 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QPainter>
 
-mainwindow::mainwindow(QWidget *parent)
-	: QWidget(parent)
-	, ui(new Ui::mainwindow)
+//武器
+struct weapon_t
 {
-	ui->setupUi(this);
-}
-
-mainwindow::~mainwindow()
-{
-	delete ui;
-}
-
-void mainwindow::paintEvent(QPaintEvent *)
-{
-	QPainter painter(this);
-	//std::cout<<width()<<" "<<height()<<std::endl;
-	painter.drawLine(80*width()/1000,100*height()/750,650*width()/1000,500*height()/750);
-	painter.setPen(Qt::red);
-	painter.drawRect(10*width()/1000,10*height()/750,100*width()/1000,400*height()/750);
-	painter.setBrush(Qt::blue);
-	painter.drawEllipse(50*width()/1000,150*height()/750,400*width()/1000,200*height()/750);
-}
+	uint64_t value;//武器的价值
+	uint16_t type;//武器类型
+	//use(const intmp_t &x)
+	//对某个剩余强度为x的陨石成功使用一次该武器后，该陨石新的剩余强度
+	std::function<void(intmp_t&)> use;
+	QString name;//武器的名称
+	//子弹的速率，速率为inf的子弹可瞬间击中目标，即在下一次跟新场景时，清楚子弹前进方向上的第一个目标
+	floatmp_t speed;
+};

@@ -1,4 +1,4 @@
-//mainwindow.cpp: 类mainwindow的实现
+//kernel/player.h: 只能被kernel.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,29 +18,16 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QPainter>
 
-mainwindow::mainwindow(QWidget *parent)
-	: QWidget(parent)
-	, ui(new Ui::mainwindow)
+//玩家
+struct player_t
 {
-	ui->setupUi(this);
-}
-
-mainwindow::~mainwindow()
-{
-	delete ui;
-}
-
-void mainwindow::paintEvent(QPaintEvent *)
-{
-	QPainter painter(this);
-	//std::cout<<width()<<" "<<height()<<std::endl;
-	painter.drawLine(80*width()/1000,100*height()/750,650*width()/1000,500*height()/750);
-	painter.setPen(Qt::red);
-	painter.drawRect(10*width()/1000,10*height()/750,100*width()/1000,400*height()/750);
-	painter.setBrush(Qt::blue);
-	painter.drawEllipse(50*width()/1000,150*height()/750,400*width()/1000,200*height()/750);
-}
+	//饥饿值，初始时为3000，每tk减少1，每次射击减少10，每次触发效果减少15，没有上限
+	uint64_t hunger;
+	//玩家持有的武器，最多10把，当持有的武器达到10并继续试图捡起武器时，玩家需丢弃旧的武器才能捡起新的
+	std::array<uint16_t,10> weapon;
+	std::map<uint16_t,std::pair<uint64_t,std::variant<uint64_t,floatmp_t>>> effect;//玩家可触发的效果（编号，（持续时间，等级））
+	uint64_t pills;//玩家持有的子弹的数量
+	floatmp_t position;//玩家的位置，以弧度为单位
+	floatmp_t speed;//玩家的速率，单位rad/tk，受效果的影响
+};

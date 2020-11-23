@@ -1,4 +1,4 @@
-//mainwindow.cpp: 类mainwindow的实现
+//kernel/planet.h: 只能被kernel.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,29 +18,13 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QPainter>
 
-mainwindow::mainwindow(QWidget *parent)
-	: QWidget(parent)
-	, ui(new Ui::mainwindow)
+//行星
+struct planet_t
 {
-	ui->setupUi(this);
-}
-
-mainwindow::~mainwindow()
-{
-	delete ui;
-}
-
-void mainwindow::paintEvent(QPaintEvent *)
-{
-	QPainter painter(this);
-	//std::cout<<width()<<" "<<height()<<std::endl;
-	painter.drawLine(80*width()/1000,100*height()/750,650*width()/1000,500*height()/750);
-	painter.setPen(Qt::red);
-	painter.drawRect(10*width()/1000,10*height()/750,100*width()/1000,400*height()/750);
-	painter.setBrush(Qt::blue);
-	painter.drawEllipse(50*width()/1000,150*height()/750,400*width()/1000,200*height()/750);
-}
+	intmp_t health;//行星的完整程度
+	floatmp_t size;//行星的大小
+	//特殊状态，tuple<剩余时间,等级,剩余强度>
+	std::map<uint16_t,std::tuple<uint64_t,std::variant<uint64_t,floatmp_t>,floatmp_t>> effect;
+	floatmp_t m_mul_G;//质量×万有引力常数
+};

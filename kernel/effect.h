@@ -1,4 +1,4 @@
-//mainwindow.cpp: 类mainwindow的实现
+//kernel/effect.h: 只能被kernel.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,29 +18,36 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QPainter>
 
-mainwindow::mainwindow(QWidget *parent)
-	: QWidget(parent)
-	, ui(new Ui::mainwindow)
+//未触发的效果，对一种效果的抽象描述，不涉及具体的效果的持续时间、等级，但涉及效果的接受对象
+//效果的持续时间是uint64_t；等级可能为uint64_t或floatmp_t，用std::variant<uint64_t,floatmp_t>表示
+struct effect_t
 {
-	ui->setupUi(this);
-}
+	//效果的接受者
+	uint16_t reciever;
 
-mainwindow::~mainwindow()
-{
-	delete ui;
-}
+};
 
-void mainwindow::paintEvent(QPaintEvent *)
+//玩家收到的（并且正生效的）效果
+struct received_effect_player_t
 {
-	QPainter painter(this);
-	//std::cout<<width()<<" "<<height()<<std::endl;
-	painter.drawLine(80*width()/1000,100*height()/750,650*width()/1000,500*height()/750);
-	painter.setPen(Qt::red);
-	painter.drawRect(10*width()/1000,10*height()/750,100*width()/1000,400*height()/750);
-	painter.setBrush(Qt::blue);
-	painter.drawEllipse(50*width()/1000,150*height()/750,400*width()/1000,200*height()/750);
-}
+
+};
+
+//行星收到的（并且正生效的）效果
+struct received_effect_planet_t
+{
+
+};
+
+//陨石收到的（并且正生效的）效果
+struct received_effect_meteorite_t
+{
+
+};
+
+//未落下的补给箱收到的（并且正生效的）效果
+struct received_effect_box_t
+{
+
+};

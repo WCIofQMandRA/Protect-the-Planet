@@ -1,4 +1,4 @@
-//mainwindow.cpp: 类mainwindow的实现
+//kernel/box.h: 只能被kernel.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,29 +18,17 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QPainter>
 
-mainwindow::mainwindow(QWidget *parent)
-	: QWidget(parent)
-	, ui(new Ui::mainwindow)
+//补给箱
+struct box_t
 {
-	ui->setupUi(this);
-}
-
-mainwindow::~mainwindow()
-{
-	delete ui;
-}
-
-void mainwindow::paintEvent(QPaintEvent *)
-{
-	QPainter painter(this);
-	//std::cout<<width()<<" "<<height()<<std::endl;
-	painter.drawLine(80*width()/1000,100*height()/750,650*width()/1000,500*height()/750);
-	painter.setPen(Qt::red);
-	painter.drawRect(10*width()/1000,10*height()/750,100*width()/1000,400*height()/750);
-	painter.setBrush(Qt::blue);
-	painter.drawEllipse(50*width()/1000,150*height()/750,400*width()/1000,200*height()/750);
-}
+	std::pair<floatmp_t,floatmp_t> vec_v;//速度
+	std::pair<floatmp_t,floatmp_t> vec_r;//位矢
+	intmp_t strength;//陨石的强度
+	intmp_t strength_left;//陨石的剩余强度
+	floatmp_t size;//大小，决定碰撞箱和渲染
+	//get<0>表示补给箱的内容物的种类：
+	//get<1>储存内容物的具体信息（即一个物品在某类物品的编号）
+	//get<2>储存内容物的数量
+	std::vector<std::tuple<uint16_t,uint16_t,uint64_t>> contains;
+};

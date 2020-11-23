@@ -1,4 +1,5 @@
-//mainwindow.cpp: 类mainwindow的实现
+//kernel/default_attribute.cpp
+//游戏内各事物的默认属性，注意，它们不是常量，可以从硬盘读取
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,29 +19,10 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QPainter>
+#include "../include.h"
+#include "./default_attribute.h"
 
-mainwindow::mainwindow(QWidget *parent)
-	: QWidget(parent)
-	, ui(new Ui::mainwindow)
-{
-	ui->setupUi(this);
-}
-
-mainwindow::~mainwindow()
-{
-	delete ui;
-}
-
-void mainwindow::paintEvent(QPaintEvent *)
-{
-	QPainter painter(this);
-	//std::cout<<width()<<" "<<height()<<std::endl;
-	painter.drawLine(80*width()/1000,100*height()/750,650*width()/1000,500*height()/750);
-	painter.setPen(Qt::red);
-	painter.drawRect(10*width()/1000,10*height()/750,100*width()/1000,400*height()/750);
-	painter.setBrush(Qt::blue);
-	painter.drawEllipse(50*width()/1000,150*height()/750,400*width()/1000,200*height()/750);
-}
+//玩家的初始属性
+floatmp_t PLAYER_BASE_SPEED=0.04;
+uint64_t PLAYER_INIT_HUNGER=3000;
+uint64_t PLAYER_INIT_PILLS=10;
