@@ -1,4 +1,4 @@
-//draw.h: 渲染模块的函数和类的声明
+//paint.h: 渲染模块的函数和类的声明
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,11 +18,11 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#ifndef DRAW_H
-#define DRAW_H
+#ifndef PAINT_H
+#define PAINT_H
 #include "kernel.hpp"
 
 //在特定区域绘制游戏地图
 void draw_map(QWidget *place);
 
-#endif // DRAW_H
+#endif // PAINT_H

@@ -1,4 +1,4 @@
-//draw.cpp: 渲染模块的函数和类的定义
+//paint.cpp: 渲染模块的函数和类的定义
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
