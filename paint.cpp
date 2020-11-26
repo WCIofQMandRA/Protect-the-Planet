@@ -1,5 +1,4 @@
-//kernel/default_attribute.cpp
-//游戏内各事物的默认属性，注意，它们不是常量，可以从硬盘读取
+//draw.cpp: 渲染模块的函数和类的定义
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -17,12 +16,20 @@
 //	License for more details.
 //
 //	You should have received copies of the GNU Lesser General Public License
-//	along with 保卫行星 .
+//	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#include "../include.h"
-#include "./default_attribute.h"
 
-//玩家的初始属性
-floatmp_t PLAYER_BASE_SPEED=0.04;
-uint64_t PLAYER_INIT_HUNGER=3000;
-uint64_t PLAYER_INIT_PILLS=10;
+#include "paint.hpp"
+#include <QPainter>
+
+//在特定区域绘制游戏地图
+void draw_map(QWidget *place)
+{
+	QPainter painter(place);
+	//std::cout<<width()<<" "<<height()<<std::endl;
+	painter.drawLine(80*place->width()/1000,100*place->height()/750,650*place->width()/1000,500*place->height()/750);
+	painter.setPen(Qt::red);
+	painter.drawRect(10*place->width()/1000,10*place->height()/750,100*place->width()/1000,400*place->height()/750);
+	painter.setBrush(Qt::blue);
+	painter.drawEllipse(50*place->width()/1000,150*place->height()/750,400*place->width()/1000,200*place->height()/750);
+}

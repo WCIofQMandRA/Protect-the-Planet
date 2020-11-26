@@ -15,9 +15,11 @@
 #   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 #   License for more details.
 #
-#   You should have received copies of the GNU Lesser General Public License
-#   along with 保卫行星 .
-#   If not, see https://www.gnu.org/licenses/.
+#	You should have received copies of the GNU Lesser General Public License
+#	and the GNU Gerneral Public License along with 保卫行星 .
+#	If not, see https://www.gnu.org/licenses/.
+
+#	作者的英文水平有限，只能用简体中文写注释，部分标识符的名称很生硬
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -36,17 +38,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    paint.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+	kernel.cpp
 
 LIBS += -lmpfr -lgmp
 
 HEADERS += \
-    kernel.h \
-    draw.h \
-    include.h \
-    mainwindow.h \
-    menu.h
+    kernel.hpp \
+    paint.hpp \
+    include.hpp \
+    mainwindow.hpp \
+    menu.hpp
 
 FORMS += \
     mainwindow.ui

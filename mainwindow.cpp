@@ -16,11 +16,11 @@
 //	License for more details.
 //
 //	You should have received copies of the GNU Lesser General Public License
-//	along with 保卫行星 .
+//	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#include "mainwindow.h"
+#include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include <QPainter>
+#include "paint.hpp"
 
 mainwindow::mainwindow(QWidget *parent)
 	: QWidget(parent)
@@ -36,11 +36,5 @@ mainwindow::~mainwindow()
 
 void mainwindow::paintEvent(QPaintEvent *)
 {
-	QPainter painter(this);
-	//std::cout<<width()<<" "<<height()<<std::endl;
-	painter.drawLine(80*width()/1000,100*height()/750,650*width()/1000,500*height()/750);
-	painter.setPen(Qt::red);
-	painter.drawRect(10*width()/1000,10*height()/750,100*width()/1000,400*height()/750);
-	painter.setBrush(Qt::blue);
-	painter.drawEllipse(50*width()/1000,150*height()/750,400*width()/1000,200*height()/750);
+	draw_map(this);
 }

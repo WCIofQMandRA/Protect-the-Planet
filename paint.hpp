@@ -1,4 +1,4 @@
-//mainwindow.h: 类mainwindow的声明
+//draw.h: 渲染模块的函数和类的声明
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -16,29 +16,13 @@
 //	License for more details.
 //
 //	You should have received copies of the GNU Lesser General Public License
-//	along with 保卫行星 .
+//	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef DRAW_H
+#define DRAW_H
+#include "kernel.hpp"
 
-#include "include.h"
+//在特定区域绘制游戏地图
+void draw_map(QWidget *place);
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class mainwindow; }
-QT_END_NAMESPACE
-
-class mainwindow : public QWidget
-{
-	Q_OBJECT
-
-public:
-	mainwindow(QWidget *parent = nullptr);
-	~mainwindow();
-
-private:
-	Ui::mainwindow *ui;
-
-protected:
-	void paintEvent(QPaintEvent *event);
-};
-#endif // MAINWINDOW_H
+#endif // DRAW_H

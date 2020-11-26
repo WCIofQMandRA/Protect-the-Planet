@@ -1,5 +1,4 @@
-//kernel/default_attribute.h: 只能被kernel.h包含
-//游戏内各事物的默认属性，注意，它们不是常量，可以从硬盘读取
+//menu.h: 菜单模块的函数和类的声明
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -17,10 +16,10 @@
 //	License for more details.
 //
 //	You should have received copies of the GNU Lesser General Public License
-//	along with 保卫行星 .
+//	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
+#ifndef MENU_H
+#define MENU_H
+#include "include.hpp"
 
-//玩家的初始属性
-extern floatmp_t PLAYER_BASE_SPEED;
-extern uint64_t PLAYER_INIT_HUNGER;
-extern uint64_t PLAYER_INIT_PILLS;
+#endif // MENU_H

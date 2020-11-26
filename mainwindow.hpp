@@ -1,4 +1,4 @@
-//kernel/box.h: 只能被kernel.h包含
+//mainwindow.h: 类mainwindow的声明
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -16,19 +16,29 @@
 //	License for more details.
 //
 //	You should have received copies of the GNU Lesser General Public License
-//	along with 保卫行星 .
+//	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-//补给箱
-struct box_t
+#include "include.hpp"
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class mainwindow; }
+QT_END_NAMESPACE
+
+class mainwindow : public QWidget
 {
-	std::pair<floatmp_t,floatmp_t> vec_v;//速度
-	std::pair<floatmp_t,floatmp_t> vec_r;//位矢
-	intmp_t strength;//陨石的强度
-	intmp_t strength_left;//陨石的剩余强度
-	floatmp_t size;//大小，决定碰撞箱和渲染
-	//get<0>表示补给箱的内容物的种类：
-	//get<1>储存内容物的具体信息（即一个物品在某类物品的编号）
-	//get<2>储存内容物的数量
-	std::vector<std::tuple<uint16_t,uint16_t,uint64_t>> contains;
+	Q_OBJECT
+
+public:
+	mainwindow(QWidget *parent = nullptr);
+	~mainwindow();
+
+private:
+	Ui::mainwindow *ui;
+
+protected:
+	void paintEvent(QPaintEvent *event);
 };
+#endif // MAINWINDOW_H

@@ -1,4 +1,4 @@
-//menu.h: 菜单模块的函数和类的声明
+//kernel/food.h: 只能被kernel.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -16,10 +16,14 @@
 //	License for more details.
 //
 //	You should have received copies of the GNU Lesser General Public License
-//	along with 保卫行星 .
+//	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#ifndef MENU_H
-#define MENU_H
-#include "include.h"
 
-#endif // MENU_H
+//食物，获得食物时，玩家立即活动相应的饥饿值
+struct food_t
+{
+	uint64_t add_hunger;//饥饿值的增加量
+	uint64_t value;
+	uint16_t type;
+        std::u32string name;//食物的名称
+};

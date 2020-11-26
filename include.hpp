@@ -16,7 +16,7 @@
 //	License for more details.
 //
 //	You should have received copies of the GNU Lesser General Public License
-//	along with 保卫行星 .
+//	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
 
 #ifndef INCLUDE_H
@@ -26,18 +26,27 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <unordered_set>
+#include <unordered_map>
 #include <tuple>
 #include <variant>
 #include <cstdint>
 #include <functional>
 #include <stack>
 #include <queue>
+#include <string>
+#include <thread>
+#include <memory>
+#include <random>
+#include <atomic>
 #include <boost/multiprecision/gmp.hpp>
 #include <boost/multiprecision/mpfr.hpp>
+#include <boost/multiprecision/float128.hpp>
 #include <QWidget>
 using namespace boost::multiprecision;
 typedef mpz_int intmp_t;
 typedef mpfr_float_50 floatmp_t;
 typedef float float32_t;
 typedef double float64_t;
+typedef float128 float128_t;
 #endif

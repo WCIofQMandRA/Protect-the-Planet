@@ -1,4 +1,4 @@
-//kernel/weapon.h: 只能被kernel.h包含
+//kernel/planet.h: 只能被kernel.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -16,18 +16,17 @@
 //	License for more details.
 //
 //	You should have received copies of the GNU Lesser General Public License
-//	along with 保卫行星 .
+//	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
 
-//武器
-struct weapon_t
+//行星
+struct planet_t
 {
-	uint64_t value;//武器的价值
-	uint16_t type;//武器类型
-	//use(const intmp_t &x)
-	//对某个剩余强度为x的陨石成功使用一次该武器后，该陨石新的剩余强度
-	std::function<void(intmp_t&)> use;
-	QString name;//武器的名称
-	//子弹的速率，速率为inf的子弹可瞬间击中目标，即在下一次跟新场景时，清楚子弹前进方向上的第一个目标
-	floatmp_t speed;
+	intmp_t health;//行星的完整程度
+	floatmp_t size;//行星的大小
+	//特殊状态，tuple<剩余时间,等级,剩余强度>
+	std::map<uint16_t,std::tuple<uint64_t,std::variant<uint64_t,floatmp_t>,floatmp_t>> effect;
+	floatmp_t m_mul_G;//质量×万有引力常数
+	std::map<uint16_t,received_effect_planet_t> received_effect;
+	received_effect_planet_t combined_effect;
 };
