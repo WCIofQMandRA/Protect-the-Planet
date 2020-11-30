@@ -52,7 +52,13 @@ u32string
 */
 #ifndef KERNEL_H
 #define KERNEL_H
-#include "include.hpp"
+#include "type.hpp"
+
+//游戏状态
+#define STATE_PLAYING 1
+#define STATE_PAUSE 2
+#define STATE_STOP 3
+#define STATE_CHOOSING 4
 
 //未触发的效果在触发时的接受者
 #define EFFECT_RECIVER_PLAYER 1//玩家
@@ -68,16 +74,16 @@ u32string
 #define CONTAIN_TYPE_PILL 3//子弹
 #define CONTAIN_TYPE_EFFECT 4//效果
 
-#include "kernel/food.hpp"
-#include "kernel/effect.hpp"
-#include "kernel/weapon.hpp"
-#include "kernel/meteorite.hpp"
-#include "kernel/planet.hpp"
-#include "kernel/box.hpp"
-#include "kernel/player.hpp"
-
 namespace kernel
 {
+//uint64_t是绝对编号，从游戏开始运行时记
+extern std::unordered_map<uint64_t,meteorite_t> meteorite_list;
+extern std::unordered_map<uint64_t,box_t> box_list;
+extern planet_t planet;
+extern player_t player;
+extern uint64_t level;//玩家通过的关卡数
+extern uint64_t counter;//绝对编号
+extern uint16_t difficulty;//游戏难度
 namespace attribute
 {
 //玩家的初始属性
@@ -85,16 +91,6 @@ extern floatmp_t PLAYER_BASE_SPEED;
 extern uint64_t PLAYER_INIT_HUNGER;
 extern uint64_t PLAYER_INIT_PILLS;
 }//namespace attribute
-
-//uint64_t是绝对编号，从游戏开始运行时记
-extern std::unordered_map<uint64_t,meteorite_t> meteorite_list;
-extern std::unordered_map<uint64_t,box_t> box_list;
-extern planet_t planet;
-extern player_t player;
-extern intmp_t score;//玩家得分
-extern uint64_t level;//玩家通过的关卡数
-extern uint64_t counter;//绝对编号
-extern uint16_t difficulty;//游戏难度
 
 //与菜单模块通信
 namespace comu_menu
@@ -135,17 +131,22 @@ extern std::vector<meteorite_t> meteorite_list;
 extern std::vector<box_t> box_list;
 extern planet_t planet;
 extern player_t player;
-extern intmp_t score;//玩家得分
 }
 //内核开始执行时会创建一个线程，该线程储存在process_thread中
 
-//进入游戏后，应调用init()，然后调用start_process()，游戏暂停时，
-//内核的执行器终止，即线程process_thread退出，之后可调用start_process()
-//恢复游戏，或调用clear()退出游戏
+//启动程序时调用init()，进入游戏时调用start_game()，游戏暂停时，
+//内核的执行器终止，即线程process_thread退出，之后可调用continue_game()
+//恢复游戏，或调用stop_game()退出游戏，程序退出时，调用clear()
 extern std::thread process_thread;
+
 void init();
-void start_process();
 void clear();
+void start_game(const std::u32string &name,uint16_t difficulty);
+void continue_game();
+void stop_game();
+void process_oneround();
+void process_thread_main();
 }//namespace kernel
+
 
 #endif // KERNEL_H

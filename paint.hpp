@@ -21,8 +21,13 @@
 #ifndef PAINT_H
 #define PAINT_H
 #include "kernel.hpp"
+#include <QWidget>
 
+namespace paint
+{
 //在特定区域绘制游戏地图
-void draw_map(QWidget *place);
+void draw_map(QWidget *place,uint16_t state=STATE_PLAYING);
+
+}
 
 #endif // PAINT_H

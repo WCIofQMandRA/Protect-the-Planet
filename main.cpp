@@ -21,12 +21,31 @@
 #include "mainwindow.hpp"
 
 #include <QApplication>
+#include "save_load.hpp"
+#include "kernel.hpp"
+
+static void init_program()
+{
+	kernel::init();
+}
+
+static void exit_program(int returnval)
+{
+	kernel::comu_menu::should_pause=true;
+	using namespace std::chrono_literals;
+	if(kernel::process_thread.joinable())
+		kernel::process_thread.join();
+	kernel::clear();
+	exit(returnval);
+}
 
 int main(int argc, char **argv)
 {
 	QApplication app(argc, argv);
 	mainwindow window;
+	init_program();
 	window.resize(1000,750);
 	window.show();
-	return app.exec();
+	exit_program(app.exec());
+	return 0;
 }

@@ -1,4 +1,4 @@
-//mainwindow.h: 类mainwindow的声明
+//mainwindow.h: 类mainwindow的声明和控制模块
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -22,6 +22,7 @@
 #define MAINWINDOW_H
 
 #include "include.hpp"
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class mainwindow; }
@@ -37,8 +38,15 @@ public:
 
 private:
 	Ui::mainwindow *ui;
+	uint16_t state;
+	bool is_choosing;
 
 protected:
-	void paintEvent(QPaintEvent *event);
+	void paintEvent(QPaintEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseReleaseEvent(QMouseEvent *event) override;
+	void keyPressEvent(QKeyEvent *event) override;
+	void keyReleaseEvent(QKeyEvent *event) override;
 };
 #endif // MAINWINDOW_H

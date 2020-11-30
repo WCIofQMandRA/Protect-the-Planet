@@ -1,4 +1,4 @@
-//kernel/planet.h: 只能被kernel.h包含
+//kernel/planet.h: 只能被type.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -24,8 +24,6 @@ struct planet_t
 {
 	intmp_t health;//行星的完整程度
 	floatmp_t size;//行星的大小
-	//特殊状态，tuple<剩余时间,等级,剩余强度>
-	std::map<uint16_t,std::tuple<uint64_t,std::variant<uint64_t,floatmp_t>,floatmp_t>> effect;
 	floatmp_t m_mul_G;//质量×万有引力常数
 	std::map<uint16_t,received_effect_planet_t> received_effect;
 	received_effect_planet_t combined_effect;

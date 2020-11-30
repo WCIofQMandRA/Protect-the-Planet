@@ -1,4 +1,4 @@
-//kernel/weapon.h: 只能被kernel.h包含
+//kernel/weapon.h: 只能被type.h包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)

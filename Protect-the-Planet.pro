@@ -38,6 +38,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    dialog_pause.cpp \
+    dialog_start.cpp \
+    menu.cpp \
     paint.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -46,13 +49,19 @@ SOURCES += \
 LIBS += -lmpfr -lgmp
 
 HEADERS += \
+    dialog_pause.hpp \
+    dialog_start.h \
     kernel.hpp \
     paint.hpp \
     include.hpp \
     mainwindow.hpp \
-    menu.hpp
+    menu.hpp \
+    save_load.hpp \
+    type.hpp
 
 FORMS += \
+    dialog_pause.ui \
+    dialog_start.ui \
     mainwindow.ui
 
 TRANSLATIONS += \

@@ -1,4 +1,4 @@
-//include.h 外部依赖项和基本的类型重定义
+//menu.cpp: 菜单模块的函数和类的定义
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,36 +18,31 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
+#include "menu.hpp"
+#include "dialog_pause.hpp"
+#include "dialog_start.h"
+namespace menu
+{
+//绘制开始界面
+std::tuple<std::u32string,uint16_t> show_welcome()
+{
+	auto dia=new dialog_start;
+	std::tuple<std::u32string,uint16_t> result;
+	dia->show();
+	if(dia->exec())
+		result=std::make_tuple(dia->name,dia->difficulty);
+	else
+		result=std::make_tuple(std::u32string(),static_cast<uint16_t>(65535));
+	delete dia;
+	return result;
+}
 
-#ifndef INCLUDE_H
-#define INCLUDE_H
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <map>
-#include <set>
-#include <unordered_set>
-#include <unordered_map>
-#include <tuple>
-#include <variant>
-#include <cstdint>
-#include <functional>
-#include <stack>
-#include <queue>
-#include <string>
-#include <thread>
-#include <memory>
-#include <random>
-#include <atomic>
-#include <boost/multiprecision/gmp.hpp>
-#include <boost/multiprecision/mpfr.hpp>
-#include <boost/multiprecision/float128.hpp>
-#include <boost/math/constants/constants.hpp>
-
-using namespace boost::multiprecision;
-typedef mpz_int intmp_t;
-typedef mpfr_float_50 floatmp_t;
-typedef float float32_t;
-typedef double float64_t;
-typedef float128 float128_t;
-#endif
+//绘制暂停界面
+bool show_pause()
+{
+	dialog_pause dia;
+	kernel::comu_menu::should_pause=true;
+	dia.show();
+	return dia.exec();
+}
+}

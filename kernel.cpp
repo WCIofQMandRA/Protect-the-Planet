@@ -20,6 +20,7 @@
 //	If not, see https://www.gnu.org/licenses/.
 
 #include "kernel.hpp"
+#include "save_load.hpp"
 
 //floatmp_t PLAYER_BASE_SPEED=0.04;
 //uint64_t PLAYER_INIT_HUNGER=3000;
@@ -28,6 +29,14 @@
 //从kernel.hpp复制，但去掉了extern
 namespace kernel
 {
+//uint64_t是绝对编号，从游戏开始运行时记
+std::unordered_map<uint64_t,meteorite_t> meteorite_list;
+std::unordered_map<uint64_t,box_t> box_list;
+planet_t planet;
+player_t player;
+uint64_t level;//玩家通过的关卡数
+uint64_t counter;//绝对编号
+uint16_t difficulty;//游戏难度
 namespace attribute
 {
 //玩家的初始属性
@@ -35,16 +44,6 @@ floatmp_t PLAYER_BASE_SPEED;
 uint64_t PLAYER_INIT_HUNGER;
 uint64_t PLAYER_INIT_PILLS;
 }//namespace attribute
-
-//uint64_t是绝对编号，从游戏开始运行时记
-std::unordered_map<uint64_t,meteorite_t> meteorite_list;
-std::unordered_map<uint64_t,box_t> box_list;
-planet_t planet;
-player_t player;
-intmp_t score;//玩家得分
-uint64_t level;//玩家通过的关卡数
-uint64_t counter;//绝对编号
-uint16_t difficulty;//游戏难度
 
 //与菜单模块通信
 namespace comu_menu
@@ -57,18 +56,18 @@ namespace comu_control
 {
 volatile std::atomic<int16_t> move;//玩家移动，取1/-1/0
 //对武器的操作:
-//-1：不使用
-//-2：射击
-//-3：丢弃当前武器
+//10：不使用
+//11：射击
+//12：丢弃当前武器
 //0~9：选择武器
 volatile std::atomic<int16_t> weapon;
 volatile std::atomic_flag weapon_direct_lock;
 volatile floatmp_t weapon_direct;
 //触发的效果
-//-1,0：不触发
-//-2,0：触发当前效果
-//-3,0：丢弃当前效果
-//0~9,0~65535：选择效果
+//10,0：不触发
+//11,0：触发当前效果
+//12,0：丢弃当前效果
+//0~9,0~9：选择效果
 volatile std::atomic<uint32_t> active_effect;
 }
 
@@ -84,23 +83,60 @@ std::vector<meteorite_t> meteorite_list;
 std::vector<box_t> box_list;
 planet_t planet;
 player_t player;
-intmp_t score;//玩家得分
 }
 
 std::thread process_thread;
+void process_thread_main()
+{
+	std::cout<<"create thread"<<std::endl;
+	while(!comu_menu::should_pause)
+	{
+		//TODO暂停50ms
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(50ms);
+		process_oneround();
+	}
+	std::cout<<"stop thread"<<std::endl;
+}
 
 void init()
 {
-	
+
 }
 
-void start_process()
+void start_game(const std::u32string &name,uint16_t difficulty)
 {
+	std::cout<<"kernel:开始游戏"<<std::endl;
+	player.name=name;
+	kernel::difficulty=difficulty;
+	comu_menu::should_pause=false;
+	//TODO：加载存档
+	if(process_thread.joinable())
+		process_thread.join();
+	process_thread=std::thread(process_thread_main);
+}
 
+void continue_game()
+{
+	std::cout<<"kernel:继续游戏"<<std::endl;
+	comu_menu::should_pause=false;
+	if(process_thread.joinable())
+		process_thread.join();
+	process_thread=std::thread(process_thread_main);
+}
+
+void stop_game()
+{
+	std::cout<<"kernel:终止游戏"<<std::endl;
 }
 
 void clear()
 {
 
+}
+
+void process_oneround()
+{
+	std::cout<<"process"<<std::endl;
 }
 }//namespace kernel

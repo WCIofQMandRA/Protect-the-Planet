@@ -22,14 +22,20 @@
 #include "paint.hpp"
 #include <QPainter>
 
+namespace paint
+{
 //在特定区域绘制游戏地图
-void draw_map(QWidget *place)
+void draw_map(QWidget *place,uint16_t state)
 {
 	QPainter painter(place);
+	switch(state)
+	{
+	case STATE_PLAYING:painter.drawText(100,100,QString("正在游戏"));break;
+	case STATE_STOP:painter.drawText(100,100,QString("终止游戏"));break;
+	case STATE_PAUSE:painter.drawText(100,100,QString("暂停游戏"));break;
+	default:std::cerr<<"!!!"<<std::endl;assert(0);
+	}
+
 	//std::cout<<width()<<" "<<height()<<std::endl;
-	painter.drawLine(80*place->width()/1000,100*place->height()/750,650*place->width()/1000,500*place->height()/750);
-	painter.setPen(Qt::red);
-	painter.drawRect(10*place->width()/1000,10*place->height()/750,100*place->width()/1000,400*place->height()/750);
-	painter.setBrush(Qt::blue);
-	painter.drawEllipse(50*place->width()/1000,150*place->height()/750,400*place->width()/1000,200*place->height()/750);
+}
 }
