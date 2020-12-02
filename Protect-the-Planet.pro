@@ -40,6 +40,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     dialog_pause.cpp \
     dialog_start.cpp \
+    file.cpp \
     menu.cpp \
     paint.cpp \
     main.cpp \
@@ -48,9 +49,12 @@ SOURCES += \
 
 LIBS += -lmpfr -lgmp
 
+unix: LIBS+= -pthread
+
 HEADERS += \
     dialog_pause.hpp \
-    dialog_start.h \
+    dialog_start.hpp \
+    file.hpp \
     kernel.hpp \
     paint.hpp \
     include.hpp \
