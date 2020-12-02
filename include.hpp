@@ -1,4 +1,4 @@
-//include.h 外部依赖项和基本的类型重定义
+//include.h 常在项目的个文件中使用的外部依赖项和基本的类型重定义
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -22,8 +22,9 @@
 #ifndef INCLUDE_H
 #define INCLUDE_H
 #include <iostream>
-#include <algorithm>
 #include <vector>
+#include <array>
+#include <utility>
 #include <map>
 #include <set>
 #include <unordered_set>
@@ -32,17 +33,11 @@
 #include <variant>
 #include <cstdint>
 #include <functional>
-#include <stack>
-#include <queue>
 #include <string>
-#include <thread>
-#include <memory>
-#include <random>
-#include <atomic>
+#include <cassert>
 #include <boost/multiprecision/gmp.hpp>
 #include <boost/multiprecision/mpfr.hpp>
 #include <boost/multiprecision/float128.hpp>
-#include <boost/math/constants/constants.hpp>
 
 using namespace boost::multiprecision;
 typedef mpz_int intmp_t;

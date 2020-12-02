@@ -53,6 +53,8 @@ u32string
 #ifndef KERNEL_H
 #define KERNEL_H
 #include "type.hpp"
+#include <thread>
+#include <atomic>
 
 //游戏状态
 #define STATE_PLAYING 1
@@ -76,22 +78,6 @@ u32string
 
 namespace kernel
 {
-//uint64_t是绝对编号，从游戏开始运行时记
-extern std::unordered_map<uint64_t,meteorite_t> meteorite_list;
-extern std::unordered_map<uint64_t,box_t> box_list;
-extern planet_t planet;
-extern player_t player;
-extern uint64_t level;//玩家通过的关卡数
-extern uint64_t counter;//绝对编号
-extern uint16_t difficulty;//游戏难度
-namespace attribute
-{
-//玩家的初始属性
-extern floatmp_t PLAYER_BASE_SPEED;
-extern uint64_t PLAYER_INIT_HUNGER;
-extern uint64_t PLAYER_INIT_PILLS;
-}//namespace attribute
-
 //与菜单模块通信
 namespace comu_menu
 {

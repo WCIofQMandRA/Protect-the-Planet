@@ -41,9 +41,9 @@ static void exit_program(int returnval)
 
 int main(int argc, char **argv)
 {
+	init_program();
 	QApplication app(argc, argv);
 	mainwindow window;
-	init_program();
 	window.resize(1000,750);
 	window.show();
 	exit_program(app.exec());

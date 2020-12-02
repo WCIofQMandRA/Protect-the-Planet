@@ -33,7 +33,7 @@
     <string>开始游戏！</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="editor_player_name">
+  <widget class="QPlainTextEdit" name="editor_player_name">
    <property name="geometry">
     <rect>
      <x>40</x>

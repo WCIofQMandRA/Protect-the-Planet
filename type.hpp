@@ -1,4 +1,4 @@
-//type.h: 游戏内核的相关结构体的声明
+//type.hpp: 游戏内核的相关结构体的声明
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)

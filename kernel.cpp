@@ -21,6 +21,8 @@
 
 #include "kernel.hpp"
 #include "save_load.hpp"
+#include "file.hpp"
+#include <fstream>
 
 //floatmp_t PLAYER_BASE_SPEED=0.04;
 //uint64_t PLAYER_INIT_HUNGER=3000;
@@ -86,22 +88,36 @@ player_t player;
 }
 
 std::thread process_thread;
+
+//meteorites[k]是第k关计划生成的所有陨石，get<0>是可能生成的最早时刻，get<1>是可能生成的最晚时刻，get<2>是计划生成的陨石
+static std::vector<std::vector<std::tuple<uint64_t,uint64_t,meteorite_t>>> meteorites;
+static std::vector<std::vector<std::tuple<uint64_t,uint64_t,box_t>>> boxes;
+
 void process_thread_main()
 {
+	using namespace std::chrono_literals;
 	std::cout<<"create thread"<<std::endl;
+	auto process_time=std::chrono::system_clock::now()+1ms;
 	while(!comu_menu::should_pause)
 	{
-		//TODO暂停50ms
-		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(50ms);
+		std::this_thread::sleep_until(process_time);
 		process_oneround();
+		process_time+=50ms;
 	}
 	std::cout<<"stop thread"<<std::endl;
 }
 
 void init()
 {
-
+	//初始化预制关卡
+	{
+		std::ifstream configin;
+		if(configin.open(trpath("[program]/levels/meteorities"),std::ios_base::in|std::ios_base::binary),!configin)
+		{
+			std::cerr<<"无法读取配置文件："<<trpath("[program]/levels/meteorities")<<std::endl;
+			abort();
+		}
+	}
 }
 
 void start_game(const std::u32string &name,uint16_t difficulty)
@@ -131,6 +147,12 @@ void stop_game()
 }
 
 void clear()
+{
+
+}
+
+//生成陨石或补给箱
+void gernerate_mete_or_box()
 {
 
 }

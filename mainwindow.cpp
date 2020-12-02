@@ -20,7 +20,7 @@
 //	If not, see https://www.gnu.org/licenses/.
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include "dialog_start.h"
+#include "dialog_start.hpp"
 #include "dialog_pause.hpp"
 #include "paint.hpp"
 #include "menu.hpp"
@@ -40,10 +40,12 @@ mainwindow::mainwindow(QWidget *parent)
 		state=STATE_PLAYING;
 		setMouseTracking(true);
 		kernel::start_game(name,difficulty);
+		should_close=false;
 	}
 	else
 	{
-		close();
+		//close()	//无法在构造函数中调用close()
+		should_close=true;
 	}
 }
 
@@ -54,6 +56,7 @@ mainwindow::~mainwindow()
 
 void mainwindow::paintEvent(QPaintEvent *event)
 {
+	if(should_close)close();
 	QWidget::paintEvent(event);
 	paint::draw_map(this,state);
 }

@@ -40,6 +40,7 @@ private:
 	Ui::mainwindow *ui;
 	uint16_t state;
 	bool is_choosing;
+	bool should_close;
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
