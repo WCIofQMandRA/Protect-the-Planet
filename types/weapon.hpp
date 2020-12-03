@@ -31,9 +31,22 @@ struct weapon_t
 	//const floatmp_t &power_rate_meteorite/*or power_rate_box*/)
 	//对某个剩余强度为x的陨石（或补给箱）成功使用一次该武器后，该陨石（或补给箱）新的剩余强度
 	std::function<void(intmp_t&,const floatmp_t&,const floatmp_t&)> use;
-        std::map<uint16_t,received_effect_weapon_t> received_effect;
+	std::map<uint16_t,received_effect_weapon_t> received_effect;
 	received_effect_weapon_t combined_effect;
 	std::u32string name;//武器的名称
 	//子弹的速率，不能为inf
+	floatmp_t pill_speed;
+};
+
+//未生成的武器（weapon_t去掉received_effect和combined_effect）
+struct weapon0_t
+{
+	uint64_t value;
+	uint64_t shoot_speed;
+	uint16_t type;
+	bool infinate_speed;
+	bool hurt_count;
+	std::function<void(intmp_t&,const floatmp_t&,const floatmp_t&)> use;
+	std::u32string name;
 	floatmp_t pill_speed;
 };

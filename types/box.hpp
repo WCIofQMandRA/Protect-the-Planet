@@ -24,8 +24,8 @@ struct box_t
 {
 	std::pair<floatmp_t,floatmp_t> vec_v;//速度
 	std::pair<floatmp_t,floatmp_t> vec_r;//位矢
-	intmp_t strength;//陨石的强度
-	intmp_t strength_left;//陨石的剩余强度
+	intmp_t strength;//补给箱的强度
+	intmp_t strength_left;//补给箱的剩余强度
 	floatmp_t size;//大小，决定碰撞箱和渲染
 	//get<0>表示补给箱的内容物的种类：
 	//get<1>储存内容物的具体信息（即一个物品在某类物品的编号）
@@ -33,4 +33,17 @@ struct box_t
 	std::vector<std::tuple<uint16_t,uint16_t,uint64_t>> contains;
 	std::map<uint16_t,received_effect_box_t> received_effect;
 	received_effect_box_t combined_effect;
+	uint16_t type;
+};
+
+//未生成的补给箱
+struct box0_t
+{
+	std::pair<uint64_t,uint64_t> fly_time;//从生成到落到行星表面的时间范围（first~second）
+	std::pair<uint64_t,uint64_t> total_value;//内容物的总价值的范围
+        std::vector<std::pair<uint16_t,uint16_t>> probal_contain;//可能含有的内容物（first:种类，second:物品编号）
+	uint64_t type;
+	intmp_t strength;
+	floatmp_t size;
+	
 };

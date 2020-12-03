@@ -24,14 +24,25 @@ struct meteorite_t
 {
 	std::pair<floatmp_t,floatmp_t> vec_v;//速度
 	std::pair<floatmp_t,floatmp_t> vec_r;//位矢
-	floatmp_t size;//陨石的大小，决定碰撞箱和渲染
 	intmp_t strength;//陨石的强度
 	intmp_t strength_left;//陨石的剩余强度
-	//hurt(intmp &x,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+	floatmp_t size;//陨石的大小，决定碰撞箱和渲染
+	//hurt(intmp &x,const floatmp_t &complete_rate, bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
 	//陨石击中完整程度为x的行星后，行星的剩余完整程度
-	std::function<void(intmp_t &,bool,const floatmp_t &,const floatmp_t &)> hurt;
+	//complete_rate=(floatmp_t)strength_left/strength
+	std::function<void(intmp_t &,const floatmp_t &,bool,const floatmp_t &,const floatmp_t &)> hurt;
         //intmp_t hurt;//陨石的总伤害，落到行星时的伤害为hurt*f(strength_left,strength)，f是一个待确定的函数
 	std::map<uint16_t,received_effect_meteorite_t> received_effect;
 	received_effect_meteorite_t combined_effect;
 	uint16_t type;//陨石的种类，与材质关联
+};
+
+//未生成的陨石
+struct meteorite0_t
+{
+	std::pair<uint64_t,uint64_t> fly_time;//从生成到落到行星表面的时间范围（first~second）
+	uint16_t type;
+	intmp_t strength;
+	floatmp_t size;
+	std::function<void(intmp_t &,const floatmp_t &,bool,const floatmp_t &,const floatmp_t &)> hurt;
 };

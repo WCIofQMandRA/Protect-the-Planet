@@ -23,6 +23,8 @@
 #include "save_load.hpp"
 #include "file.hpp"
 #include <fstream>
+#include <boost/math/constants/constants.hpp>
+
 
 //floatmp_t PLAYER_BASE_SPEED=0.04;
 //uint64_t PLAYER_INIT_HUNGER=3000;
@@ -89,9 +91,16 @@ player_t player;
 
 std::thread process_thread;
 
-//meteorites[k]是第k关计划生成的所有陨石，get<0>是可能生成的最早时刻，get<1>是可能生成的最晚时刻，get<2>是计划生成的陨石
-static std::vector<std::vector<std::tuple<uint64_t,uint64_t,meteorite_t>>> meteorites;
-static std::vector<std::vector<std::tuple<uint64_t,uint64_t,box_t>>> boxes;
+//ako: all kinds of，所有可能出现的陨石的列表
+static std::vector<meteorite0_t> ako_meteorite;
+static std::vector<box0_t> ako_box;
+static std::vector<weapon0_t> ako_weapon;
+static std::vector<effect_t> ako_effect;
+static std::vector<food_t> ako_food;
+
+//meteorites[k]是第k关(编号从0开始)计划生成的所有陨石，get<0>是可能生成的最早时刻，get<1>是可能生成的最晚时刻，get<2>是计划生成的陨石
+static std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> meteorites;
+static std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> boxes;
 
 void process_thread_main()
 {
@@ -109,14 +118,82 @@ void process_thread_main()
 
 void init()
 {
+	std::ifstream configin;
 	//初始化预制关卡
 	{
-		std::ifstream configin;
-		if(configin.open(trpath("[program]/levels/meteorities"),std::ios_base::in|std::ios_base::binary),!configin)
+		if(configin.open(trpath("[program]/config/levels"),std::ios_base::in|std::ios_base::binary),!configin)
 		{
-			std::cerr<<"无法读取配置文件："<<trpath("[program]/levels/meteorities")<<std::endl;
+			std::cerr<<"无法读取配置文件："<<trpath("[program]/config/levels")<<std::endl;
 			abort();
 		}
+		uint64_t n;//预制的关卡数，每个关卡先存陨石，再存补给箱
+		configin.read(reinterpret_cast<char*>(&n),8);
+		//TODO: 完成levels文件
+		meteorites.resize(n);
+		boxes.resize(n);
+		for(uint64_t i=0;i<n;++i)
+		{
+			uint64_t m;
+			configin.read(reinterpret_cast<char*>(&m),8);
+			meteorites[i].resize(m);
+			for(uint64_t j=0;j<m;++j)
+			{
+				uint64_t a,b;uint16_t c;
+				configin.read(reinterpret_cast<char*>(&a),8);
+				configin.read(reinterpret_cast<char*>(&b),8);
+				configin.read(reinterpret_cast<char*>(&c),2);
+				meteorites[i][j]=std::make_tuple(a,b,c);
+			}
+			configin.read(reinterpret_cast<char*>(&m),8);
+			boxes[i].resize(m);
+			for(uint64_t j=0;j<m;++j)
+			{
+				uint64_t a,b;uint16_t c;
+				configin.read(reinterpret_cast<char*>(&a),8);
+				configin.read(reinterpret_cast<char*>(&b),8);
+				configin.read(reinterpret_cast<char*>(&c),2);
+				boxes[i][j]=std::make_tuple(a,b,c);
+			}
+		}
+		configin.close();
+	}
+	//生成陨石种类列表
+	{
+		ako_meteorite.push_back({std::make_pair(160,200),0,5,1e7,
+								[](intmp_t &health,const floatmp_t &,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								{
+									 health-=static_cast<intmp_t>(100*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
+								}});
+		ako_meteorite.push_back({std::make_pair(160,200),1,10,1e7,
+								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								{
+									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
+								}});
+		ako_meteorite.push_back({std::make_pair(80,100),2,8,8e6,
+								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								{
+									health-=static_cast<intmp_t>(80*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
+								}});
+		ako_meteorite.push_back({std::make_pair(80,100),3,3,1e7,
+								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								{
+									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
+								}});
+		ako_meteorite.push_back({std::make_pair(550,600),4,30,1e7,
+								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								{
+									health-=static_cast<intmp_t>(1000*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
+								}});
+		ako_meteorite.push_back({std::make_pair(60,65),5,3,1e7,
+								[](intmp_t &health,const floatmp_t &,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								{
+									health-=static_cast<intmp_t>(30*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
+								}});
+		ako_meteorite.push_back({std::make_pair(800,850),6,1000,5e6,
+								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								{
+									health=static_cast<intmp_t>(exp(static_cast<floatmp_t>(health)-log(static_cast<floatmp_t>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
+								}});
 	}
 }
 

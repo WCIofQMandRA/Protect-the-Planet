@@ -47,7 +47,7 @@ SOURCES += \
     mainwindow.cpp \
 	kernel.cpp
 
-LIBS += -lmpfr -lgmp
+LIBS += -Wl,-Bstatic -lmpfr -lgmp -static-libstdc++ -Wl,-Bdynamic
 
 unix: LIBS+= -pthread
 

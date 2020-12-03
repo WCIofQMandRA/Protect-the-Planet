@@ -94,18 +94,21 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 		{
 			state=STATE_PAUSE;
 			setMouseTracking(false);
+			update();
 			is_choosing=true;
 			if(menu::show_pause())
 			{
 				state=STATE_STOP;
 				is_choosing=false;
 				kernel::stop_game();
+				update();
 				is_choosing=true;
 				auto [name,difficulty]=menu::show_welcome();
 				is_choosing=false;
 				if(difficulty!=65535)
 				{
 					state=STATE_PLAYING;
+					paint::draw_map(this,STATE_PLAYING);
 					setMouseTracking(true);
 					kernel::start_game(name,difficulty);
 				}

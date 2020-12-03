@@ -23,11 +23,11 @@
 #define TYPE_H
 #include "include.hpp"
 
-#include "kernel/food.hpp"
-#include "kernel/effect.hpp"
-#include "kernel/weapon.hpp"
-#include "kernel/meteorite.hpp"
-#include "kernel/planet.hpp"
-#include "kernel/box.hpp"
-#include "kernel/player.hpp"
+#include "types/food.hpp"
+#include "types/effect.hpp"
+#include "types/weapon.hpp"
+#include "types/meteorite.hpp"
+#include "types/planet.hpp"
+#include "types/box.hpp"
+#include "types/player.hpp"
 #endif // TYPE_H
