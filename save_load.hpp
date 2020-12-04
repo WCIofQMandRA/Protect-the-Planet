@@ -1,4 +1,4 @@
-//save_load.h: 配置和存档的读取和写入
+//save_load.hpp: 配置和存档的读取和写入
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -25,7 +25,7 @@
 
 namespace save_load
 {
-bool load(const std::u32string &name,uint16_t difficulty,uint16_t &level,uint64_t &counter,player_t&,planet_t&);
-bool save(const std::u32string &name,uint16_t difficulty,uint16_t level,uint64_t counter,const player_t&,const planet_t&);
+bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,player_t&,planet_t&);
+bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,const player_t&,const planet_t&);
 }
 #endif //SAVE_LOAD_H

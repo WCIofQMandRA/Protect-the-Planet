@@ -1,4 +1,4 @@
-//paint.h: 渲染模块的函数和类的声明
+//paint.hpp: 渲染模块的函数和类的声明
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)

@@ -1,4 +1,4 @@
-//mainwindow.hpp: 类mainwindow的声明和控制模块
+//save_load.cpp: 配置和存档的读取和写入
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,36 +18,17 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "save_load.hpp"
 
-#include "include.hpp"
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class mainwindow; }
-QT_END_NAMESPACE
-
-class mainwindow : public QWidget
+namespace save_load
 {
-	Q_OBJECT
+bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,player_t&,planet_t&)
+{
 
-public:
-	mainwindow(QWidget *parent = nullptr);
-	~mainwindow();
+}
 
-private:
-	Ui::mainwindow *ui;
-	uint16_t state;
-	bool is_choosing;
-	bool should_close;
+bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,const player_t&,const planet_t&)
+{
 
-protected:
-	void paintEvent(QPaintEvent *event) override;
-	void mouseMoveEvent(QMouseEvent *event) override;
-	void mousePressEvent(QMouseEvent *event) override;
-	void mouseReleaseEvent(QMouseEvent *event) override;
-	void keyPressEvent(QKeyEvent *event) override;
-	void keyReleaseEvent(QKeyEvent *event) override;
-};
-#endif // MAINWINDOW_H
+}
+}

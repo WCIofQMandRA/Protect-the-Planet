@@ -33,20 +33,12 @@
 //从kernel.hpp复制，但去掉了extern
 namespace kernel
 {
-//uint64_t是绝对编号，从游戏开始运行时记
-std::unordered_map<uint64_t,meteorite_t> meteorite_list;
-std::unordered_map<uint64_t,box_t> box_list;
-planet_t planet;
-player_t player;
-uint64_t level;//玩家通过的关卡数
-uint64_t counter;//绝对编号
-uint16_t difficulty;//游戏难度
 namespace attribute
 {
 //玩家的初始属性
-floatmp_t PLAYER_BASE_SPEED;
-uint64_t PLAYER_INIT_HUNGER;
-uint64_t PLAYER_INIT_PILLS;
+floatmp_t PLAYER_BASE_SPEED[4];
+uint64_t PLAYER_INIT_HUNGER[4];
+uint64_t PLAYER_INIT_PILLS[4];
 }//namespace attribute
 
 //与菜单模块通信
@@ -92,15 +84,37 @@ player_t player;
 std::thread process_thread;
 
 //ako: all kinds of，所有可能出现的陨石的列表
-static std::vector<meteorite0_t> ako_meteorite;
-static std::vector<box0_t> ako_box;
-static std::vector<weapon0_t> ako_weapon;
-static std::vector<effect_t> ako_effect;
-static std::vector<food_t> ako_food;
+std::vector<meteorite0_t> ako_meteorite;
+std::vector<box0_t> ako_box;
+std::vector<weapon0_t> ako_weapon;
+std::vector<effect_t> ako_effect;
+std::vector<food_t> ako_food;
+
+//uint64_t是绝对编号，从游戏开始运行时记
+std::unordered_map<uint64_t,meteorite_t> meteorite_list;
+std::unordered_map<uint64_t,box_t> box_list;
+planet_t planet;
+player_t player;
+uint64_t counter;//绝对编号
+uint64_t level;//玩家通过的关卡数
+uint16_t difficulty;//游戏难度
+//游戏时钟
+uint64_t game_clock;
 
 //meteorites[k]是第k关(编号从0开始)计划生成的所有陨石，get<0>是可能生成的最早时刻，get<1>是可能生成的最晚时刻，get<2>是计划生成的陨石
-static std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> meteorites;
-static std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> boxes;
+std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> meteorites;
+std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> boxes;
+
+//根据难度换算关卡
+//为了方便，游戏只预制了一套关卡，但难度较高时，玩家每通过一关，预制关卡号会增加大于1
+//比如，对于简单难度，第一关为内部的关卡0，第二关为内部的关卡1
+//对于困难难度，第一关为内部的关卡0，第二关为内部的关卡3
+//当然，游戏的难度调节也体现在其他方面，比如玩家的基础移动速度会随难度的增加而减少
+std::vector<uint16_t> trans_level[4];
+
+//当前关卡计划生成的陨石和补给箱（在start_game函数中确定）
+std::map<uint64_t,std::vector<uint16_t>> meteorites_thisround;
+std::map<uint64_t,std::vector<uint16_t>> boxes_thisround;
 
 void process_thread_main()
 {
@@ -112,6 +126,7 @@ void process_thread_main()
 		std::this_thread::sleep_until(process_time);
 		process_oneround();
 		process_time+=50ms;
+        ++game_clock;
 	}
 	std::cout<<"stop thread"<<std::endl;
 }
@@ -195,15 +210,54 @@ void init()
 									health=static_cast<intmp_t>(exp(static_cast<floatmp_t>(health)-log(static_cast<floatmp_t>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
 								}});
 	}
+	//生成武器列表
+	{
+		ako_weapon.push_back({5,18,0,false,1,[](intmp_t &x,const floatmp_t &power_rate_pill,const floatmp_t &power_rate_meteorite/*or power_rate_box*/)
+							  {
+								  x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);
+							  },U"手枪",2e6});
+	}
+	//生成食物列表
+	{
+		ako_food.push_back({5,1,0,U"糖果"});
+	}
+	//生成效果列表
+	{
+		ako_effect.push_back({600,10,EFFECT_RECIVER_CURRENT_WEAPON,0,false,U"快速射击I",
+							  received_effect_weapon_t{false,false,false,true,false,1.5,1,1},[](void*){}});
+	}
+	//生成补给箱列表
+	{
+		ako_box.push_back({std::make_pair(200,210),std::make_pair(10,13),{std::make_pair(CONTAIN_TYPE_FOOD,0),std::make_pair(CONTAIN_TYPE_EFFECT,0)},0,1000,1.3e6});
+	}
 }
 
 void start_game(const std::u32string &name,uint16_t difficulty)
 {
 	std::cout<<"kernel:开始游戏"<<std::endl;
-	player.name=name;
-	kernel::difficulty=difficulty;
+    kernel::difficulty=difficulty;
+    game_clock=0;
 	comu_menu::should_pause=false;
-	//TODO：加载存档
+    //新建关卡
+    if(!save_load::load(name,difficulty,level,counter,player,planet))
+    {
+        level=0;
+        counter=0;
+        player.pills=attribute::PLAYER_INIT_PILLS[difficulty];
+        player.hunger=attribute::PLAYER_INIT_HUNGER[difficulty];
+        player.speed=attribute::PLAYER_BASE_SPEED[difficulty];
+        player.chosen_effect=0;
+        player.chosen_weapon=0;
+        player.weapon.fill(65535);
+        player.weapon[0]=0;
+        player.effect.clear();
+        player.received_effect.clear();
+        player.combined_effect=received_effect_player_t();
+        player.position=0;
+        player.weapon_direct=boost::math::constants::pi<floatmp_t>()/2;
+        player.score=0;
+        player.name=name;
+    }
 	if(process_thread.joinable())
 		process_thread.join();
 	process_thread=std::thread(process_thread_main);

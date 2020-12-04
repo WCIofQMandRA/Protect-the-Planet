@@ -1,4 +1,4 @@
-//include.h 常在项目的个文件中使用的外部依赖项和基本的类型重定义
+//include.hpp 常在项目的个文件中使用的外部依赖项和基本的类型重定义
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)

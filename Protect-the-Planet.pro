@@ -45,7 +45,8 @@ SOURCES += \
     paint.cpp \
     main.cpp \
     mainwindow.cpp \
-	kernel.cpp
+	kernel.cpp \
+    save_load.cpp
 
 LIBS += -Wl,-Bstatic -lmpfr -lgmp -static-libstdc++ -Wl,-Bdynamic
 

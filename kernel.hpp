@@ -1,4 +1,4 @@
-//kernel.h: 游戏内核的相关函数和类的声明
+//kernel.hpp: 游戏内核的相关函数和类的声明
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
