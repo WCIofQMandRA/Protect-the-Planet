@@ -24,11 +24,11 @@ namespace save_load
 {
 bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,player_t&,planet_t&)
 {
-
+	return false;
 }
 
 bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,const player_t&,const planet_t&)
 {
-
+	return false;
 }
 }

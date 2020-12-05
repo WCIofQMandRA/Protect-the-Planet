@@ -39,15 +39,38 @@ const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempL
 //使用[tmp]表示临时路径
 //示例：[program]/levels/是储存关卡信息的目录
 //[]必须出现在路径开头
+#ifdef _WIN32
 std::string trpath(const std::string &path)
 {
 	assert(path[0]=='[');
-#ifdef _WIN32
-	std::string path2=path;
-	for(auto &i:path2)
-		if(i=='\\')i='/';
-#define path path2
-#endif
+	size_t i;
+	std::string ans;
+	for(i=0;i<path.size();++i)
+	{
+		if(path[i]==']')break;
+	}
+	auto prefix=path.substr(0,i+1);
+	if(prefix=="[program]")
+	{
+		ans=program_dir+path.substr(i+1);
+	}
+	else if(prefix=="[storage]")
+	{
+		ans=storage_dir+path.substr(i+1);
+	}
+	else
+	{
+		assert(prefix=="[tmp]"&&"未知的相对路径");
+		ans=storage_dir+path.substr(i+1);
+	}
+	for(auto &j:ans)
+		if(j=='/')j='\\';
+	return ans;
+}
+#else
+std::string trpath(const std::string &path)
+{
+	assert(path[0]=='[');
 	size_t i;
 	for(i=0;i<path.size();++i)
 	{
@@ -67,7 +90,5 @@ std::string trpath(const std::string &path)
 		assert(prefix=="[tmp]"&&"未知的相对路径");
 		return storage_dir+path.substr(i+1);
 	}
-#ifdef _WIN32
-#undef path
-#endif
 }
+#endif
