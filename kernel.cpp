@@ -23,6 +23,8 @@
 #include "save_load.hpp"
 #include "file.hpp"
 #include <fstream>
+#include <random>
+#include <ctime>
 #include <boost/math/constants/constants.hpp>
 
 
@@ -83,6 +85,9 @@ player_t player;
 
 std::thread process_thread;
 
+//随机数生成引擎
+std::mt19937_64 random_num;
+
 //ako: all kinds of，所有可能出现的陨石的列表
 std::vector<meteorite0_t> ako_meteorite;
 std::vector<box0_t> ako_box;
@@ -116,6 +121,16 @@ std::vector<uint16_t> trans_level[4];
 std::map<uint64_t,std::vector<uint16_t>> meteorites_thisround;
 std::map<uint64_t,std::vector<uint16_t>> boxes_thisround;
 
+inline uint64_t urand_between(uint64_t s,uint64_t t)
+{
+	return random_num()%(t-s+1)+s;
+}
+
+inline uint64_t irand_between(int64_t s,int64_t t)
+{
+	return static_cast<int64_t>(random_num()%static_cast<uint64_t>(t-s+1))+s;
+}
+
 void process_thread_main()
 {
 	using namespace std::chrono_literals;
@@ -143,7 +158,6 @@ void init()
 		}
 		uint64_t n;//预制的关卡数，每个关卡先存陨石，再存补给箱
 		configin.read(reinterpret_cast<char*>(&n),8);
-		//TODO: 完成levels文件
 		meteorites.resize(n);
 		boxes.resize(n);
 		for(uint64_t i=0;i<n;++i)
@@ -169,6 +183,12 @@ void init()
 				configin.read(reinterpret_cast<char*>(&c),2);
 				boxes[i][j]=std::make_tuple(a,b,c);
 			}
+		}
+		for(size_t i=0;i<3;++i)
+		{
+			configin.read(reinterpret_cast<char*>(&n),8);
+			trans_level[i].resize(n);
+			configin.read(reinterpret_cast<char*>(trans_level[i].data()),2*n);
 		}
 		configin.close();
 	}
@@ -230,6 +250,9 @@ void init()
 	{
 		ako_box.push_back({std::make_pair(200,210),std::make_pair(10,13),{std::make_pair(CONTAIN_TYPE_FOOD,0),std::make_pair(CONTAIN_TYPE_EFFECT,0)},0,1000,1.3e6});
 	}
+
+	//初始化随机数引擎
+	random_num.seed(time(nullptr));
 }
 
 void start_game(const std::u32string &name,uint16_t difficulty)
@@ -258,6 +281,15 @@ void start_game(const std::u32string &name,uint16_t difficulty)
         player.score=0;
         player.name=name;
     }
+	//生成这一关的陨石和补给箱的出现时刻
+	for(const auto &i:meteorites[trans_level[difficulty][level]])
+	{
+		meteorites_thisround[urand_between(std::get<0>(i),std::get<1>(i))].push_back(std::get<2>(i));
+	}
+	for(const auto &i:boxes[trans_level[difficulty][level]])
+	{
+		boxes_thisround[urand_between(std::get<0>(i),std::get<1>(i))].push_back(std::get<2>(i));
+	}
 	if(process_thread.joinable())
 		process_thread.join();
 	process_thread=std::thread(process_thread_main);
@@ -282,10 +314,23 @@ void clear()
 
 }
 
-//生成陨石或补给箱
+//根据meteorites_thisround和boxes_thisround的信息生成陨石或补给箱
 void gernerate_mete_or_box()
 {
-
+	if(auto it=meteorites_thisround.find(game_clock);it!=meteorites_thisround.end())
+	{
+		for(const auto &i:it->second)
+		{
+			;
+		}
+	}
+	if(auto it=boxes_thisround.find(game_clock);it!=boxes_thisround.end())
+	{
+		for(const auto &i:it->second)
+		{
+			;
+		}
+	}
 }
 
 void process_oneround()
