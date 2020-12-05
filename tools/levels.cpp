@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdint>
+#include <vector>
 using namespace std;
 
 int main(int argc,char **argv)
@@ -34,6 +35,18 @@ int main(int argc,char **argv)
 		m=1;
 		fout.write(reinterpret_cast<char*>(&m),8);
 		set(300,310,0);
+	}
+	vector<uint16_t> trans[3]=
+	{
+		{0},
+		{0},
+		{0}
+	};
+	for(size_t i=0;i<3;++i)
+	{
+		uint64_t tmp=static_cast<uint64_t>(trans[i].size());
+		fout.write(reinterpret_cast<char*>(&tmp),8);
+		fout.write(reinterpret_cast<char*>(trans[i].data()),2*trans[i].size());
 	}
 	fout.close();
 	return 0;
