@@ -48,9 +48,7 @@ SOURCES += \
 	kernel.cpp \
     save_load.cpp
 
-LIBS += -Wl,-Bstatic -lmpfr -lgmp -static-libstdc++ -Wl,-Bdynamic
-
-unix: LIBS+= -pthread
+LIBS += -Wl,-Bstatic -lmpfr -lgmp -Wl,-Bdynamic
 
 HEADERS += \
     dialog_pause.hpp \

@@ -21,6 +21,9 @@
 
 #ifndef INCLUDE_H
 #define INCLUDE_H
+#ifndef QT_QML_DEBUG
+#define NDEBUG
+#endif
 #include <iostream>
 #include <vector>
 #include <array>

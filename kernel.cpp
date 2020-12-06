@@ -321,14 +321,14 @@ void gernerate_mete_or_box()
 	{
 		for(const auto &i:it->second)
 		{
-			;
+            ;
 		}
 	}
 	if(auto it=boxes_thisround.find(game_clock);it!=boxes_thisround.end())
 	{
 		for(const auto &i:it->second)
 		{
-			;
+            ;
 		}
 	}
 }
