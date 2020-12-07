@@ -30,6 +30,11 @@ dialog_start::dialog_start(QWidget *parent) :
 	ui(new Ui::dialog_start)
 {
 	ui->setupUi(this);
+#ifdef _WIN32
+	QFont font;
+	font.setFamily("Microsoft Yahei");
+	setFont(font);
+#endif
 	wel_img.load(":/pictures/resources/game_name.png");
 }
 
@@ -51,6 +56,7 @@ void dialog_start::on_button_start_clicked()
 	//difficulty=static_cast<uint16_t>(ui->diffculty->checkedId());
 	done(1);
 }
+
 void dialog_start::on_button_exit_clicked()
 {
 	done(0);

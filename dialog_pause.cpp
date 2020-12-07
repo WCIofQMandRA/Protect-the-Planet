@@ -27,6 +27,11 @@ dialog_pause::dialog_pause(QWidget *parent) :
 	ui(new Ui::dialog_pause)
 {
 	ui->setupUi(this);
+#ifdef _WIN32
+	QFont font;
+	font.setFamily("Microsoft Yahei");
+	setFont(font);
+#endif
 }
 
 dialog_pause::~dialog_pause()

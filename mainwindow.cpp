@@ -34,6 +34,11 @@ mainwindow::mainwindow(QWidget *parent)
 	, state(STATE_STOP)
 {
 	ui->setupUi(this);
+#ifdef _WIN32
+	QFont font;
+	font.setFamily("Microsoft Yahei");
+	setFont(font);
+#endif
 	auto [name,difficulty]=menu::show_welcome();
 	if(difficulty!=65535)
 	{
