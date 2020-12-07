@@ -27,7 +27,7 @@ namespace menu
 std::tuple<std::u32string,uint16_t> show_welcome()
 {
 	auto dia=new dialog_start;
-	std::tuple<std::u32string,uint16_t> result;
+    std::tuple<std::u32string,uint16_t> result;
 	dia->show();
 	if(dia->exec())
 		result=std::make_tuple(dia->name,dia->difficulty);

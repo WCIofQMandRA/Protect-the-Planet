@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/pictures" lang="zh_CN">
+        <file>resources/exit_button.png</file>
+        <file>resources/game_name.png</file>
+        <file>resources/start_button.png</file>
+    </qresource>
+</RCC>

@@ -29,17 +29,23 @@
      <bold>true</bold>
     </font>
    </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border-image: url(:/pictures/resources/start_button.png);</string>
+   </property>
    <property name="text">
-    <string>开始游戏！</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPlainTextEdit" name="editor_player_name">
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>80</y>
+     <y>180</y>
      <width>331</width>
-     <height>121</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="font">
@@ -51,21 +57,24 @@
   <widget class="QPushButton" name="button_exit">
    <property name="geometry">
     <rect>
-     <x>230</x>
+     <x>210</x>
      <y>320</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">border-image: url(:/pictures/resources/exit_button.png);</string>
+   </property>
    <property name="text">
-    <string>退出</string>
+    <string/>
    </property>
   </widget>
   <widget class="QGroupBox" name="diffculty">
    <property name="geometry">
     <rect>
      <x>390</x>
-     <y>70</y>
+     <y>230</y>
      <width>141</width>
      <height>131</height>
     </rect>
@@ -93,6 +102,32 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="label1">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>20</y>
+     <width>321</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>410</x>
+     <y>190</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>选择用户</string>
+   </property>
   </widget>
  </widget>
  <resources/>

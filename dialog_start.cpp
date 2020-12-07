@@ -21,17 +21,27 @@
 
 #include "dialog_start.hpp"
 #include "ui_dialog_start.h"
+#include <QPixmap>
+#include <QImage>
+#include "file.hpp"
 
 dialog_start::dialog_start(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_start)
 {
 	ui->setupUi(this);
+	wel_img.load(":/pictures/resources/game_name.png");
 }
 
 dialog_start::~dialog_start()
 {
 	delete ui;
+}
+
+void dialog_start::paintEvent(QPaintEvent *event)
+{
+	QDialog::paintEvent(event);
+	ui->label1->setPixmap(wel_img.scaled(ui->label1->size(),Qt::KeepAspectRatio));
 }
 
 void dialog_start::on_button_start_clicked()
@@ -41,7 +51,6 @@ void dialog_start::on_button_start_clicked()
 	//difficulty=static_cast<uint16_t>(ui->diffculty->checkedId());
 	done(1);
 }
-
 void dialog_start::on_button_exit_clicked()
 {
 	done(0);

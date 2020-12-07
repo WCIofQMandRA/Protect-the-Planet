@@ -26,7 +26,6 @@ namespace menu
 {
 //绘制开始界面，若选择退出游戏则返回{"",65535}
 std::tuple<std::u32string,uint16_t> show_welcome();
-
 //绘制暂停界面
 //终止游戏：true
 //继续游戏：false

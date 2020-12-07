@@ -42,6 +42,11 @@ private slots:
 
 	void on_button_exit_clicked();
 
+protected:
+	void paintEvent(QPaintEvent *event) override;
+
+private:
+	QPixmap wel_img;
 private:
 	Ui::dialog_start *ui;
 };

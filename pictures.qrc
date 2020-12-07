@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/首页图片">
+        <file>安康码.jpg</file>
+    </qresource>
+</RCC>
