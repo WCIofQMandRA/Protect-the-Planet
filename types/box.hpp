@@ -1,4 +1,4 @@
-//kernel/box.h: 只能被type.h包含
+//types/box.hpp: 只能被type.hpp包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -19,11 +19,12 @@
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
 
+#include "./orbit.hpp"
 //补给箱
 struct box_t
 {
-	std::pair<floatmp_t,floatmp_t> vec_v;//速度
-	std::pair<floatmp_t,floatmp_t> vec_r;//位矢
+	orbit_t orbit;//轨道
+	floatmp_t theta;//当前极角
 	intmp_t strength;//补给箱的强度
 	intmp_t strength_left;//补给箱的剩余强度
 	floatmp_t size;//大小，决定碰撞箱和渲染

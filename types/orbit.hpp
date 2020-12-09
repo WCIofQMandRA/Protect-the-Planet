@@ -1,4 +1,4 @@
-//include.hpp 常在项目的个文件中使用的外部依赖项和基本的类型重定义
+//types/orbit.hpp: 只能被meteorite.hpp或box.hpp包含
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -19,33 +19,21 @@
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
 
-#ifndef INCLUDE_H
-#define INCLUDE_H
-#ifndef QT_QML_DEBUG
-#define NDEBUG
-#endif
-#include <iostream>
-#include <vector>
-#include <array>
-#include <utility>
-#include <map>
-#include <set>
-#include <unordered_set>
-#include <unordered_map>
-#include <tuple>
-#include <variant>
-#include <cstdint>
-#include <functional>
-#include <string>
-#include <cassert>
-#include <boost/multiprecision/gmp.hpp>
-#include <boost/multiprecision/mpfr.hpp>
-#include <boost/multiprecision/float128.hpp>
-
-using namespace boost::multiprecision;
-typedef mpz_int intmp_t;
-typedef number<mpfr_float_backend<50,allocate_stack>,et_on> floatmp_t;
-typedef float float32_t;
-typedef double float64_t;
-typedef float128 float128_t;
-#endif
+//参见doc/轨道生成/orbit.pdf
+//r=\frac{r_0}{1+\epsilon\cos(\theat-\theta_0)}
+//行星近日点为(\frac{r_0}{1+\epsilon},\theta_0)
+//epsilon 为轨道离心率
+//theat_0 为行星近日点的极角
+//v_max 为行星的最大运行速率
+//h 为行星的掠面速度的2倍
+//相关公式：
+//r_m=\frac{r_0}{1+\epsilon}
+//v_m=\sqrt{\frac{GM}{r_m}}=\sqrt{\frac{(1+\epsilon)GM}{r_0}}
+//h=v_m r_m
+//t=r_0^2\sqrt{\frac{1+\epsilon}{GMr_0}}\int_0^{\theat-\theta_0}\frac{\mathrm{d}x}{(1+\epsilon\cos x)^2}
+//（设t=0时，行星位于近日点）
+struct orbit_t
+{
+	floatmp_t r0,epsilon,theta0;//轨道基本信息
+	bool direction;//是否反向运动（即\theta随t的增加而减少）
+};
