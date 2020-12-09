@@ -100,10 +100,12 @@ $\therefore v_m=\sqrt{\dfrac{GM}{r_m}}=\sqrt{\dfrac{(1+\varepsilon)GM}{r_0}}$
 若以行星位于近日点时为计时起点，则行星运动到$(r,\theta)$处的时间$$t=\sqrt{\dfrac{1+\varepsilon}{GMr_0}}\int_{\theta_0}^{\theta}r^2\upd \theta=r_0^2\sqrt{\dfrac{1+\varepsilon}{GMr_0}}\int_0^{\theta-\theta_0}\dfrac{\upd x}{(1+\varepsilon\cos x)^2}$$
 
 经计算：$$\int_0^{\theta}\dfrac{\upd x}{(1+\varepsilon\cos x)^2}=\left\lbrace\begin{array}{l}
--\dfrac{\varepsilon\sin\theta}{(1-\varepsilon^2)(\varepsilon\cos\theta+1)}+\dfrac{2\arctan\left(\sqrt{\frac{1-\varepsilon}{1+\varepsilon}\tan\frac\theta2}\right)}{(1-\varepsilon^2)^{\frac32}},\ 0<\varepsilon<1\\
+-\dfrac{\varepsilon\sin\theta}{(1-\varepsilon^2)(\varepsilon\cos\theta+1)}+\dfrac{2\arctan\left(\sqrt{\frac{1-\varepsilon}{1+\varepsilon}\tan\frac\theta2}\right)}{(1-\varepsilon^2)^{\frac32}}+\left\lfloor\dfrac{x+\uppi}{2\uppi}\right\rfloor\dfrac{2\uppi}{(1-\varepsilon^2)^{\frac32}},\ 0<\varepsilon<1\\
 \dfrac12\tan\dfrac\theta2+\dfrac16\tan^3\dfrac\theta2,\ \varepsilon=1\\
 \dfrac{\varepsilon\sin\theta}{(\varepsilon^2-1)(\varepsilon\cos\theta+1)}-\dfrac{2\arctanh\left(\sqrt{\frac{\varepsilon-1}{\varepsilon+1}\tan\frac\theta2}\right)}{(\varepsilon^2-1)^{\frac32}},\ \varepsilon>1\\
 \end{array}\right.$$
+
+这里，我们省略了对可去间断点的函数值的补充定义．
 
 于是已知$\theta$、$r$、$t$中的任意一个，可求另外两者．
 \end{document}
