@@ -39,13 +39,8 @@
 #include <string>
 #include <cassert>
 #include <boost/multiprecision/gmp.hpp>
-#include <boost/multiprecision/mpfr.hpp>
-#include <boost/multiprecision/float128.hpp>
 
 using namespace boost::multiprecision;
 typedef mpz_int intmp_t;
-typedef number<mpfr_float_backend<50,allocate_stack>,et_on> floatmp_t;
-typedef float float32_t;
-typedef double float64_t;
-typedef float128 float128_t;
+const double EPS64=1e-10;
 #endif

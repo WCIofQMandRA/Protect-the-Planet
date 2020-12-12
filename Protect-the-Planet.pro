@@ -42,6 +42,7 @@ SOURCES += \
     dialog_start.cpp \
     file.cpp \
     menu.cpp \
+    orbit.cpp \
     paint.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -55,6 +56,7 @@ HEADERS += \
     dialog_start.hpp \
     file.hpp \
     kernel.hpp \
+    orbit.hpp \
     paint.hpp \
     include.hpp \
     mainwindow.hpp \

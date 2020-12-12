@@ -25,7 +25,7 @@ struct received_effect_player_t
 	//终止饥饿值下降。合并方式：||
 	bool stop_hunger_decrease=false;
 	//速度倍率。合并方式：*
-	floatmp_t speed_rate=1;
+	double speed_rate=1;
 };
 
 //武器收到的（并且正生效的）效果
@@ -41,12 +41,12 @@ struct received_effect_weapon_t
 	bool hurt_box=true;
 	//子弹可穿透无限个陨石。合并方式：||
 	bool infinate_hurt_count=false;
-	//射击速度倍率，由于射击速度是uint64_t，shoot_speed_rate用float64_t即可。合并方式：*
-	float64_t shoot_speed_rate=1;
+	//射击速度倍率。合并方式：*
+	double shoot_speed_rate=1;
 	//子弹速度的倍率。合并方式：*
-	floatmp_t pill_speed_rate=1;
+	double pill_speed_rate=1;
 	//子弹威力倍率，交给weapon_t::use函数处理。合并方式：*
-	floatmp_t power_rate=1;
+	double power_rate=1;
 };
 
 //行星收到的（并且正生效的）效果
@@ -57,12 +57,12 @@ struct received_effect_planet_t
 	//行星被陨石击中时，完整度反而会上升。合并方式：||
 	bool negtive_hurt=false;
 	//受到的伤害的倍率，交给meteorite_t::hurt函数处理。合并方式：*
-	floatmp_t hurt_rate=1;
+	double hurt_rate=1;
 	//每游戏刻，完整度+health_add。合并方式：+
 	intmp_t health_add=0;//通常health_add>=0
 	//每游戏刻，完整度*health_mul。合并方式：*
 	//规定：先乘后加
-	floatmp_t health_mul=1;//通常health_mul>=1，要求health_mul>0
+	double health_mul=1;//通常health_mul>=1，要求health_mul>0
 };
 
 //陨石收到的（并且正生效的）效果
@@ -71,14 +71,14 @@ struct received_effect_meteorite_t
 	//被击中后立即毁灭。合并方式：||
         bool kill_after_shooted=false;
 	//造成的伤害的倍率，交给meteorite_t::hurt函数处理。合并方式：*
-	floatmp_t hurt_rate=1;
+	double hurt_rate=1;
 	//受到子弹的破坏的倍率，交给weapon_t::use函数处理。合并方式：*
-	floatmp_t power_rate=1;
+	double power_rate=1;
 	//每游戏刻，强度+strength_add。合并方式：+
 	intmp_t strength_add=0;//通常strength_add<=0
 	//每游戏刻，强度*strength_mul。合并方式：*
 	//规定：先加后乘
-	floatmp_t strength_mul=1;//通常0<strength_mul<=1，要求strength_mul>0
+	double strength_mul=1;//通常0<strength_mul<=1，要求strength_mul>0
 };
 
 //未落下的补给箱收到的（并且正生效的）效果
@@ -87,7 +87,7 @@ struct received_effect_box_t
 	//可被武器攻击。合并方式：&&
 	bool hurt_by_weapon=true;
 	//受到子弹的破坏的倍率，交给weapon_t::use函数处理。合并方式：*
-	floatmp_t power_rate=1;
+	double power_rate=1;
 };
 
 //未触发的效果，对一种效果的抽象描述，涉及效果的持续时间、等级和接受对象

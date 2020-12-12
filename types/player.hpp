@@ -35,9 +35,9 @@ struct player_t
 	//玩家收到的效果，即正在玩家身上生效的效果
 	std::map<uint16_t,received_effect_player_t> received_effect;
 	received_effect_player_t combined_effect;
-	floatmp_t position;//玩家的位置，以弧度为单位
-	floatmp_t speed;//玩家的速率，单位rad/tk，受效果的影响
-	floatmp_t weapon_direct;//武器枪口的指向，单位rad。
+	double position;//玩家的位置，以弧度为单位
+	double speed;//玩家的速率，单位rad/tk，受效果的影响
+	double weapon_direct;//武器枪口的指向，单位rad。
 	intmp_t score;//玩家得分
 	std::u32string name;
 };

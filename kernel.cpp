@@ -25,22 +25,25 @@
 #include <fstream>
 #include <random>
 #include <ctime>
-#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
 
-//floatmp_t PLAYER_BASE_SPEED=0.04;
+//double PLAYER_BASE_SPEED=0.04;
 //uint64_t PLAYER_INIT_HUNGER=3000;
 //uint64_t PLAYER_INIT_PILLS=10;
 
-//从kernel.hpp复制，但去掉了extern
 namespace kernel
 {
 namespace attribute
 {
 //玩家的初始属性
-floatmp_t PLAYER_BASE_SPEED[4];
+double PLAYER_BASE_SPEED[4];
 uint64_t PLAYER_INIT_HUNGER[4];
 uint64_t PLAYER_INIT_PILLS[4];
+//行星的初始属性
+intmp_t PLANET_INIT_HEALTH[4];
+std::pair<double,double> PLANET_SIZE;
+std::pair<double,double> PLANET_GM;
 }//namespace attribute
 
 //与菜单模块通信
@@ -59,8 +62,7 @@ volatile std::atomic<int16_t> move;//玩家移动，取1/-1/0
 //12：丢弃当前武器
 //0~9：选择武器
 volatile std::atomic<int16_t> weapon;
-volatile std::atomic_flag weapon_direct_lock;
-volatile floatmp_t weapon_direct;
+volatile std::atomic<double> weapon_direct;
 //触发的效果
 //10,0：不触发
 //11,0：触发当前效果
@@ -84,6 +86,8 @@ player_t player;
 }
 
 std::thread process_thread;
+
+/////////////////////////////////////////////////////////////////////
 
 //随机数生成引擎
 std::mt19937_64 random_num;
@@ -195,44 +199,44 @@ void init()
 	//生成陨石种类列表
 	{
 		ako_meteorite.push_back({std::make_pair(160,200),0,5,1e7,
-								[](intmp_t &health,const floatmp_t &,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								[](intmp_t &health,const double &,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									 health-=static_cast<intmp_t>(100*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
 		ako_meteorite.push_back({std::make_pair(160,200),1,10,1e7,
-								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
 		ako_meteorite.push_back({std::make_pair(80,100),2,8,8e6,
-								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(80*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
 		ako_meteorite.push_back({std::make_pair(80,100),3,3,1e7,
-								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
 		ako_meteorite.push_back({std::make_pair(550,600),4,30,1e7,
-								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(1000*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
 		ako_meteorite.push_back({std::make_pair(60,65),5,3,1e7,
-								[](intmp_t &health,const floatmp_t &,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								[](intmp_t &health,const double &,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(30*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
 		ako_meteorite.push_back({std::make_pair(800,850),6,1000,5e6,
-								[](intmp_t &health,const floatmp_t &complete_rate,bool is_neg,const floatmp_t &hurt_rate_planet,const floatmp_t &hurt_rate_meteorite)
+								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
-									health=static_cast<intmp_t>(exp(static_cast<floatmp_t>(health)-log(static_cast<floatmp_t>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
+									health=static_cast<intmp_t>(exp(static_cast<double>(health)-log(static_cast<double>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
 								}});
 	}
 	//生成武器列表
 	{
-		ako_weapon.push_back({5,18,0,false,1,[](intmp_t &x,const floatmp_t &power_rate_pill,const floatmp_t &power_rate_meteorite/*or power_rate_box*/)
+		ako_weapon.push_back({5,18,0,false,1,[](intmp_t &x,const double &power_rate_pill,const double &power_rate_meteorite/*or power_rate_box*/)
 							  {
 								  x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);
 							  },U"手枪",2e6});
@@ -277,7 +281,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
         player.received_effect.clear();
         player.combined_effect=received_effect_player_t();
         player.position=0;
-        player.weapon_direct=boost::math::constants::pi<floatmp_t>()/2;
+        player.weapon_direct=M_PI/2;
         player.score=0;
         player.name=name;
     }

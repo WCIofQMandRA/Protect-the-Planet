@@ -23,6 +23,7 @@
 #define TYPE_H
 #include "include.hpp"
 
+#include "orbit.hpp"
 #include "types/food.hpp"
 #include "types/effect.hpp"
 #include "types/weapon.hpp"

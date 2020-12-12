@@ -19,15 +19,14 @@
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
 
-#include "./orbit.hpp"
 //补给箱
 struct box_t
 {
 	orbit_t orbit;//轨道
-	floatmp_t theta;//当前极角
+	double theta;//当前极角
 	intmp_t strength;//补给箱的强度
 	intmp_t strength_left;//补给箱的剩余强度
-	floatmp_t size;//大小，决定碰撞箱和渲染
+	double size;//大小，决定碰撞箱和渲染
 	//get<0>表示补给箱的内容物的种类：
 	//get<1>储存内容物的具体信息（即一个物品在某类物品的编号）
 	//get<2>储存内容物的数量
@@ -45,5 +44,5 @@ struct box0_t
 	std::vector<std::pair<uint16_t,uint16_t>> probal_contain;//可能含有的内容物（first:种类，second:物品编号）
 	uint64_t type;
 	intmp_t strength;
-	floatmp_t size;
+	double size;
 };

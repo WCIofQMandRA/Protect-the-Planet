@@ -26,7 +26,7 @@ uint16_t uint64_t
 int16_t int64_t intmp_t
 
 浮点数
-float64_t float128_t floatmp_t
+double
 
 字符串
 u32string
@@ -39,14 +39,14 @@ u32string
 
 数据类型 单位：
 时间：uint64_t tk
-速度：floatmp_t m/tk
-位矢：floatmp_t m
-质量×G：floatmp_t m^3/tk^2
+速度：double m/tk
+位矢：double m
+质量×G：double m^3/tk^2
 计数器：uint64_t
 种类：uint16_t
 
 行星的大小为0.8~1.5×10^7m
-地图的大小为4×10^8m×4*10^8m，只渲染2×10^8m×2*10^8m的区域，渲染时的像素数由渲染模块确定
+地图的大小为2×10^8m×2*10^8m
 陨石/补给箱的大小为1~10×10^6m
 
 */
@@ -94,8 +94,7 @@ extern volatile std::atomic<int16_t> move;//玩家移动，取1/-1/0
 //-3：丢弃当前武器
 //0~9：选择武器
 extern volatile std::atomic<int16_t> weapon;
-extern volatile std::atomic_flag weapon_direct_lock;
-extern volatile floatmp_t weapon_direct;
+extern volatile std::atomic<double> weapon_direct;
 //触发的效果
 //两个uint16_t以小端序压位
 //-1,0：不触发
