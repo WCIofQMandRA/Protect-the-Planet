@@ -42,6 +42,16 @@ private slots:
 
 	void on_button_exit_clicked();
 
+	//void on_pushButton_clicked();
+
+	void on_button_user_clicked();
+
+	void on_button_diff1_clicked();
+
+	void on_button_diff2_clicked();
+
+	void on_button_diff3_clicked();
+
 protected:
 	void paintEvent(QPaintEvent *event) override;
 

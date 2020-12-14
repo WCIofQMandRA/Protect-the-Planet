@@ -24,7 +24,7 @@
 #include <QPixmap>
 #include <QImage>
 #include "file.hpp"
-
+#include "dialog_names.hpp"
 dialog_start::dialog_start(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_start)
@@ -49,10 +49,24 @@ void dialog_start::paintEvent(QPaintEvent *event)
 	ui->label1->setPixmap(wel_img.scaled(ui->label1->size(),Qt::KeepAspectRatio));
 }
 
+void dialog_start::on_button_diff1_clicked()
+{
+	difficulty=1;
+}
+
+void dialog_start::on_button_diff2_clicked()
+{
+	difficulty=2;
+}
+
+void dialog_start::on_button_diff3_clicked()
+{
+	difficulty=3;
+}
+
 void dialog_start::on_button_start_clicked()
 {
-	name=ui->editor_player_name->toPlainText().toStdU32String();
-	difficulty=1;//TODO!!!
+	name=ui->editor_player_name->toPlainText().toStdU32String();//TODO!!!
 	//difficulty=static_cast<uint16_t>(ui->diffculty->checkedId());
 	done(1);
 }
@@ -60,4 +74,12 @@ void dialog_start::on_button_start_clicked()
 void dialog_start::on_button_exit_clicked()
 {
 	done(0);
+}
+
+void dialog_start::on_button_user_clicked()
+{
+	dialog_names dia;
+	dia.show();
+	dia.exec();
+	name = dia.player_name;
 }

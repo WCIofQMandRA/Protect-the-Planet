@@ -38,6 +38,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    dialog_names.cpp \
     dialog_pause.cpp \
     dialog_start.cpp \
     file.cpp \
@@ -52,6 +53,7 @@ SOURCES += \
 LIBS += -Wl,-Bstatic -lmpfr -lgmp -Wl,-Bdynamic
 
 HEADERS += \
+    dialog_names.hpp \
     dialog_pause.hpp \
     dialog_start.hpp \
     file.hpp \
@@ -65,6 +67,7 @@ HEADERS += \
     type.hpp
 
 FORMS += \
+    dialog_names.ui \
     dialog_pause.ui \
     dialog_start.ui \
     mainwindow.ui
