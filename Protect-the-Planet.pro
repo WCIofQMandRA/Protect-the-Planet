@@ -47,7 +47,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
 	kernel.cpp \
-    save_load.cpp
+    save_load.cpp \
+    type.cpp
 
 LIBS += -Wl,-Bstatic -lmpfr -lgmp -Wl,-Bdynamic
 

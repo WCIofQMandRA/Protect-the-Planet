@@ -30,7 +30,9 @@ struct box_t
 	//get<0>表示补给箱的内容物的种类：
 	//get<1>储存内容物的具体信息（即一个物品在某类物品的编号）
 	//get<2>储存内容物的数量
-	std::vector<std::tuple<uint16_t,uint16_t,uint64_t>> contains;
+	//std::vector<std::tuple<uint16_t,uint16_t,uint64_t>> contains;
+	//改为get<0>和get<1>以小端序压位
+	std::vector<std::pair<uint32_t,uint64_t>> contains;
 	std::map<uint16_t,received_effect_box_t> received_effect;
 	received_effect_box_t combined_effect;
 	uint16_t type;
@@ -41,7 +43,7 @@ struct box0_t
 {
 	std::pair<uint64_t,uint64_t> fly_time;//从生成到落到行星表面的时间范围（first~second）
 	std::pair<uint64_t,uint64_t> total_value;//内容物的总价值的范围
-	std::vector<std::pair<uint16_t,uint16_t>> probal_contain;//可能含有的内容物（first:种类，second:物品编号）
+	std::vector<uint32_t> probal_contain;//可能含有的内容物（first:种类，second:物品编号）
 	uint64_t type;
 	intmp_t strength;
 	double size;

@@ -44,6 +44,8 @@ uint64_t PLAYER_INIT_PILLS[4];
 intmp_t PLANET_INIT_HEALTH[4];
 std::pair<double,double> PLANET_SIZE;
 std::pair<double,double> PLANET_GM;
+//地图属性
+double MAP_SIZE;
 }//namespace attribute
 
 //与菜单模块通信
@@ -90,7 +92,7 @@ std::thread process_thread;
 /////////////////////////////////////////////////////////////////////
 
 //随机数生成引擎
-std::mt19937_64 random_num;
+std::mt19937_64 rand64;
 
 //ako: all kinds of，所有可能出现的陨石的列表
 std::vector<meteorite0_t> ako_meteorite;
@@ -127,12 +129,36 @@ std::map<uint64_t,std::vector<uint16_t>> boxes_thisround;
 
 inline uint64_t urand_between(uint64_t s,uint64_t t)
 {
-	return random_num()%(t-s+1)+s;
+	return rand64()%(t-s+1)+s;
 }
 
 inline uint64_t irand_between(int64_t s,int64_t t)
 {
-	return static_cast<int64_t>(random_num()%static_cast<uint64_t>(t-s+1))+s;
+	return static_cast<int64_t>(rand64()%static_cast<uint64_t>(t-s+1))+s;
+}
+
+inline double frand_between(double s,double t)
+{
+	std::uniform_real_distribution<double> un(s,t);
+	return un(rand64);
+}
+
+template<typename tp>
+inline uint64_t urand_between(const tp &x)
+{
+	return urand_between(std::get<0>(x),std::get<1>(x));
+}
+
+template<typename tp>
+inline int64_t irand_between(const tp &x)
+{
+	return irand_between(std::get<0>(x),std::get<1>(x));
+}
+
+template<typename tp>
+inline double frand_between(const tp &x)
+{
+	return frand_between(std::get<0>(x),std::get<1>(x));
 }
 
 void process_thread_main()
@@ -252,11 +278,13 @@ void init()
 	}
 	//生成补给箱列表
 	{
-		ako_box.push_back({std::make_pair(200,210),std::make_pair(10,13),{std::make_pair(CONTAIN_TYPE_FOOD,0),std::make_pair(CONTAIN_TYPE_EFFECT,0)},0,1000,1.3e6});
+		ako_box.push_back({std::make_pair(200,210),std::make_pair(10,13),
+						   {compress16(CONTAIN_TYPE_FOOD,0),compress16(CONTAIN_TYPE_EFFECT,0)},
+						   0,1000,1.3e6});
 	}
 
 	//初始化随机数引擎
-	random_num.seed(time(nullptr));
+	rand64.seed(time(nullptr));
 }
 
 void start_game(const std::u32string &name,uint16_t difficulty)
@@ -284,15 +312,22 @@ void start_game(const std::u32string &name,uint16_t difficulty)
         player.weapon_direct=M_PI/2;
         player.score=0;
         player.name=name;
-    }
+		///////////
+		planet.size=frand_between(attribute::PLANET_SIZE);
+		planet.GM=frand_between(attribute::PLANET_GM);
+		planet.health=attribute::PLANET_INIT_HEALTH[difficulty];
+		planet.received_effect.clear();
+		planet.combined_effect=received_effect_planet_t();
+	}
+	orbit_t::set_GM(planet.GM);
 	//生成这一关的陨石和补给箱的出现时刻
 	for(const auto &i:meteorites[trans_level[difficulty][level]])
 	{
-		meteorites_thisround[urand_between(std::get<0>(i),std::get<1>(i))].push_back(std::get<2>(i));
+		meteorites_thisround[urand_between(i)].push_back(std::get<2>(i));
 	}
 	for(const auto &i:boxes[trans_level[difficulty][level]])
 	{
-		boxes_thisround[urand_between(std::get<0>(i),std::get<1>(i))].push_back(std::get<2>(i));
+		boxes_thisround[urand_between(i)].push_back(std::get<2>(i));
 	}
 	if(process_thread.joinable())
 		process_thread.join();
@@ -318,21 +353,156 @@ void clear()
 
 }
 
+std::tuple<orbit_t,double,double> generate_orbit(double t)
+{
+	auto generate_0=[t]()->std::tuple<orbit_t,double,double>
+	{
+		//FIXIT:
+		//暂时无法生成椭圆轨道，因为判断生成的椭圆轨道是否合法比较困难
+		std::lognormal_distribution<double> lnormal(-0.6,0.5);
+		double epsilon=lnormal(rand64)+1;
+		double theta0=frand_between(0,M_PI*2);
+		double r0;
+		if(epsilon<1)
+			r0=frand_between(planet.size*(1-epsilon),planet.size*(1+epsilon));
+		else
+			r0=frand_between(0,planet.size*(1+epsilon));
+		bool direction=rand64()%2;
+		orbit_t orbit;
+		orbit.set_orbit(r0,epsilon,theta0,direction);
+		//计算沿轨道反方向与行星表面的交点
+		double theta_cross=orbit.calc_theta_fromr(planet.size);
+		if(!direction)
+		{
+			theta_cross=2*theta0-theta_cross;
+		}
+		//从交点到“近日点”（位于行星内）的时间
+		double t1=orbit.calc_time(theta_cross);
+		//从陨石/补给箱出发到到达“近日点”的时间
+		double t2=t1-t;
+		double theta_start=orbit.calc_theta(t2);
+		return {orbit,theta_start,theta_cross};
+	};
+	auto result=generate_0();
+	double tmp;
+	while(tmp=std::get<0>(result).calc_r(std::get<1>(result)),tmp>attribute::MAP_SIZE*0.5||tmp<planet.size*4)
+	{
+		result=generate_0();
+	}
+	return result;
+}
+
+//TODO: 允许补给箱中一定包含某些物品
+std::vector<std::pair<uint32_t,uint64_t>> generate_contains(std::pair<uint64_t,uint64_t> value,const std::vector<uint32_t> &items)
+{
+	std::vector<uint64_t> value_list;//value_list[i]:items[i]的价值
+	value_list.resize(items.size());
+	for(size_t i=0;i<items.size();++i)
+	{
+		switch(items[i]&0xFFFFu)
+		{
+		case CONTAIN_TYPE_FOOD:
+			value_list[i]=ako_food[items[i]>>16].value;
+			break;
+		case CONTAIN_TYPE_PILL:
+			value_list[i]=1;
+			break;
+		case CONTAIN_TYPE_EFFECT:
+			value_list[i]=ako_effect[items[i]>>16].value;
+			break;
+		case CONTAIN_TYPE_WEAPON:
+			value_list[i]=ako_weapon[items[i]>>16].value;
+			break;
+		default:
+			assert(0);
+		}
+	}
+	////////////////////////////////////
+	static bool cnt[1024];//cnt[i]：是否存在一种取法，使总价值为i
+	static size_t valid_size[1024];
+	size_t valid_size_size=0;
+	static std::pair<size_t,uint32_t> from[1024];
+	uint64_t minvalue=value.first,maxvalue=value.second;
+	memset(cnt,0,maxvalue+1);
+	cnt[0]=true;
+	//使用多重背包确定可能取到的总价值
+	for(uint64_t i=0;i<=maxvalue;++i)
+	{
+		//以随机顺序遍历value_list数组
+		auto random_dfs=[&](auto &&self,uint64_t l,uint64_t r)->bool
+		{
+			if(!~r||l>r)return false;
+			uint64_t p=urand_between(l,r);
+			if(value_list[p]<=i&&cnt[i-value_list[p]])
+			{
+				cnt[i]=true;
+				from[i]={i-value_list[p],p};
+				return true;
+			}
+			return self(self,l,p-1)||self(self,p+1,r);
+		};
+		random_dfs(random_dfs,0,items.size()-1);
+	}
+	//在可能总价值中随机选择一个可以取到的价值
+	for(uint64_t i=minvalue;i<=maxvalue;++i)
+		if(cnt[i])
+			valid_size[valid_size_size++]=i;
+	size_t choosen=valid_size[urand_between(0,valid_size_size-1)];
+	////////////////////////////
+	//通过回溯法得到所有被选中的物品
+	std::vector<uint32_t> contain_list0;
+	for(size_t i=choosen;i;i=from[i].first)
+	{
+		contain_list0.push_back(from[i].second);
+	}
+	////////////////////////
+	//将重复的物品合并
+	std::sort(contain_list0.begin(),contain_list0.end());
+	std::vector<std::pair<uint32_t,uint64_t>> contain_list;
+	contain_list.push_back({items[contain_list0[0]],1});
+	for(size_t i=1;i<contain_list0.size();++i)
+	{
+		if(items[contain_list0[i]]==(--contain_list.end())->first)
+			++(--contain_list.end())->second;
+		else
+			contain_list.push_back({items[contain_list0[i]],1});
+	}
+	std::shuffle(contain_list.begin(),contain_list.end(),rand64);
+	return contain_list;
+}
+
 //根据meteorites_thisround和boxes_thisround的信息生成陨石或补给箱
-void gernerate_mete_or_box()
+void generate_mete_and_box()
 {
 	if(auto it=meteorites_thisround.find(game_clock);it!=meteorites_thisround.end())
 	{
 		for(const auto &i:it->second)
 		{
-            ;
+			meteorite_t tmp;
+			std::tie(tmp.orbit,tmp.theta,std::ignore)
+					=generate_orbit(urand_between(ako_meteorite[i].fly_time));
+			tmp.hurt=ako_meteorite[i].hurt;
+			tmp.size=ako_meteorite[i].size;
+			tmp.type=i;
+			assert(i==ako_meteorite[i].type);
+			tmp.strength=ako_meteorite[i].strength;
+			tmp.strength_left=ako_meteorite[i].strength;
+			meteorite_list[++counter]=std::move(tmp);
 		}
 	}
 	if(auto it=boxes_thisround.find(game_clock);it!=boxes_thisround.end())
 	{
 		for(const auto &i:it->second)
 		{
-            ;
+			box_t tmp;
+			std::tie(tmp.orbit,tmp.theta,std::ignore)
+					=generate_orbit(urand_between(ako_box[i].fly_time));
+			tmp.size=ako_box[i].size;
+			tmp.type=i;
+			assert(i==ako_box[i].type);
+			tmp.strength=ako_box[i].strength;
+			tmp.strength_left=ako_box[i].strength;
+			tmp.contains=generate_contains(ako_box[i].total_value,ako_box[i].probal_contain);
 		}
 	}
 }
@@ -340,5 +510,6 @@ void gernerate_mete_or_box()
 void process_oneround()
 {
 	std::cout<<"process"<<std::endl;
+	generate_mete_and_box();
 }
 }//namespace kernel
