@@ -36,6 +36,7 @@ dialog_start::dialog_start(QWidget *parent) :
 	setFont(font);
 #endif
 	wel_img.load(":/pictures/resources/game_name.png");
+	ui->button_diff1->setChecked(true);
 }
 
 dialog_start::~dialog_start()
@@ -51,17 +52,17 @@ void dialog_start::paintEvent(QPaintEvent *event)
 
 void dialog_start::on_button_diff1_clicked()
 {
-	difficulty=1;
+	difficulty=0;
 }
 
 void dialog_start::on_button_diff2_clicked()
 {
-	difficulty=2;
+	difficulty=1;
 }
 
 void dialog_start::on_button_diff3_clicked()
 {
-	difficulty=3;
+	difficulty=2;
 }
 
 void dialog_start::on_button_start_clicked()

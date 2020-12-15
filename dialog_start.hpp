@@ -34,7 +34,7 @@ class dialog_start : public QDialog
 public:
 	explicit dialog_start(QWidget *parent = nullptr);
 	std::u32string name;
-	uint16_t difficulty;
+	uint16_t difficulty=0;
 	~dialog_start();
 
 private slots:
