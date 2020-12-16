@@ -103,14 +103,13 @@ struct effect_t
 	uint64_t value;//效果的价值
 	uint16_t reciever;//效果的接受者
 	uint16_t type;//效果的类型编号
+	uint16_t detail;//效果的详尽描述
 	bool instant;//瞬间作用效果
 	std::u32string name;
 	//关于效果作用的方式：
 	//对于非瞬间作用的效果，为接受对象中的received_effect添加一项，并重新计算combined_effect
 	//对于瞬间作用的效果，调用use函数，使之处理作用对象
-	std::variant<received_effect_player_t,received_effect_meteorite_t,
-	received_effect_planet_t,received_effect_weapon_t,
-	received_effect_box_t> detail;//效果的详尽描述
+	
 	//void use(void *receiver) receiver可能指向player_t、box_t、weapon_t、meteorite_t、planet_t
 	std::function<void(void*)> use;
 };

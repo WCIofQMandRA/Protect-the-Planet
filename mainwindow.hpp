@@ -49,5 +49,8 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	void keyPressEvent(QKeyEvent *event) override;
 	void keyReleaseEvent(QKeyEvent *event) override;
+
+private slots:
+	void auto_repaint();
 };
 #endif // MAINWINDOW_H

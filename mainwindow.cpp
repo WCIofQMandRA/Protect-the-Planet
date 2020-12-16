@@ -26,7 +26,10 @@
 #include "menu.hpp"
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QTimer>
 
+//由于某种不明原因，std::tread和QTimer不能做mainwindow的成员，否则mainwindow将无法接收到任何事件
+QTimer *autoupdate_timer;
 
 mainwindow::mainwindow(QWidget *parent)
 	: QWidget(parent)
@@ -40,11 +43,14 @@ mainwindow::mainwindow(QWidget *parent)
 	setFont(font);
 #endif
 	auto [name,difficulty]=menu::show_welcome();
+	autoupdate_timer=new QTimer(this);
+	connect(autoupdate_timer,&QTimer::timeout,this,&mainwindow::auto_repaint);
 	if(difficulty!=65535)
 	{
 		state=STATE_PLAYING;
 		setMouseTracking(true);
 		kernel::start_game(name,difficulty);
+		autoupdate_timer->start(100);
 		should_close=false;
 	}
 	else
@@ -99,6 +105,8 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 		{
 			state=STATE_PAUSE;
 			setMouseTracking(false);
+			kernel::comu_menu::should_pause=true;
+			autoupdate_timer->stop();
 			update();
 			is_choosing=true;
 			if(menu::show_pause())
@@ -106,6 +114,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 				state=STATE_STOP;
 				is_choosing=false;
 				kernel::stop_game();
+				autoupdate_timer->stop();
 				update();
 				is_choosing=true;
 				auto [name,difficulty]=menu::show_welcome();
@@ -116,6 +125,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 					paint::draw_map(this,STATE_PLAYING);
 					setMouseTracking(true);
 					kernel::start_game(name,difficulty);
+					autoupdate_timer->start(100);
 				}
 				else
 				{
@@ -128,6 +138,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 				is_choosing=false;
 				setMouseTracking(true);
 				kernel::continue_game();
+				autoupdate_timer->start(100);
 			}
 		}
 
@@ -140,4 +151,12 @@ void mainwindow::keyReleaseEvent(QKeyEvent *event)
 	//QWidget::keyReleaseEvent(event);
 	std::cout<<"keyReleaseEvent"<<event->key()<<std::endl;
 	std::cout<<event->text().toStdString()<<std::endl;
+}
+
+void mainwindow::auto_repaint()
+{
+	if(state==STATE_PLAYING&&kernel::comu_paint::ready)
+	{
+		update();
+	}
 }

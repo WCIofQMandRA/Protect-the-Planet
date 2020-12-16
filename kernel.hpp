@@ -112,10 +112,11 @@ namespace comu_paint
 //ready==true时才进行绘图
 //每次绘图结束后，ready被设为false
 extern volatile std::atomic<bool> ready;
-extern std::vector<meteorite_t> meteorite_list;
-extern std::vector<box_t> box_list;
+extern std::vector<meteoritep_t> meteorite_list;
+extern std::vector<boxp_t> box_list;
 extern planet_t planet;
 extern player_t player;
+extern uint64_t game_clock;
 }
 //内核开始执行时会创建一个线程，该线程储存在process_thread中
 
@@ -131,6 +132,7 @@ void continue_game();
 void stop_game();
 void process_oneround();
 void process_thread_main();
+void prepare_data_for_painting();
 }//namespace kernel
 
 

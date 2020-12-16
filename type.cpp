@@ -20,6 +20,7 @@
 //	If not, see https://www.gnu.org/licenses/.
 
 #include "type.hpp"
+#include <cmath>
 
 received_effect_player_t& received_effect_player_t::operator+=(const received_effect_player_t &x)
 {
@@ -49,4 +50,35 @@ received_effect_planet_t& received_effect_planet_t::operator+=(const received_ef
 	health_add+=x.health_add;
 	health_mul*=x.health_mul;
 	return *this;
+}
+
+void meteorite_t::to_p(meteoritep_t &p)const
+{
+	double r=orbit.calc_r(theta);
+	p.x=r*cos(theta);
+	p.y=r*sin(theta);
+	p.size=size;
+	p.type=type;
+	p.complete_rate=static_cast<uint16_t>(3*(strength_left-1)/strength)+1;
+	p.effects.resize(received_effect.size());
+	size_t i=0;
+	for(auto it=received_effect.cbegin();it!=received_effect.cend();++it,++i)
+	{
+		p.effects[i]=it->first;
+	}
+}
+
+void box_t::to_p(boxp_t &p)const
+{
+	double r=orbit.calc_r(theta);
+	p.x=r*cos(theta);
+	p.y=r*sin(theta);
+	p.size=size;
+	p.type=type;
+	p.complete_rate=static_cast<uint16_t>(3*(strength_left-1)/strength)+1;
+	size_t i=0;
+	for(auto it=received_effect.cbegin();it!=received_effect.cend();++it,++i)
+	{
+		p.effects[i]=it->first;
+	}
 }

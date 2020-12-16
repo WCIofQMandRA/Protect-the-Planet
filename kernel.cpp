@@ -37,15 +37,15 @@ namespace kernel
 namespace attribute
 {
 //玩家的初始属性
-double PLAYER_BASE_SPEED[4];
-uint64_t PLAYER_INIT_HUNGER[4];
-uint64_t PLAYER_INIT_PILLS[4];
+double PLAYER_BASE_SPEED[4]={0.04,0.04,0.03};
+uint64_t PLAYER_INIT_HUNGER[4]={300,200,100};
+uint64_t PLAYER_INIT_PILLS[4]={10,10,8};
 //行星的初始属性
-intmp_t PLANET_INIT_HEALTH[4];
-std::pair<double,double> PLANET_SIZE;
-std::pair<double,double> PLANET_GM;
+intmp_t PLANET_INIT_HEALTH[4]={400,300,250};
+std::pair<double,double> PLANET_SIZE={8e6,1.5e7};
+std::pair<double,double> PLANET_GM={0.99e17,1.01e17};
 //地图属性
-double MAP_SIZE;
+double MAP_SIZE=2e8;
 }//namespace attribute
 
 //与菜单模块通信
@@ -81,10 +81,11 @@ namespace comu_paint
 //ready==true时才进行绘图
 //每次绘图结束后，ready被设为false
 volatile std::atomic<bool> ready;
-std::vector<meteorite_t> meteorite_list;
-std::vector<box_t> box_list;
+std::vector<meteoritep_t> meteorite_list;
+std::vector<boxp_t> box_list;
 planet_t planet;
 player_t player;
+uint64_t game_clock;
 }
 
 std::thread process_thread;
@@ -100,6 +101,10 @@ std::vector<box0_t> ako_box;
 std::vector<weapon0_t> ako_weapon;
 std::vector<effect_t> ako_effect;
 std::vector<food_t> ako_food;
+std::vector<received_effect_box_t> ako_box_effect;
+std::vector<received_effect_meteorite_t> ako_meteorite_effect;
+std::vector<received_effect_planet_t> ako_planet_effect;
+std::vector<received_effect_weapon_t> ako_weapon_effect;
 
 //uint64_t是绝对编号，从游戏开始运行时记
 std::unordered_map<uint64_t,meteorite_t> meteorite_list;
@@ -163,6 +168,8 @@ inline double frand_between(const tp &x)
 
 void process_thread_main()
 {
+	//由于GM是thread_local，必须在这里set_GM
+	orbit_t::set_GM(planet.GM);
 	using namespace std::chrono_literals;
 	std::cout<<"create thread"<<std::endl;
 	auto process_time=std::chrono::system_clock::now()+1ms;
@@ -173,6 +180,7 @@ void process_thread_main()
 		process_time+=50ms;
         ++game_clock;
 	}
+
 	std::cout<<"stop thread"<<std::endl;
 }
 
@@ -271,10 +279,15 @@ void init()
 	{
 		ako_food.push_back({5,1,0,U"糖果"});
 	}
+	//生成武器收到的效果的列表
+	{
+		ako_weapon_effect.push_back({false,false,false,true,false,1.5,1,1});
+	}
+
 	//生成效果列表
 	{
-		ako_effect.push_back({600,10,EFFECT_RECIVER_CURRENT_WEAPON,0,false,U"快速射击I",
-							  received_effect_weapon_t{false,false,false,true,false,1.5,1,1},[](void*){}});
+		ako_effect.push_back({600,10,EFFECT_RECIVER_CURRENT_WEAPON,0,0,false,U"快速射击I",
+							  std::function<void(void*)>()});
 	}
 	//生成补给箱列表
 	{
@@ -293,6 +306,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
     kernel::difficulty=difficulty;
     game_clock=0;
 	comu_menu::should_pause=false;
+	comu_paint::ready=false;
     //新建关卡
     if(!save_load::load(name,difficulty,level,counter,player,planet))
     {
@@ -319,7 +333,6 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		planet.received_effect.clear();
 		planet.combined_effect=received_effect_planet_t();
 	}
-	orbit_t::set_GM(planet.GM);
 	//生成这一关的陨石和补给箱的出现时刻
 	for(const auto &i:meteorites[trans_level[difficulty][level]])
 	{
@@ -329,6 +342,11 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	{
 		boxes_thisround[urand_between(i)].push_back(std::get<2>(i));
 	}
+	for(auto &i:meteorites_thisround)
+	{
+		std::cout<<'['<<i.first<<"] ";
+	}
+	std::cout<<std::endl;
 	if(process_thread.joinable())
 		process_thread.join();
 	process_thread=std::thread(process_thread_main);
@@ -346,6 +364,12 @@ void continue_game()
 void stop_game()
 {
 	std::cout<<"kernel:终止游戏"<<std::endl;
+	meteorites_thisround.clear();
+	boxes_thisround.clear();
+	meteorite_list.clear();
+	box_list.clear();
+	comu_paint::box_list.clear();
+	comu_paint::meteorite_list.clear();
 }
 
 void clear()
@@ -503,13 +527,55 @@ void generate_mete_and_box()
 			tmp.strength=ako_box[i].strength;
 			tmp.strength_left=ako_box[i].strength;
 			tmp.contains=generate_contains(ako_box[i].total_value,ako_box[i].probal_contain);
+			box_list[++counter]=std::move(tmp);
 		}
+	}
+}
+
+void prepare_data_for_painting()
+{
+	if(!comu_paint::ready)
+	{
+		comu_paint::planet=planet;
+		comu_paint::player=player;
+		comu_paint::meteorite_list.resize(meteorite_list.size());
+		comu_paint::box_list.resize(box_list.size());
+		size_t i=0;
+		for(auto it=meteorite_list.cbegin();it!=meteorite_list.cend();++it,++i)
+		{
+			it->second.to_p(comu_paint::meteorite_list[i]);
+		}
+		i=0;
+		for(auto it=box_list.cbegin();it!=box_list.cend();++it,++i)
+		{
+			it->second.to_p(comu_paint::box_list[i]);
+		}
+		comu_paint::game_clock=game_clock;
+		comu_paint::ready=true;
 	}
 }
 
 void process_oneround()
 {
-	std::cout<<"process"<<std::endl;
+	std::cout<<"process, game_clock="<<game_clock<<std::endl;
 	generate_mete_and_box();
+	////////////////////////////////////
+	prepare_data_for_painting();
+	if(!meteorite_list.empty())
+	{
+		std::cout<<"meteorite_list:"<<std::endl;
+		for(auto &i:meteorite_list)
+		{
+			std::cout<<i.first<<" "<<i.second.type<<" "<<i.second.theta<<std::endl;
+		}
+	}
+	if(!box_list.empty())
+	{
+		std::cout<<"box_list:"<<std::endl;
+		for(auto &i:box_list)
+		{
+			std::cout<<i.first<<" "<<i.second.type<<" "<<i.second.theta<<std::endl;
+		}
+	}
 }
 }//namespace kernel

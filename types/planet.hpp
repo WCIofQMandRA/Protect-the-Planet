@@ -25,6 +25,7 @@ struct planet_t
 	intmp_t health;//行星的完整程度
 	double size;//行星的大小
 	double GM;//质量×万有引力常数
-	std::map<uint16_t,received_effect_planet_t> received_effect;
+	//效果编号，持续时间
+	std::set<std::pair<uint16_t,uint64_t>> received_effect;
 	received_effect_planet_t combined_effect;
 };

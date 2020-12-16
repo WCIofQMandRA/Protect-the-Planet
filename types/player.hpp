@@ -33,7 +33,8 @@ struct player_t
 	//玩家最多拥有max_effects个不同种类的效果，但每种效果没有叠加次数限制
 	std::map<uint32_t,uint16_t> effect;
 	//玩家收到的效果，即正在玩家身上生效的效果
-	std::map<uint16_t,received_effect_player_t> received_effect;
+	//效果编号，持续时间
+	std::set<std::pair<uint16_t,uint64_t>> received_effect;
 	received_effect_player_t combined_effect;
 	double position;//玩家的位置，以弧度为单位
 	double speed;//玩家的速率，单位rad/tk，受效果的影响

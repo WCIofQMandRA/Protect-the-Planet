@@ -19,6 +19,15 @@
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
 
+//用于绘图的陨石
+struct meteoritep_t
+{
+	double x,y,size;
+	uint16_t complete_rate;//完整度，取值范围1~3
+	uint16_t type;
+	std::vector<uint16_t> effects;
+};
+
 //陨石
 struct meteorite_t
 {
@@ -31,10 +40,11 @@ struct meteorite_t
 	//陨石击中完整程度为x的行星后，行星的剩余完整程度
 	//complete_rate=(double)strength_left/strength
 	std::function<void(intmp_t &,const double &,bool,const double &,const double &)> hurt;
-	//intmp_t hurt;//陨石的总伤害，落到行星时的伤害为hurt*f(strength_left,strength)，f是一个待确定的函数
-	std::map<uint16_t,received_effect_meteorite_t> received_effect;
+	//效果编号，持续时间
+	std::set<std::pair<uint16_t,uint64_t>> received_effect;
 	received_effect_meteorite_t combined_effect;
 	uint16_t type;//陨石的种类，与材质关联
+	void to_p(meteoritep_t &)const;
 };
 
 //未生成的陨石

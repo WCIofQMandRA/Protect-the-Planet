@@ -54,6 +54,7 @@ void orbit_t::set_GM(const double &GM_)
 void orbit_t::set_orbit(const double &r0_,const double &epsilon_,const double &theta0_,bool direction_)
 {
 	r0=r0_,epsilon=epsilon_,theta0=theta0_,direction=direction_;
+	calc_tmp1();
 	calc_tmp2345();
 }
 

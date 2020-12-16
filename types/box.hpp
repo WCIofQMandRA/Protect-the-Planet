@@ -19,6 +19,15 @@
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
 
+//用于绘图的补给箱
+struct boxp_t
+{
+	double x,y,size;
+	uint16_t complete_rate;//完整度，取值范围1~3
+	uint16_t type;
+	std::vector<uint16_t> effects;
+};
+
 //补给箱
 struct box_t
 {
@@ -33,9 +42,11 @@ struct box_t
 	//std::vector<std::tuple<uint16_t,uint16_t,uint64_t>> contains;
 	//改为get<0>和get<1>以小端序压位
 	std::vector<std::pair<uint32_t,uint64_t>> contains;
-	std::map<uint16_t,received_effect_box_t> received_effect;
+	//效果编号，持续时间
+	std::set<std::pair<uint16_t,uint64_t>> received_effect;
 	received_effect_box_t combined_effect;
 	uint16_t type;
+	void to_p(boxp_t &)const;
 };
 
 //未生成的补给箱

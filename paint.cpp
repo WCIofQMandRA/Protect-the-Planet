@@ -30,9 +30,31 @@ void draw_map(QWidget *place,uint16_t state)
 	QPainter painter(place);
 	switch(state)
 	{
-	case STATE_PLAYING:painter.drawText(100,100,QString("正在游戏"));break;
-	case STATE_STOP:painter.drawText(100,100,QString("终止游戏"));break;
-	case STATE_PAUSE:painter.drawText(100,100,QString("暂停游戏"));break;
+	case STATE_PLAYING:
+	{
+		int y=80;
+		painter.drawText(100,y+=20,QString("正在游戏%1").arg(kernel::comu_paint::game_clock));
+		painter.drawText(100,y+=20,QString("陨石"));
+		for(auto &i:kernel::comu_paint::meteorite_list)
+		{
+			painter.drawText(100,y+=20,QString("(%1,%2) type=%3").arg(i.x).arg(i.y).arg(i.type));
+		}
+		painter.drawText(100,y+=20,QString("补给箱"));
+		for(auto &i:kernel::comu_paint::box_list)
+		{
+			painter.drawText(100,y+=20,QString("(%1,%2) type=%3").arg(i.x).arg(i.y).arg(i.type));
+		}
+		kernel::comu_paint::ready=false;
+		break;
+	}
+	case STATE_STOP:
+		painter.drawText(100,100,QString("终止游戏"));
+		break;
+	case STATE_PAUSE:
+		if(!kernel::comu_paint::ready)
+			kernel::prepare_data_for_painting();
+		painter.drawText(100,100,QString("暂停游戏"));
+		break;
 	default:std::cerr<<"!!!"<<std::endl;assert(0);
 	}
 
