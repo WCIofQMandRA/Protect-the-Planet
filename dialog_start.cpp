@@ -36,6 +36,7 @@ dialog_start::dialog_start(QWidget *parent) :
 	setFont(font);
 #endif
 	wel_img.load(":/pictures/resources/game_name.png");
+	ui->label1->setPixmap(wel_img.scaled(ui->label1->size(),Qt::KeepAspectRatio));
 	ui->button_diff1->setChecked(true);
 }
 
@@ -47,7 +48,6 @@ dialog_start::~dialog_start()
 void dialog_start::paintEvent(QPaintEvent *event)
 {
 	QDialog::paintEvent(event);
-	ui->label1->setPixmap(wel_img.scaled(ui->label1->size(),Qt::KeepAspectRatio));
 }
 
 void dialog_start::on_button_diff1_clicked()

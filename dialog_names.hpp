@@ -39,7 +39,6 @@ public:
 
 private slots:
 	void on_but_1_clicked();
-
 	void on_lineEdit_editingFinished();
 
 //	void on_listWidget_clicked(const QModelIndex &index);

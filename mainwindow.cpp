@@ -50,7 +50,7 @@ mainwindow::mainwindow(QWidget *parent)
 		state=STATE_PLAYING;
 		setMouseTracking(true);
 		kernel::start_game(name,difficulty);
-		autoupdate_timer->start(100);
+		autoupdate_timer->start(5);
 		should_close=false;
 	}
 	else
@@ -125,7 +125,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 					paint::draw_map(this,STATE_PLAYING);
 					setMouseTracking(true);
 					kernel::start_game(name,difficulty);
-					autoupdate_timer->start(100);
+					autoupdate_timer->start(5);
 				}
 				else
 				{
@@ -138,7 +138,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 				is_choosing=false;
 				setMouseTracking(true);
 				kernel::continue_game();
-				autoupdate_timer->start(100);
+				autoupdate_timer->start(5);
 			}
 		}
 
