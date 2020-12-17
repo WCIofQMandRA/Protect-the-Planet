@@ -38,6 +38,8 @@ dialog_start::dialog_start(QWidget *parent) :
 	wel_img.load(":/pictures/resources/game_name.png");
 	ui->label1->setPixmap(wel_img.scaled(ui->label1->size(),Qt::KeepAspectRatio));
 	ui->button_diff1->setChecked(true);
+	font.setPointSize(12);
+	ui->label_dif->setFont(font);
 }
 
 dialog_start::~dialog_start()
@@ -67,7 +69,7 @@ void dialog_start::on_button_diff3_clicked()
 
 void dialog_start::on_button_start_clicked()
 {
-	name=ui->editor_player_name->toPlainText().toStdU32String();//TODO!!!
+	//name=ui->editor_player_name->toPlainText().toStdU32String();//TODO!!!
 	//difficulty=static_cast<uint16_t>(ui->diffculty->checkedId());
 	done(1);
 }
@@ -83,4 +85,8 @@ void dialog_start::on_button_user_clicked()
 	dia.show();
 	dia.exec();
 	name = dia.player_name;
+	ui->chosed_name ->setText(QString::fromStdU32String(name));
+	QFont ft; ft.setPixelSize(30);
+	ui->chosed_name->setFont(ft);
+	ui->button_user->setText("您好用户");
 }

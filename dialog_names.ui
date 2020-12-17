@@ -65,7 +65,7 @@
     <string>您可以键入一个新名字开始游戏：</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="nameEdit">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -96,6 +96,19 @@
      <width>261</width>
      <height>161</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="but_choosed">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>250</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>确定</string>
    </property>
   </widget>
  </widget>

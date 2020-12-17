@@ -24,6 +24,7 @@
 #include "ui_dialog_names.h"
 #include <QListWidgetItem>
 #include <QListWidget>
+#include <QVBoxLayout>
 dialog_names::dialog_names(QDialog *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_names)
@@ -43,6 +44,10 @@ dialog_names::dialog_names(QDialog *parent) :
 	QListWidgetItem *nitem3 = new QListWidgetItem(ui->name_list);
 	ui->name_list->addItem(nitem3);
 	ui->name_list->setItemWidget(nitem3,ui->but_3);
+	/*QRadioButton *radiox = new QRadioButton(tr("name-%d"));
+	QVBoxLayout *vbox = new QVBoxLayout (this);
+	vbox ->addWidget(radiox);
+	ui->name_list->setItemWidget(nitem3,radiox);*/
 }
 
 dialog_names::~dialog_names()
@@ -51,15 +56,19 @@ dialog_names::~dialog_names()
 }
 void dialog_names::on_but_1_clicked()
 {
-  ;   //todo
-}
-
-void dialog_names::on_lineEdit_editingFinished()
-{
-  ;//player_name =
+  ;//todo
 }
 
 //void names::on_listWidget_clicked(const QModelIndex &index)
 //{
 //	;
 //}
+
+void dialog_names::on_nameEdit_editingFinished(){
+   player_name = ui->nameEdit->text().toStdU32String();
+}
+
+void dialog_names::on_but_choosed_clicked()
+{
+	done(0);
+}
