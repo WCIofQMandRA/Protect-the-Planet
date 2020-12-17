@@ -45,6 +45,8 @@ private slots:
 	void on_button_diff2_clicked();
 	void on_button_diff3_clicked();
 
+	//void on_chosed_name_windowIconTextChanged(const QString &iconText);
+
 protected:
 	void paintEvent(QPaintEvent *event) override;
 

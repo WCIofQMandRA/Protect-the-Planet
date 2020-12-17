@@ -39,9 +39,13 @@ public:
 
 private slots:
 	void on_but_1_clicked();
-	void on_lineEdit_editingFinished();
+//	void on_lineEdit_editingFinished();
 
 //	void on_listWidget_clicked(const QModelIndex &index);
+
+	void on_nameEdit_editingFinished();
+
+	void on_but_choosed_clicked();
 
 private:
 	Ui::dialog_names *ui;
