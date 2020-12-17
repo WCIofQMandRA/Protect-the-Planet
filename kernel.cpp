@@ -173,7 +173,6 @@ void process_thread_main()
 	//由于GM是thread_local，必须在这里set_GM
 	orbit_t::set_GM(planet.GM);
 	using namespace std::chrono_literals;
-	std::cout<<"create thread"<<std::endl;
 	auto process_time=std::chrono::system_clock::now()+1ms;
 	while(!comu_menu::should_pause)
 	{
@@ -182,8 +181,6 @@ void process_thread_main()
 		process_time+=50ms;
         ++game_clock;
 	}
-
-	std::cout<<"stop thread"<<std::endl;
 }
 
 void init()
@@ -344,11 +341,6 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	{
 		boxes_thisround[urand_between(i)].push_back(std::get<2>(i));
 	}
-	for(auto &i:meteorites_thisround)
-	{
-		std::cout<<'['<<i.first<<"] ";
-	}
-	std::cout<<std::endl;
 	if(process_thread.joinable())
 		process_thread.join();
 	process_thread=std::thread(process_thread_main);
@@ -746,7 +738,6 @@ void player_move()
 
 void process_oneround()
 {
-	std::cout<<"process, game_clock="<<game_clock<<std::endl;
 	generate_mete_and_box();
 	move_mete_and_box();
 	move_pill();
@@ -758,21 +749,5 @@ void process_oneround()
 	player_move();
 	////////////////////////////////////
 	prepare_data_for_painting();
-	if(!meteorite_list.empty())
-	{
-		std::cout<<"meteorite_list:"<<std::endl;
-		for(auto &i:meteorite_list)
-		{
-			std::cout<<i.first<<" "<<i.second.type<<" "<<i.second.theta<<std::endl;
-		}
-	}
-	if(!box_list.empty())
-	{
-		std::cout<<"box_list:"<<std::endl;
-		for(auto &i:box_list)
-		{
-			std::cout<<i.first<<" "<<i.second.type<<" "<<i.second.theta<<std::endl;
-		}
-	}
 }
 }//namespace kernel
