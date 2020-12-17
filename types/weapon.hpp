@@ -24,9 +24,9 @@ struct weapon_t
 {
 	uint64_t value;//武器的价值
 	uint64_t shoot_speed;//射击速度（两次射击至少间隔shoot_speed tk）
+	uint16_t hurt_count;//一枚子弹可穿透多少个陨石，为了方便，姑且令穿透陨石后不减速
 	uint16_t type;//武器类型
 	bool infinate_speed;//子弹可瞬间命中，即在下一次更新场景时，清除子弹前进方向上的第一个目标
-	bool hurt_count;//一枚子弹可穿透多少个陨石，为了方便，姑且令穿透陨石后不减速
 	//use(intmp_t &x,const double &power_rate_pill,
 	//const double &power_rate_meteorite/*or power_rate_box*/)
 	//对某个剩余强度为x的陨石（或补给箱）成功使用一次该武器后，该陨石（或补给箱）新的剩余强度
@@ -44,9 +44,9 @@ struct weapon0_t
 {
 	uint64_t value;
 	uint64_t shoot_speed;
+	uint16_t hurt_count;
 	uint16_t type;
 	bool infinate_speed;
-	bool hurt_count;
 	std::function<void(intmp_t&,const double&,const double&)> use;
 	std::u32string name;
 	double pill_speed;

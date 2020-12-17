@@ -32,8 +32,6 @@
 //uint64_t PLAYER_INIT_HUNGER=3000;
 //uint64_t PLAYER_INIT_PILLS=10;
 
-namespace kernel
-{
 namespace attribute
 {
 //玩家的初始属性
@@ -48,6 +46,8 @@ std::pair<double,double> PLANET_GM={0.99e17,1.01e17};
 double MAP_SIZE=2e8;
 }//namespace attribute
 
+namespace kernel
+{
 //与菜单模块通信
 namespace comu_menu
 {
@@ -83,6 +83,7 @@ namespace comu_paint
 volatile std::atomic<bool> ready;
 std::vector<meteoritep_t> meteorite_list;
 std::vector<boxp_t> box_list;
+std::vector<pill_t> pill_list;
 planet_t planet;
 player_t player;
 uint64_t game_clock;
@@ -107,8 +108,9 @@ std::vector<received_effect_planet_t> ako_planet_effect;
 std::vector<received_effect_weapon_t> ako_weapon_effect;
 
 //uint64_t是绝对编号，从游戏开始运行时记
-std::unordered_map<uint64_t,meteorite_t> meteorite_list;
-std::unordered_map<uint64_t,box_t> box_list;
+std::map<uint64_t,meteorite_t> meteorite_list;
+std::map<uint64_t,box_t> box_list;
+std::map<uint64_t,pill_t> pill_list;
 planet_t planet;
 player_t player;
 uint64_t counter;//绝对编号
@@ -270,7 +272,7 @@ void init()
 	}
 	//生成武器列表
 	{
-		ako_weapon.push_back({5,18,0,false,1,[](intmp_t &x,const double &power_rate_pill,const double &power_rate_meteorite/*or power_rate_box*/)
+		ako_weapon.push_back({5,18,1,0,false,[](intmp_t &x,const double &power_rate_pill,const double &power_rate_meteorite/*or power_rate_box*/)
 							  {
 								  x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);
 							  },U"手枪",2e6});
@@ -377,9 +379,10 @@ void clear()
 
 }
 
-std::tuple<orbit_t,double,double> generate_orbit(double t)
+std::tuple<orbit_t,double,double> generate_orbit(double t,double msize)
 {
-	auto generate_0=[t]()->std::tuple<orbit_t,double,double>
+	double R=planet.size+msize;
+	auto generate_0=[t,R]()->std::tuple<orbit_t,double,double>
 	{
 		//FIXIT:
 		//暂时无法生成椭圆轨道，因为判断生成的椭圆轨道是否合法比较困难
@@ -388,14 +391,14 @@ std::tuple<orbit_t,double,double> generate_orbit(double t)
 		double theta0=frand_between(0,M_PI*2);
 		double r0;
 		if(epsilon<1)
-			r0=frand_between(planet.size*(1-epsilon),planet.size*(1+epsilon));
+			r0=frand_between(R*(1-epsilon),R*(1+epsilon));
 		else
-			r0=frand_between(0,planet.size*(1+epsilon));
+			r0=frand_between(0,R*(1+epsilon));
 		bool direction=rand64()%2;
 		orbit_t orbit;
 		orbit.set_orbit(r0,epsilon,theta0,direction);
 		//计算沿轨道反方向与行星表面的交点
-		double theta_cross=orbit.calc_theta_fromr(planet.size);
+		double theta_cross=orbit.calc_theta_fromr(R);
 		if(!direction)
 		{
 			theta_cross=2*theta0-theta_cross;
@@ -504,7 +507,7 @@ void generate_mete_and_box()
 		{
 			meteorite_t tmp;
 			std::tie(tmp.orbit,tmp.theta,std::ignore)
-					=generate_orbit(urand_between(ako_meteorite[i].fly_time));
+					=generate_orbit(urand_between(ako_meteorite[i].fly_time),ako_meteorite[i].size);
 			tmp.hurt=ako_meteorite[i].hurt;
 			tmp.size=ako_meteorite[i].size;
 			tmp.type=i;
@@ -520,7 +523,7 @@ void generate_mete_and_box()
 		{
 			box_t tmp;
 			std::tie(tmp.orbit,tmp.theta,std::ignore)
-					=generate_orbit(urand_between(ako_box[i].fly_time));
+					=generate_orbit(urand_between(ako_box[i].fly_time),ako_box[i].size);
 			tmp.size=ako_box[i].size;
 			tmp.type=i;
 			assert(i==ako_box[i].type);
@@ -532,6 +535,7 @@ void generate_mete_and_box()
 	}
 }
 
+//将内核信息复制到comu_paint
 void prepare_data_for_painting()
 {
 	if(!comu_paint::ready)
@@ -540,6 +544,7 @@ void prepare_data_for_painting()
 		comu_paint::player=player;
 		comu_paint::meteorite_list.resize(meteorite_list.size());
 		comu_paint::box_list.resize(box_list.size());
+		comu_paint::pill_list.resize(pill_list.size());
 		size_t i=0;
 		for(auto it=meteorite_list.cbegin();it!=meteorite_list.cend();++it,++i)
 		{
@@ -550,15 +555,207 @@ void prepare_data_for_painting()
 		{
 			it->second.to_p(comu_paint::box_list[i]);
 		}
+		i=0;
+		for(auto it=pill_list.cbegin();it!=pill_list.cend();++it,++i)
+		{
+			comu_paint::pill_list[i]=(it->second);
+		}
 		comu_paint::game_clock=game_clock;
 		comu_paint::ready=true;
 	}
+}
+
+//移动陨石和补给箱
+void move_mete_and_box()
+{
+	for(auto &i:meteorite_list)
+	{
+		i.second.theta=i.second.orbit.calc_theta(i.second.orbit.calc_time(i.second.theta)+1);
+	}
+	for(auto &i:box_list)
+	{
+		i.second.theta=i.second.orbit.calc_theta(i.second.orbit.calc_time(i.second.theta)+1);
+	}
+}
+
+//移动正在飞行的子弹
+void move_pill()
+{
+	for(auto &i:pill_list)
+	{
+		i.second.x+=i.second.dx;
+		i.second.y+=i.second.dy;
+	}
+}
+
+//检测是否有陨石或补给箱被子弹射中，以及子弹是否打中了行星
+void check_shooted_by_pill()
+{
+
+	std::pair<double,double> ret[2];
+	auto sqr=[](double x){return x*x;};
+	int num;
+	auto circle_cross_line=[&num,&ret,&sqr](double x1,double y1,double x2,double y2,double x0,double y0,double r)
+	{
+		num=0;
+		double dx=x2-x1,dy=y2-y1;
+		double A=dx*dx+dy*dy,B=2*dx*(x1-x0)+2*dy*(y1-y0),C=sqr(x1-x0)+sqr(y1-y0)-r*r;
+		double delta=B*B-4*A*C;
+		//不把相切视为相交
+		if(delta>EPS64)
+		{
+			double t1=(-B-sqrt(delta))/(2*A);
+			double t2=(-B+sqrt(delta))/(2*A);
+			if(t1-1<EPS64&&t1>-EPS64)
+				ret[num++]={x1+t1*dx,y1+t1*dy};
+			if(t2-1<EPS64&&t2>-EPS64)
+				ret[num++]={x1+t2*dx,y1+t2*dy};
+		}
+	};
+	//game_clock-1~game_clock时间段内，与一个子弹相遇的陨石和补给箱的列表
+	//first: 绝对编号 second: 第一个交点与(x1,y1)的距离
+	std::vector<std::pair<uint64_t,double>> cross_points;
+	for(auto i=pill_list.begin();i!=pill_list.end();)
+	{
+		cross_points.clear();
+		double x1=i->second.x-i->second.dx,y1=i->second.y-i->second.dy,x2=i->second.x,y2=i->second.y;
+		for(auto &j:meteorite_list)
+		{
+			double r=j.second.orbit.calc_r(j.second.theta);
+			circle_cross_line(x1,y1,x2,y2,r*cos(j.second.theta),r*sin(j.second.theta),j.second.size);
+			if(num==1)
+			{
+				cross_points.push_back({j.first,hypot(x1-ret[0].first,y1-ret[0].second)});
+			}
+			else if(num==2)
+			{
+				double dis1=sqr(x1-ret[0].first)+sqr(y1-ret[0].second);
+				double dis2=sqr(x1-ret[1].first)+sqr(y1-ret[1].second);
+				cross_points.push_back({j.first,sqrt(std::min(dis1,dis2))});
+			}
+		}
+		for(auto &j:box_list)
+		{
+			double r=j.second.orbit.calc_r(j.second.theta);
+			circle_cross_line(x1,y1,x2,y2,r*cos(j.second.theta),r*sin(j.second.theta),j.second.size);
+			if(num==1)
+			{
+				cross_points.push_back({j.first,hypot(x1-ret[0].first,y1-ret[0].second)});
+			}
+			else if(num==2)
+			{
+				double dis1=sqr(x1-ret[0].first)+sqr(y1-ret[0].second);
+				double dis2=sqr(x1-ret[1].first)+sqr(y1-ret[1].second);
+				cross_points.push_back({j.first,sqrt(std::min(dis1,dis2))});
+			}
+		}
+		{
+			circle_cross_line(x1,y1,x2,y2,0,0,planet.size);
+			if(num==1)
+			{
+				cross_points.push_back({0xFFFFFFFFFFu,hypot(x1-ret[0].first,y1-ret[0].second)});
+			}
+			else if(num==2)
+			{
+				double dis1=sqr(x1-ret[0].first)+sqr(y1-ret[0].second);
+				double dis2=sqr(x1-ret[1].first)+sqr(y1-ret[1].second);
+				cross_points.push_back({0xFFFFFFFFFFu,sqrt(std::min(dis1,dis2))});
+			}
+		}
+		std::sort(cross_points.begin(),cross_points.end(),
+				  [](const std::pair<uint64_t,double> &a,const std::pair<uint64_t,double> &b)->bool
+		{
+			return a.second<b.second;
+		});
+		//是否需要删除当前子弹
+		bool flag=false;
+		for(auto &j:cross_points)
+		{
+			//如果打中行星
+			if(j.first==0xFFFFFFFFu)
+			{
+				flag=true;
+				break;
+			}
+			//如果打中陨石
+			else if(auto k=meteorite_list.find(j.first);k!=meteorite_list.end())
+			{
+				ako_weapon[i->second.type].use(k->second.strength_left,i->second.combined_effect.power_rate,k->second.combined_effect.power_rate);
+				if(k->second.strength_left<=0)meteorite_list.erase(k);
+				if(--i->second.hurt_count==0)
+				{
+					flag=true;
+					break;
+				}
+			}
+			//如果打中补给箱
+			else
+			{
+				auto l=box_list.find(j.first);
+				if(l->second.combined_effect.hurt_by_weapon)
+				{
+					ako_weapon[i->second.type].use(l->second.strength_left,i->second.combined_effect.power_rate,l->second.combined_effect.power_rate);
+					if(l->second.strength_left<=0)box_list.erase(l);
+					if(--i->second.hurt_count==0)
+					{
+						flag=true;
+						break;
+					}
+				}
+			}
+		}
+		if(flag)i=pill_list.erase(i);
+		else ++i;
+	}
+}
+
+//检测陨石或补给箱是否到达行星
+void check_hit_planet()
+{
+	for(auto i=meteorite_list.begin();i!=meteorite_list.end();)
+	{
+		if(i->second.orbit.calc_r(i->second.theta)<planet.size+i->second.size)
+		{
+			i->second.hurt(planet.health,(double)i->second.strength_left/(double)i->second.strength,planet.combined_effect.negtive_hurt
+						   ,planet.combined_effect.hurt_rate,i->second.combined_effect.hurt_rate);
+			i=meteorite_list.erase(i);
+		}
+		else ++i;
+	}
+}
+
+void change_weapon_and_effect()
+{
+
+}
+
+void weapon_shoot()
+{
+
+}
+
+void use_effect()
+{
+
+}
+
+void player_move()
+{
+
 }
 
 void process_oneround()
 {
 	std::cout<<"process, game_clock="<<game_clock<<std::endl;
 	generate_mete_and_box();
+	move_mete_and_box();
+	move_pill();
+	check_shooted_by_pill();
+	check_hit_planet();
+	change_weapon_and_effect();
+	weapon_shoot();
+	use_effect();
+	player_move();
 	////////////////////////////////////
 	prepare_data_for_painting();
 	if(!meteorite_list.empty())

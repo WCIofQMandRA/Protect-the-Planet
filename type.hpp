@@ -31,4 +31,5 @@
 #include "types/planet.hpp"
 #include "types/box.hpp"
 #include "types/player.hpp"
+#include "types/pill.hpp"
 #endif // TYPE_H
