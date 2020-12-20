@@ -82,3 +82,18 @@ void box_t::to_p(boxp_t &p)const
 		p.effects[i]=it->first;
 	}
 }
+
+void weapon_t::from_0(const weapon0_t &x)
+{
+	value=x.value;
+	shoot_speed=x.shoot_speed;
+	hurt_count=x.hurt_count;
+	type=x.type;
+	infinate_speed=x.infinate_speed;
+	use=x.use;
+	name=x.name;
+	pill_speed=x.pill_speed;
+	last_use_time=0;
+	received_effect.clear();
+	combined_effect=received_effect_weapon_t();
+}

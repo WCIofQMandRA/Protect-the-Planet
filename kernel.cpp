@@ -27,23 +27,26 @@
 #include <ctime>
 #include <cmath>
 
-
-//double PLAYER_BASE_SPEED=0.04;
-//uint64_t PLAYER_INIT_HUNGER=3000;
-//uint64_t PLAYER_INIT_PILLS=10;
+//HD=hunger decrease
+//不同事件造成的饥饿值下降量
+const int64_t HD_SHOOT=500;
+const int64_t HD_MOVE=1;
+const int64_t HD_EFFECT=2000;
 
 namespace attribute
 {
 //玩家的初始属性
-double PLAYER_BASE_SPEED[4]={0.04,0.04,0.03};
-uint64_t PLAYER_INIT_HUNGER[4]={300,200,100};
-uint64_t PLAYER_INIT_PILLS[4]={10,10,8};
+double player_base_speed[4]={0.04,0.04,0.03};
+double player_max_weapon_direct=M_PI/8;
+uint64_t player_init_hunger[4]={15000,13000,10000};
+uint64_t player_init_pills[4]={20,15,12};
 //行星的初始属性
-intmp_t PLANET_INIT_HEALTH[4]={400,300,250};
-std::pair<double,double> PLANET_SIZE={8e6,1.5e7};
-std::pair<double,double> PLANET_GM={0.99e17,1.01e17};
+intmp_t planet_init_health[4]={400,300,250};
+std::pair<double,double> planet_size={8e6,1.5e7};
+std::pair<double,double> planet_GM={0.99e17,1.01e17};
 //地图属性
-double MAP_SIZE=2e8;
+double map_size=2e8;
+double player_height=4e6;
 }//namespace attribute
 
 namespace kernel
@@ -178,7 +181,7 @@ void process_thread_main()
 	{
 		std::this_thread::sleep_until(process_time);
 		process_oneround();
-		process_time+=50ms;
+		process_time+=20ms;
         ++game_clock;
 	}
 }
@@ -231,37 +234,37 @@ void init()
 	}
 	//生成陨石种类列表
 	{
-		ako_meteorite.push_back({std::make_pair(160,200),0,5,1e7,
+		ako_meteorite.push_back({std::make_pair(400,500),0,5,5e6,
 								[](intmp_t &health,const double &,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									 health-=static_cast<intmp_t>(100*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(160,200),1,10,1e7,
+		ako_meteorite.push_back({std::make_pair(400,500),1,10,5e6,
 								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(80,100),2,8,8e6,
+		ako_meteorite.push_back({std::make_pair(200,250),2,8,4e6,
 								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(80*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(80,100),3,3,1e7,
+		ako_meteorite.push_back({std::make_pair(200,250),3,3,5e6,
 								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(550,600),4,30,1e7,
+		ako_meteorite.push_back({std::make_pair(1380,1500),4,30,5e6,
 								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(1000*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(60,65),5,3,1e7,
+		ako_meteorite.push_back({std::make_pair(150,170),5,3,5e6,
 								[](intmp_t &health,const double &,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(30*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(800,850),6,1000,5e6,
+		ako_meteorite.push_back({std::make_pair(2000,2130),6,1000,2.5e6,
 								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health=static_cast<intmp_t>(exp(static_cast<double>(health)-log(static_cast<double>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
@@ -276,7 +279,7 @@ void init()
 	}
 	//生成食物列表
 	{
-		ako_food.push_back({5,1,0,U"糖果"});
+		ako_food.push_back({8000,1,0,U"糖果"});
 	}
 	//生成武器收到的效果的列表
 	{
@@ -290,9 +293,9 @@ void init()
 	}
 	//生成补给箱列表
 	{
-		ako_box.push_back({std::make_pair(200,210),std::make_pair(10,13),
+		ako_box.push_back({std::make_pair(500,550),std::make_pair(10,13),
 						   {compress16(CONTAIN_TYPE_FOOD,0),compress16(CONTAIN_TYPE_EFFECT,0)},
-						   0,1000,1.3e6});
+						   0,15,2.3e6});
 	}
 
 	//初始化随机数引擎
@@ -306,29 +309,33 @@ void start_game(const std::u32string &name,uint16_t difficulty)
     game_clock=0;
 	comu_menu::should_pause=false;
 	comu_paint::ready=false;
+	comu_control::weapon=10;
+	comu_control::move=0;
+	comu_control::active_effect=compress16(10,0);
+	comu_control::weapon_direct=0;
     //新建关卡
     if(!save_load::load(name,difficulty,level,counter,player,planet))
     {
         level=0;
         counter=0;
-        player.pills=attribute::PLAYER_INIT_PILLS[difficulty];
-        player.hunger=attribute::PLAYER_INIT_HUNGER[difficulty];
-        player.speed=attribute::PLAYER_BASE_SPEED[difficulty];
+		player.pills=attribute::player_init_pills[difficulty];
+		player.hunger=attribute::player_init_hunger[difficulty];
+		player.speed=attribute::player_base_speed[difficulty];
         player.chosen_effect=0;
         player.chosen_weapon=0;
-        player.weapon.fill(65535);
-        player.weapon[0]=0;
+		player.weapon.fill(weapon_t());
+		player.weapon[0].from_0(ako_weapon[0]);
         player.effect.clear();
         player.received_effect.clear();
         player.combined_effect=received_effect_player_t();
         player.position=0;
-        player.weapon_direct=M_PI/2;
+		player.weapon_direct=0;
         player.score=0;
         player.name=name;
 		///////////
-		planet.size=frand_between(attribute::PLANET_SIZE);
-		planet.GM=frand_between(attribute::PLANET_GM);
-		planet.health=attribute::PLANET_INIT_HEALTH[difficulty];
+		planet.size=frand_between(attribute::planet_size);
+		planet.GM=frand_between(attribute::planet_GM);
+		planet.health=attribute::planet_init_health[difficulty];
 		planet.received_effect.clear();
 		planet.combined_effect=received_effect_planet_t();
 	}
@@ -404,7 +411,7 @@ std::tuple<orbit_t,double,double> generate_orbit(double t,double msize)
 	};
 	auto result=generate_0();
 	double tmp;
-	while(tmp=std::get<0>(result).calc_r(std::get<1>(result)),tmp>attribute::MAP_SIZE*0.5||tmp<planet.size*4)
+	while(tmp=std::get<0>(result).calc_r(std::get<1>(result)),tmp>attribute::map_size*0.5||tmp<planet.size*4)
 	{
 		result=generate_0();
 	}
@@ -573,17 +580,19 @@ void move_mete_and_box()
 //移动正在飞行的子弹
 void move_pill()
 {
-	for(auto &i:pill_list)
+	for(auto it=pill_list.begin();it!=pill_list.end();)
 	{
-		i.second.x+=i.second.dx;
-		i.second.y+=i.second.dy;
+		it->second.x+=it->second.dx;
+		it->second.y+=it->second.dy;
+		if(std::abs(it->second.x)>attribute::map_size*2||std::abs(it->second.y)>attribute::map_size*2)
+			it=pill_list.erase(it);
+		else ++it;
 	}
 }
 
 //检测是否有陨石或补给箱被子弹射中，以及子弹是否打中了行星
 void check_shooted_by_pill()
 {
-
 	std::pair<double,double> ret[2];
 	auto sqr=[](double x){return x*x;};
 	int num;
@@ -664,7 +673,7 @@ void check_shooted_by_pill()
 		for(auto &j:cross_points)
 		{
 			//如果打中行星
-			if(j.first==0xFFFFFFFFu)
+			if(j.first==0xFFFFFFFFFFu)
 			{
 				flag=true;
 				break;
@@ -714,6 +723,18 @@ void check_hit_planet()
 		}
 		else ++i;
 	}
+	for(auto i=box_list.begin();i!=box_list.end();)
+	{
+		if(i->second.orbit.calc_r(i->second.theta)<planet.size+i->second.size)
+		{
+			for(auto &j:i->second.contains)
+			{
+
+			}
+			i=box_list.erase(i);
+		}
+		else ++i;
+	}
 }
 
 void change_weapon_and_effect()
@@ -723,7 +744,37 @@ void change_weapon_and_effect()
 
 void weapon_shoot()
 {
-
+	player.weapon_direct=comu_control::weapon_direct;
+	if(uint16_t tmp=kernel::comu_control::weapon;tmp!=10)
+	{
+		if(tmp==11)
+		{
+			auto &weap=player.weapon[player.chosen_weapon];
+			if((player.pills||weap.combined_effect.infinate_pills)&&//有子弹并且已过冷却时间
+					(weap.last_use_time+weap.shoot_speed*weap.combined_effect.shoot_speed_rate<game_clock||weap.combined_effect.infinate_pill_speed))
+			{
+				player.weapon[player.chosen_weapon].last_use_time=game_clock;
+				if(weap.combined_effect.infinate_pill_speed)
+				{
+					std::cerr<<"暂不支持infinate_pill_speed"<<std::endl;
+				}
+				else
+				{
+					pill_list[++counter]={(planet.size+attribute::player_height)*cos(player.position),
+									  (planet.size+attribute::player_height)*sin(player.position),
+									  weap.pill_speed*weap.combined_effect.pill_speed_rate*cos(player.position+player.weapon_direct),
+									  weap.pill_speed*weap.combined_effect.pill_speed_rate*sin(player.position+player.weapon_direct),
+									  weap.type,weap.hurt_count,weap.combined_effect};
+				}
+				player.hunger-=HD_SHOOT;
+				if(!weap.combined_effect.infinate_pills)
+				{
+					player.pills--;
+				}
+			}
+		}
+		kernel::comu_control::weapon=10;
+	}
 }
 
 void use_effect()
@@ -733,7 +784,14 @@ void use_effect()
 
 void player_move()
 {
-
+	if(int16_t dir=comu_control::move)
+	{
+		if(dir==1)
+			player.position+=player.speed,player.hunger-=HD_MOVE;
+		else
+			player.position-=player.speed,player.hunger-=HD_MOVE;
+		//comu_control::move=0;
+	}
 }
 
 void process_oneround()

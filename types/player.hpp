@@ -23,12 +23,12 @@
 struct player_t
 {
 	//饥饿值，初始时为3000，每tk减少1，每次射击减少10，每次触发效果减少15，没有上限
-	uint64_t hunger;
+	int64_t hunger;
 	uint64_t pills;//玩家持有的子弹的数量
 	uint32_t chosen_effect;//玩家当前选择的效果
 	uint16_t chosen_weapon;//玩家当前选择的武器
 	//玩家持有的武器，最多10把，当持有的武器达到10并继续试图捡起武器时，玩家需丢弃旧的武器才能捡起新的
-	std::array<uint16_t,10> weapon;
+	std::array<weapon_t,10> weapon;
 	//玩家可触发的效果（在物品栏的位置，效果编号），数量，瞬间作用的效果的持续时间为0，
 	//玩家最多拥有max_effects个不同种类的效果，但每种效果没有叠加次数限制
 	std::map<uint32_t,uint16_t> effect;

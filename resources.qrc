@@ -1,7 +1,9 @@
 <RCC>
-    <qresource prefix="/pictures" lang="zh_CN">
+    <qresource lang="zh_CN" prefix="/pictures">
         <file>resources/exit_button.png</file>
         <file>resources/game_name.png</file>
         <file>resources/start_button.png</file>
+        <file>resources/background.png</file>
+        <file>resources/meteorite0.png</file>
     </qresource>
 </RCC>

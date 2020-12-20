@@ -21,21 +21,38 @@
 
 #include "paint.hpp"
 #include <QPainter>
+#include <cmath>
 
 namespace attribute
 {
 //地图属性
-extern double MAP_SIZE;
+extern double map_size;
+extern double player_height;
 }//namespace attribute
 
 namespace paint
 {
-void draw_pixmap(QPixmap *pix,int maxsize)
+std::vector<QPixmap> meteorite_resources;
+std::vector<size_t> meteorite_view={0,0,0,0,0,0,0};
+bool inited=false;
+
+//QPixmap: Must construct a QGuiApplication before a QPixmap
+void init()
 {
-	double msize=attribute::MAP_SIZE;
-	auto trp=[maxsize,msize](double x,double y)->QPoint
+	meteorite_resources.resize(1);
+	meteorite_resources[0].load(":/pictures/resources/meteorite0.png");
+}
+
+void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
+{
+	if(!inited)init();
+	double msize=attribute::map_size;
+	auto trp=[maxsize,msize,deltax,deltay](double x,double y)->QPoint
 	{
-		return QPoint(static_cast<int>(maxsize*(0.5+x/msize)),static_cast<int>(maxsize*(0.5-y/msize)));
+		double cos_theta=cos(M_PI_2-kernel::comu_paint::player.position);
+		double sin_theta=sin(M_PI_2-kernel::comu_paint::player.position);
+		double x_=x*cos_theta-y*sin_theta,y_=x*sin_theta+y*cos_theta;
+		return QPoint(static_cast<int>(maxsize*(0.5+x_/msize))+deltax,static_cast<int>(maxsize*(0.5-y_/msize))+deltay);
 	};
 	auto trs=[maxsize,msize](double s)->int
 	{
@@ -45,18 +62,15 @@ void draw_pixmap(QPixmap *pix,int maxsize)
 	painter.setPen(QPen(QColor(128,64,0)));
 	painter.setBrush(QColor(128,64,0));
 	painter.drawEllipse(trp(0,0),trs(kernel::comu_paint::planet.size),trs(kernel::comu_paint::planet.size));
-	painter.setPen(QPen(QColor(255,255,255)));
-	QFont font=painter.font();
-	font.setBold(true);
-	font.setPixelSize(14);
-	painter.setFont(font);
-	painter.drawText(trp(0,0),QString::fromStdString(kernel::comu_paint::planet.health.str()));
 	///////////////////////////////////
 	painter.setPen(QPen(QColor(146,139,129)));
 	painter.setBrush(QColor(146,139,129));
 	for(const auto &i:kernel::comu_paint::meteorite_list)
 	{
-		painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
+		//painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
+		auto tmp=meteorite_resources[meteorite_view[i.type]].scaled(trs(i.size)*2,trs(i.size)*2);
+		auto point=trp(i.x,i.y);
+		painter.drawPixmap(point.x()-tmp.width()/2,point.y()-tmp.height()/2,tmp);
 	}
 	////////////////////////
 	painter.setPen(QPen(QColor(58,70,216)));
@@ -65,6 +79,18 @@ void draw_pixmap(QPixmap *pix,int maxsize)
 	{
 		painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
 	}
+	//////////////////////
+	painter.setPen(QPen(Qt::black));
+	painter.setBrush(Qt::black);
+	QPoint ptmp=trp(0,0);
+	painter.drawRect(ptmp.x()-10,ptmp.y()-trs(kernel::comu_paint::planet.size)-trs(attribute::player_height),20,trs(attribute::player_height));
+	////////////////////
+	painter.setPen(QPen(Qt::red,trs(1e6)*0.6));
+	painter.setBrush(Qt::yellow);
+	for(const auto &i:kernel::comu_paint::pill_list)
+	{
+		painter.drawEllipse(trp(i.x,i.y),trs(1e6),trs(1e6));
+	}
 }
 
 //在特定区域绘制游戏地图
@@ -72,54 +98,58 @@ void draw_map(QWidget *place,uint16_t state)
 {
 	QPainter painter(place);
 	QPixmap pix;
-	pix.load(":/pictures/resources/game_name.png");
-	pix.fill();
+	pix.load(":/pictures/resources/background.png");
+	//pix.fill();
 	int width=place->width(),height=place->height();
-	pix=pix.scaled(std::max(width,height),std::max(width,height));
+	pix=pix.scaled(width,height);
 	switch(state)
 	{
 	case STATE_PLAYING:
 	{
-		draw_pixmap(&pix,std::max(width,height));
 		kernel::comu_paint::ready=false;
-		QRect rect;
 		if(width>height)
 		{
-			rect.setRect(0,(width-height)/2,width,height);
+			draw_pixmap(&pix,height,(width-height)/2,0);
 		}
 		else if(width<height)
 		{
-			rect.setRect((height-width)/2,0,width,height);
+			draw_pixmap(&pix,width,0,(height-width)/2);
 		}
 		else
 		{
-			rect.setRect(0,0,width,height);
+			draw_pixmap(&pix,height,0,0);
 		}
-		painter.drawPixmap(0,0,pix.copy(rect));
+		painter.drawPixmap(0,0,pix);
+		QFont font=place->font();
+		font.setPointSize(12);
+		font.setBold(true);
+		painter.setFont(font);
+		painter.setPen(Qt::white);
+		painter.drawText(10,height-60,QString::fromUtf8("行星完整度：%1").arg(QString::fromStdString(kernel::comu_paint::planet.health.str())));
+		painter.drawText(10,height-40,QString::fromUtf8("剩余子弹：%1").arg(kernel::comu_paint::player.pills));
+		painter.drawText(10,height-20,QString::fromUtf8("饥饿值：%1").arg(kernel::comu_paint::player.hunger));
 		break;
 	}
 	case STATE_STOP:
-		painter.drawText(100,100,QString::fromUtf8("终止游戏"));
+		//painter.drawText(100,100,QString::fromUtf8("终止游戏"));
 		break;
 	case STATE_PAUSE:
 	{
 		if(!kernel::comu_paint::ready)
 			kernel::prepare_data_for_painting();
-		draw_pixmap(&pix,std::max(place->width(),place->height()));
-		QRect rect;
 		if(width>height)
 		{
-			rect.setRect(0,(width-height)/2,width,height);
+			draw_pixmap(&pix,height,(width-height)/2,0);
 		}
 		else if(width<height)
 		{
-			rect.setRect((height-width)/2,0,width,height);
+			draw_pixmap(&pix,width,0,(height-width)/2);
 		}
 		else
 		{
-			rect.setRect(0,0,width,height);
+			draw_pixmap(&pix,height,0,0);
 		}
-		painter.drawPixmap(0,0,pix.copy(rect));
+		painter.drawPixmap(0,0,pix);
 		QFont font=place->font();
 		font.setPointSize(24);
 		font.setBold(true);

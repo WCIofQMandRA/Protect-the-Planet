@@ -28,6 +28,13 @@
 #include <QKeyEvent>
 #include <QTimer>
 
+namespace attribute
+{
+extern double player_max_weapon_direct;
+extern double map_size;
+extern double player_height;
+}//namespace attribute
+
 //由于某种不明原因，std::tread和QTimer不能做mainwindow的成员，否则mainwindow将无法接收到任何事件
 QTimer *autoupdate_timer;
 
@@ -42,6 +49,7 @@ mainwindow::mainwindow(QWidget *parent)
 	font.setFamily("Microsoft Yahei");
 	setFont(font);
 #endif
+	setFocusPolicy(Qt::StrongFocus);
 	auto [name,difficulty]=menu::show_welcome();
 	autoupdate_timer=new QTimer(this);
 	connect(autoupdate_timer,&QTimer::timeout,this,&mainwindow::auto_repaint);
@@ -76,30 +84,38 @@ void mainwindow::mouseMoveEvent(QMouseEvent *event)
 {
 	if(is_choosing)return;
 	//QWidget::mouseMoveEvent(event);
-	std::cout<<"mouseMoveEvent"<<event->x()<<" "<<event->y()<<std::endl;
+	int maxsize=std::min(height(),width());
+	auto trs=[maxsize](double s)->int
+	{
+		return s/attribute::map_size*maxsize;
+	};
+	int x=width()/2,y=height()/2-trs(attribute::player_height)-trs(kernel::comu_paint::planet.size);
+	double theta=atan2(x-event->x(),y-event->y());
+	if(theta<0&&theta<-attribute::player_max_weapon_direct)theta=-attribute::player_max_weapon_direct;
+	else if(theta>0&&theta>attribute::player_max_weapon_direct)theta=attribute::player_max_weapon_direct;
+	kernel::comu_control::weapon_direct=theta;
 }
 
-void mainwindow::mousePressEvent(QMouseEvent *event)
+void mainwindow::mousePressEvent(QMouseEvent *)
 {
 	if(is_choosing)return;
 	//QWidget::mousePressEvent(event);
-	std::cout<<"mousePressEvent"<<event->x()<<" "<<event->y()<<std::endl;
+	kernel::comu_control::weapon=11;
 }
 
-void mainwindow::mouseReleaseEvent(QMouseEvent *event)
+void mainwindow::mouseReleaseEvent(QMouseEvent *)
 {
 	if(is_choosing)return;
 	//QWidget::mouseReleaseEvent(event);
-	std::cout<<"mouseReleaseEvent"<<event->x()<<" "<<event->y()<<std::endl;
+	//std::cout<<"mouseReleaseEvent"<<event->x()<<" "<<event->y()<<std::endl;
 }
 
 void mainwindow::keyPressEvent(QKeyEvent *event)
 {
 	if(is_choosing)return;
-	//QWidget::keyPressEvent(event);
-	std::cout<<"keyPressEvent"<<event->key()<<std::endl;
-	std::cout<<event->text().toStdString()<<std::endl;
-	if(event->key()==Qt::Key::Key_Escape)
+	switch(event->key())
+	{
+	case Qt::Key::Key_Escape:
 	{
 		if(state==STATE_PLAYING)
 		{
@@ -115,6 +131,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 				is_choosing=false;
 				kernel::stop_game();
 				autoupdate_timer->stop();
+				hide();
 				update();
 				is_choosing=true;
 				auto [name,difficulty]=menu::show_welcome();
@@ -123,6 +140,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 				{
 					state=STATE_PLAYING;
 					paint::draw_map(this,STATE_PLAYING);
+					show();
 					setMouseTracking(true);
 					kernel::start_game(name,difficulty);
 					autoupdate_timer->start(5);
@@ -141,7 +159,18 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 				autoupdate_timer->start(5);
 			}
 		}
-
+		break;
+	}
+	case Qt::Key::Key_A:
+	{
+		kernel::comu_control::move=1;
+		break;
+	}
+	case Qt::Key::Key_D:
+	{
+		kernel::comu_control::move=-1;
+		break;
+	}
 	}
 }
 
@@ -149,8 +178,15 @@ void mainwindow::keyReleaseEvent(QKeyEvent *event)
 {
 	if(is_choosing)return;
 	//QWidget::keyReleaseEvent(event);
-	std::cout<<"keyReleaseEvent"<<event->key()<<std::endl;
-	std::cout<<event->text().toStdString()<<std::endl;
+	switch(event->key())
+	{
+	case Qt::Key::Key_A:
+		kernel::comu_control::move=0;
+		break;
+	case Qt::Key::Key_D:
+		kernel::comu_control::move=0;
+		break;
+	}
 }
 
 void mainwindow::auto_repaint()

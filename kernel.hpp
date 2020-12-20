@@ -32,7 +32,7 @@ double
 u32string
 
 关于时间:
-50ms为1游戏刻（token，缩写tk）
+20ms为1游戏刻（token，缩写tk）
 
 关于位置：
 以“米”为单位
@@ -89,18 +89,17 @@ namespace comu_control
 {
 extern volatile std::atomic<int16_t> move;//玩家移动，取1/-1/0
 //对武器的操作:
-//-1：不使用
-//-2：射击
-//-3：丢弃当前武器
+//10：不使用
+//11：射击
+//12：丢弃当前武器
 //0~9：选择武器
 extern volatile std::atomic<int16_t> weapon;
 extern volatile std::atomic<double> weapon_direct;
 //触发的效果
-//两个uint16_t以小端序压位
-//-1,0：不触发
-//-2,0：触发当前效果
-//-3,0：丢弃当前效果
-//0~9,0~65535：选择效果
+//10,0：不触发
+//11,0：触发当前效果
+//12,0：丢弃当前效果
+//0~9,0~9：选择效果
 extern volatile std::atomic<uint32_t> active_effect;
 }
 
@@ -114,6 +113,7 @@ namespace comu_paint
 extern volatile std::atomic<bool> ready;
 extern std::vector<meteoritep_t> meteorite_list;
 extern std::vector<boxp_t> box_list;
+extern std::vector<pill_t> pill_list;
 extern planet_t planet;
 extern player_t player;
 extern uint64_t game_clock;

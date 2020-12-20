@@ -27,14 +27,14 @@ int main(int argc,char **argv)
 		uint64_t m=5;
 		uint64_t from,to;uint16_t type;
 		fout.write(reinterpret_cast<char*>(&m),8);
-		set(10,30,0);
-		set(200,220,0);
-		set(300,310,0);
-		set(480,500,1);
-		set(520,530,2);
+		set(30,40,0);
+		set(190,210,0);
+		set(360,390,0);
+		set(500,530,1);
+		set(580,600,2);
 		m=1;
 		fout.write(reinterpret_cast<char*>(&m),8);
-		set(300,310,0);
+		set(365,400,0);
 	}
 	vector<uint16_t> trans[3]=
 	{
