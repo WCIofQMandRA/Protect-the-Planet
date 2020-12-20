@@ -13,102 +13,43 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QRadioButton" name="but_1">
-   <property name="geometry">
-    <rect>
-     <x>270</x>
-     <y>30</y>
-     <width>115</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>name 1</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="but_2">
-   <property name="geometry">
-    <rect>
-     <x>270</x>
-     <y>50</y>
-     <width>75</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>name 2</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="but_3">
-   <property name="geometry">
-    <rect>
-     <x>270</x>
-     <y>70</y>
-     <width>115</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>name 3</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="newname">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>190</y>
-     <width>271</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>您可以键入一个新名字开始游戏：</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="nameEdit">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>220</y>
-     <width>221</width>
-     <height>21</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>170</y>
-     <width>131</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>没找到您的名字？</string>
-   </property>
-  </widget>
-  <widget class="QListWidget" name="name_list">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>0</y>
-     <width>261</width>
-     <height>161</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="but_choosed">
+  <widget class="QPushButton" name="play_new">
    <property name="geometry">
     <rect>
      <x>150</x>
-     <y>250</y>
+     <y>190</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>确定</string>
+    <string>新游戏</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="play_last">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>50</y>
+     <width>91</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>继续游戏</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="play_saved">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>120</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>读档</string>
    </property>
   </widget>
  </widget>
