@@ -37,7 +37,7 @@
    <property name="geometry">
     <rect>
      <x>140</x>
-     <y>180</y>
+     <y>170</y>
      <width>120</width>
      <height>40</height>
     </rect>
@@ -51,6 +51,39 @@
    </property>
    <property name="text">
     <string>退出</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_save">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>120</y>
+     <width>120</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>存档</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="success_save">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>130</y>
+     <width>72</width>
+     <height>15</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

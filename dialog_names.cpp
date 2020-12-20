@@ -25,6 +25,8 @@
 #include <QListWidgetItem>
 #include <QListWidget>
 #include <QVBoxLayout>
+#include "dialog_newgame.h"
+#include "dialog_load.h"
 dialog_names::dialog_names(QDialog *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_names)
@@ -35,7 +37,7 @@ dialog_names::dialog_names(QDialog *parent) :
 	font.setFamily("Microsoft Yahei");
 	setFont(font);
 #endif
-	QListWidgetItem *nitem1 = new QListWidgetItem(ui->name_list);
+	/*QListWidgetItem *nitem1 = new QListWidgetItem(ui->name_list);
 	ui->name_list->addItem(nitem1);
 	ui->name_list->setItemWidget(nitem1,ui->but_1);
 	QListWidgetItem *nitem2 = new QListWidgetItem(ui->name_list);
@@ -43,7 +45,7 @@ dialog_names::dialog_names(QDialog *parent) :
 	ui->name_list->setItemWidget(nitem2,ui->but_2);
 	QListWidgetItem *nitem3 = new QListWidgetItem(ui->name_list);
 	ui->name_list->addItem(nitem3);
-	ui->name_list->setItemWidget(nitem3,ui->but_3);
+	ui->name_list->setItemWidget(nitem3,ui->but_3);*/
 	/*QRadioButton *radiox = new QRadioButton(tr("name-%d"));
 	QVBoxLayout *vbox = new QVBoxLayout (this);
 	vbox ->addWidget(radiox);
@@ -54,21 +56,30 @@ dialog_names::~dialog_names()
 {
 	delete ui;
 }
-void dialog_names::on_but_1_clicked()
+void dialog_names::on_play_new_clicked()
 {
-  ;//todo
+	dialog_newgame dia;
+	dia.show();
+	dia.exec();
+	player_name = dia.new_name;
+	player_dif = dia.new_dif;
+	done(0);
 }
 
-//void names::on_listWidget_clicked(const QModelIndex &index)
-//{
-//	;
-//}
-
-void dialog_names::on_nameEdit_editingFinished(){
-   player_name = ui->nameEdit->text().toStdU32String();
+void dialog_names::on_play_last_clicked()
+{
+	;
+	//player_name =
+	//player_dif  =
+	done(0);
 }
 
-void dialog_names::on_but_choosed_clicked()
+void dialog_names::on_play_saved_clicked()
 {
+	Dialog_load dia;
+	dia.show();
+	dia.exec();
+	//player_name =
+	//player_dif =
 	done(0);
 }

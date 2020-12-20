@@ -36,16 +36,22 @@ public:
 	explicit dialog_names(QDialog *parent = nullptr);
 	~dialog_names();
 	std::u32string player_name;
-
+	int player_dif;
 private slots:
-	void on_but_1_clicked();
+//	void on_but_1_clicked();
 //	void on_lineEdit_editingFinished();
 
 //	void on_listWidget_clicked(const QModelIndex &index);
 
-	void on_nameEdit_editingFinished();
+//	void on_nameEdit_editingFinished();
 
-	void on_but_choosed_clicked();
+//	void on_but_choosed_clicked();
+
+	void on_play_new_clicked();
+
+	void on_play_last_clicked();
+
+	void on_play_saved_clicked();
 
 private:
 	Ui::dialog_names *ui;

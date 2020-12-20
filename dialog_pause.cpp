@@ -21,7 +21,7 @@
 
 #include "dialog_pause.hpp"
 #include "ui_dialog_pause.h"
-
+#include <iostream>
 dialog_pause::dialog_pause(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_pause)
@@ -47,4 +47,11 @@ void dialog_pause::on_button_stop_clicked()
 void dialog_pause::on_button_continue_clicked()
 {
 	done(0);
+}
+
+void dialog_pause::on_button_save_clicked()
+{
+	//todo
+	std::cout<<"a";
+	ui->success_save->setText("进度已储存！");
 }
