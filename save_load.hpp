@@ -23,9 +23,13 @@
 #define SAVE_LOAD_H
 #include "type.hpp"
 
-namespace save_load
+class save_load
 {
-bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,player_t&,planet_t&);
-bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,const player_t&,const planet_t&);
-}
+public:
+	static std::vector<std::u32string> get_userlist();
+	static void add_user();
+	static void delete_user();
+	static bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,player_t&,planet_t&);
+	static bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,const player_t&,const planet_t&);
+};
 #endif //SAVE_LOAD_H

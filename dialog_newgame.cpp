@@ -6,6 +6,8 @@ dialog_newgame::dialog_newgame(QWidget *parent) :
 	ui(new Ui::dialog_newgame)
 {
 	ui->setupUi(this);
+	ui->dif_1->setChecked(true);
+	new_dif=0;
 }
 
 dialog_newgame::~dialog_newgame()
@@ -21,17 +23,17 @@ void dialog_newgame::on_nameedit_textEdited(const QString &arg1)
 
 void dialog_newgame::on_dif_1_clicked()
 {
-	new_dif=1;
+	new_dif=0;
 }
 
 void dialog_newgame::on_dif_2_clicked()
 {
-	new_dif=2;
+	new_dif=1;
 }
 
 void dialog_newgame::on_dif_3_clicked()
 {
-	new_dif=3;
+	new_dif=2;
 }
 
 void dialog_newgame::on_but_sure_clicked()
