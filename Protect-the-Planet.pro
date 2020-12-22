@@ -53,7 +53,7 @@ SOURCES += \
     save_load.cpp \
     type.cpp
 
-LIBS += -Wl,-Bstatic -lmpfr -lgmp -Wl,-Bdynamic
+LIBS += -lstdc++fs -Wl,-Bstatic -lmpfr -lgmp -Wl,-Bdynamic
 
 HEADERS += \
     dialog_load.h \

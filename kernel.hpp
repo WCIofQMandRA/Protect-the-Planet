@@ -82,6 +82,7 @@ namespace kernel
 namespace comu_menu
 {
 extern volatile std::atomic<bool> should_pause;//下一游戏刻时是否应暂停游戏
+extern volatile std::atomic<bool> game_ended;//游戏已成功或失败，需要菜单模块调用stop_game()
 }
 
 //与控制模块通信
@@ -112,12 +113,14 @@ namespace comu_paint
 //每次绘图结束后，ready被设为false
 extern volatile std::atomic<bool> ready;
 extern std::vector<meteoritep_t> meteorite_list;
-extern std::vector<boxp_t> box_list;
+extern std::vector<boxp_t> box_list,dropped_box_list;
 extern std::vector<pill_t> pill_list;
 extern planet_t planet;
 extern player_t player;
-extern uint64_t game_clock;
+extern uint64_t game_clock,level,score;
+extern std::vector<std::pair<uint32_t,uint64_t>> dropped_items_list;
 }
+
 //内核开始执行时会创建一个线程，该线程储存在process_thread中
 
 //启动程序时调用init()，进入游戏时调用start_game()，游戏暂停时，

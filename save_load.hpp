@@ -23,13 +23,20 @@
 #define SAVE_LOAD_H
 #include "type.hpp"
 
-class save_load
+class save_load_class
 {
+private:
+	std::map<std::u32string,uint64_t> user_list;
 public:
-	static std::vector<std::u32string> get_userlist();
-	static void add_user();
-	static void delete_user();
-	static bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,player_t&,planet_t&);
-	static bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,const player_t&,const planet_t&);
+	save_load_class();
+	save_load_class(const save_load_class&)=delete;
+	save_load_class& operator=(const save_load_class&)=delete;
+	std::vector<std::u32string> get_userlist();
+	bool add_user(const std::u32string &name);
+	bool delete_user(const std::u32string &name);
+	bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,uint64_t &score,player_t&,planet_t&);
+	bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,uint64_t score,const player_t&,const planet_t&);
 };
+
+extern save_load_class save_load;
 #endif //SAVE_LOAD_H

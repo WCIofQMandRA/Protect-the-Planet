@@ -39,9 +39,11 @@
 #include <string>
 #include <cassert>
 #include <boost/multiprecision/gmp.hpp>
+#include <boost/multiprecision/mpfr.hpp>
 
 using namespace boost::multiprecision;
 typedef mpz_int intmp_t;
+typedef number<mpfr_float_backend<50,allocate_stack>,et_on> floatmp_t;
 const double EPS64=1e-10;
 
 inline uint32_t compress16(uint16_t a,uint16_t b)

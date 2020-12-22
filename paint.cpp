@@ -36,6 +36,19 @@ std::vector<QPixmap> meteorite_resources;
 std::vector<size_t> meteorite_view={0,0,0,0,0,0,0};
 bool inited=false;
 
+void drawText(QPainter &painter,qreal x,qreal y,Qt::Alignment flags,const QString &text,QRectF *boundingRect=0)
+{
+	const qreal size=32767.0;
+	QPointF corner(x,y-size);
+	if(flags&Qt::AlignHCenter)corner.rx()-=size/2.0;
+	else if(flags&Qt::AlignRight)corner.rx()-=size;
+	if(flags&Qt::AlignVCenter)corner.ry()+=size/2.0;
+	else if(flags&Qt::AlignTop)corner.ry()+=size;
+	else flags|=Qt::AlignBottom;
+	QRectF rect{corner.x(),corner.y(),size,size};
+	painter.drawText(rect,flags,text,boundingRect);
+}
+
 //QPixmap: Must construct a QGuiApplication before a QPixmap
 void init()
 {
@@ -76,6 +89,13 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	painter.setPen(QPen(QColor(58,70,216)));
 	painter.setBrush(QColor(58,70,216));
 	for(const auto &i:kernel::comu_paint::box_list)
+	{
+		painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
+	}
+	////////////////////////
+	painter.setPen(QPen(QColor(58,70,128)));
+	painter.setBrush(QColor(58,70,128));
+	for(const auto &i:kernel::comu_paint::dropped_box_list)
 	{
 		painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
 	}
@@ -125,9 +145,11 @@ void draw_map(QWidget *place,uint16_t state)
 		font.setBold(true);
 		painter.setFont(font);
 		painter.setPen(Qt::white);
-		painter.drawText(10,height-60,QString::fromUtf8("行星完整度：%1").arg(QString::fromStdString(kernel::comu_paint::planet.health.str())));
-		painter.drawText(10,height-40,QString::fromUtf8("剩余子弹：%1").arg(kernel::comu_paint::player.pills));
-		painter.drawText(10,height-20,QString::fromUtf8("饥饿值：%1").arg(kernel::comu_paint::player.hunger));
+		drawText(painter,10,height-50,Qt::AlignLeft|Qt::AlignBottom,QString::fromUtf8("行星完整度：%1").arg(QString::fromStdString(kernel::comu_paint::planet.health.str())));
+		drawText(painter,10,height-30,Qt::AlignLeft|Qt::AlignBottom,QString::fromUtf8("剩余子弹：%1").arg(kernel::comu_paint::player.pills));
+		drawText(painter,10,height-10,Qt::AlignLeft|Qt::AlignBottom,QString::fromUtf8("饥饿值：%1").arg(kernel::comu_paint::player.hunger));
+		drawText(painter,width-10,10,Qt::AlignRight|Qt::AlignTop,QString::fromUtf8("第 %1 关").arg(kernel::comu_paint::level));
+		drawText(painter,width-10,30,Qt::AlignRight|Qt::AlignTop,QString::fromUtf8("得分：%1").arg(kernel::comu_paint::score));
 		break;
 	}
 	case STATE_STOP:

@@ -52,5 +52,10 @@ protected:
 
 private slots:
 	void auto_repaint();
+	void game_end();
+
+private:
+	void stop_game();
+
 };
 #endif // MAINWINDOW_H

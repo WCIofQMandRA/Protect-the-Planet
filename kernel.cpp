@@ -26,6 +26,7 @@
 #include <random>
 #include <ctime>
 #include <cmath>
+#include "mainwindow.hpp"
 
 //HD=hunger decrease
 //不同事件造成的饥饿值下降量
@@ -55,6 +56,7 @@ namespace kernel
 namespace comu_menu
 {
 volatile std::atomic<bool> should_pause;//下一游戏刻时是否应暂停游戏
+volatile std::atomic<bool> game_ended;//游戏已成功或失败，需要菜单模块调用stop_game()
 }
 
 //与控制模块通信
@@ -85,11 +87,12 @@ namespace comu_paint
 //每次绘图结束后，ready被设为false
 volatile std::atomic<bool> ready;
 std::vector<meteoritep_t> meteorite_list;
-std::vector<boxp_t> box_list;
+std::vector<boxp_t> box_list,dropped_box_list;
 std::vector<pill_t> pill_list;
 planet_t planet;
 player_t player;
-uint64_t game_clock;
+uint64_t game_clock,level,score;
+std::vector<std::pair<uint32_t,uint64_t>> dropped_items_list;
 }
 
 std::thread process_thread;
@@ -113,12 +116,15 @@ std::vector<received_effect_weapon_t> ako_weapon_effect;
 //uint64_t是绝对编号，从游戏开始运行时记
 std::map<uint64_t,meteorite_t> meteorite_list;
 std::map<uint64_t,box_t> box_list;
+std::map<uint64_t,std::pair<box_t,uint64_t>> dropped_box_list;
 std::map<uint64_t,pill_t> pill_list;
 planet_t planet;
 player_t player;
 uint64_t counter;//绝对编号
 uint64_t level;//玩家通过的关卡数
+uint64_t score;
 uint16_t difficulty;//游戏难度
+std::vector<std::pair<uint32_t,uint64_t>> dropped_items_list;//未被捡起的到达行星的补给箱内的物品
 //游戏时钟
 uint64_t game_clock;
 
@@ -136,6 +142,11 @@ std::vector<uint16_t> trans_level[4];
 //当前关卡计划生成的陨石和补给箱（在start_game函数中确定）
 std::map<uint64_t,std::vector<uint16_t>> meteorites_thisround;
 std::map<uint64_t,std::vector<uint16_t>> boxes_thisround;
+//本关卡中，还未被毁灭的陨石和补给箱的数量
+uint64_t boxes_and_meteorites_left;
+//最后一个被毁灭的陨石或补给箱被毁灭的时刻
+uint64_t last_destroy_clock;
+
 
 inline uint64_t urand_between(uint64_t s,uint64_t t)
 {
@@ -308,16 +319,18 @@ void start_game(const std::u32string &name,uint16_t difficulty)
     kernel::difficulty=difficulty;
     game_clock=0;
 	comu_menu::should_pause=false;
+	comu_menu::game_ended=false;
 	comu_paint::ready=false;
 	comu_control::weapon=10;
 	comu_control::move=0;
 	comu_control::active_effect=compress16(10,0);
 	comu_control::weapon_direct=0;
     //新建关卡
-    if(!save_load::load(name,difficulty,level,counter,player,planet))
+	if(!save_load.load(name,difficulty,level,counter,score,player,planet))
     {
         level=0;
         counter=0;
+		score=0;
 		player.pills=attribute::player_init_pills[difficulty];
 		player.hunger=attribute::player_init_hunger[difficulty];
 		player.speed=attribute::player_base_speed[difficulty];
@@ -339,14 +352,19 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		planet.received_effect.clear();
 		planet.combined_effect=received_effect_planet_t();
 	}
+	for(auto &i:player.weapon)
+		i.last_use_time=0;
+	boxes_and_meteorites_left=0;
 	//生成这一关的陨石和补给箱的出现时刻
 	for(const auto &i:meteorites[trans_level[difficulty][level]])
 	{
 		meteorites_thisround[urand_between(i)].push_back(std::get<2>(i));
+		boxes_and_meteorites_left++;
 	}
 	for(const auto &i:boxes[trans_level[difficulty][level]])
 	{
 		boxes_thisround[urand_between(i)].push_back(std::get<2>(i));
+		boxes_and_meteorites_left++;
 	}
 	if(process_thread.joinable())
 		process_thread.join();
@@ -371,6 +389,7 @@ void stop_game()
 	box_list.clear();
 	comu_paint::box_list.clear();
 	comu_paint::meteorite_list.clear();
+	save_load.save(player.name,difficulty,level,counter,score,player,planet);
 }
 
 void clear()
@@ -544,6 +563,7 @@ void prepare_data_for_painting()
 		comu_paint::meteorite_list.resize(meteorite_list.size());
 		comu_paint::box_list.resize(box_list.size());
 		comu_paint::pill_list.resize(pill_list.size());
+		comu_paint::dropped_box_list.resize(dropped_box_list.size());
 		size_t i=0;
 		for(auto it=meteorite_list.cbegin();it!=meteorite_list.cend();++it,++i)
 		{
@@ -555,11 +575,19 @@ void prepare_data_for_painting()
 			it->second.to_p(comu_paint::box_list[i]);
 		}
 		i=0;
+		for(auto it=dropped_box_list.cbegin();it!=dropped_box_list.cend();++it,++i)
+		{
+			it->second.first.to_p(comu_paint::dropped_box_list[i]);
+		}
+		i=0;
 		for(auto it=pill_list.cbegin();it!=pill_list.cend();++it,++i)
 		{
 			comu_paint::pill_list[i]=(it->second);
 		}
+		comu_paint::dropped_items_list=dropped_items_list;
 		comu_paint::game_clock=game_clock;
+		comu_paint::score=score;
+		comu_paint::level=level;
 		comu_paint::ready=true;
 	}
 }
@@ -682,7 +710,14 @@ void check_shooted_by_pill()
 			else if(auto k=meteorite_list.find(j.first);k!=meteorite_list.end())
 			{
 				ako_weapon[i->second.type].use(k->second.strength_left,i->second.combined_effect.power_rate,k->second.combined_effect.power_rate);
-				if(k->second.strength_left<=0)meteorite_list.erase(k);
+				if(k->second.strength_left<=0)
+				{
+					score+=static_cast<uint64_t>((k->second.strength>64?64+log2(static_cast<floatmp_t>(k->second.strength-63)):k->second.strength));
+					meteorite_list.erase(k);
+					boxes_and_meteorites_left--;
+					if(!boxes_and_meteorites_left)
+						last_destroy_clock=game_clock;
+				}
 				if(--i->second.hurt_count==0)
 				{
 					flag=true;
@@ -696,7 +731,13 @@ void check_shooted_by_pill()
 				if(l->second.combined_effect.hurt_by_weapon)
 				{
 					ako_weapon[i->second.type].use(l->second.strength_left,i->second.combined_effect.power_rate,l->second.combined_effect.power_rate);
-					if(l->second.strength_left<=0)box_list.erase(l);
+					if(l->second.strength_left<=0)
+					{
+						box_list.erase(l);
+						boxes_and_meteorites_left--;
+						if(!boxes_and_meteorites_left)
+							last_destroy_clock=game_clock;
+					}
 					if(--i->second.hurt_count==0)
 					{
 						flag=true;
@@ -720,6 +761,9 @@ void check_hit_planet()
 			i->second.hurt(planet.health,(double)i->second.strength_left/(double)i->second.strength,planet.combined_effect.negtive_hurt
 						   ,planet.combined_effect.hurt_rate,i->second.combined_effect.hurt_rate);
 			i=meteorite_list.erase(i);
+			--boxes_and_meteorites_left;
+			if(!boxes_and_meteorites_left)
+				last_destroy_clock=game_clock;
 		}
 		else ++i;
 	}
@@ -727,11 +771,11 @@ void check_hit_planet()
 	{
 		if(i->second.orbit.calc_r(i->second.theta)<planet.size+i->second.size)
 		{
-			for(auto &j:i->second.contains)
-			{
-
-			}
+			dropped_box_list.insert({i->first,{i->second,game_clock}});
 			i=box_list.erase(i);
+			--boxes_and_meteorites_left;
+			if(!boxes_and_meteorites_left)
+				last_destroy_clock=game_clock;
 		}
 		else ++i;
 	}
@@ -750,8 +794,11 @@ void weapon_shoot()
 		if(tmp==11)
 		{
 			auto &weap=player.weapon[player.chosen_weapon];
-			if((player.pills||weap.combined_effect.infinate_pills)&&//有子弹并且已过冷却时间
-					(weap.last_use_time+weap.shoot_speed*weap.combined_effect.shoot_speed_rate<game_clock||weap.combined_effect.infinate_pill_speed))
+			auto &weap0=ako_weapon[weap.type];
+			if((player.pills||weap.combined_effect.infinate_pills)&&//有子弹并且已过冷却时间并且饥饿值足够
+					(weap.last_use_time+weap0.shoot_speed*weap.combined_effect.shoot_speed_rate<game_clock
+					 ||weap.combined_effect.infinate_pill_speed)&&
+					player.hunger>=HD_SHOOT)
 			{
 				player.weapon[player.chosen_weapon].last_use_time=game_clock;
 				if(weap.combined_effect.infinate_pill_speed)
@@ -762,9 +809,9 @@ void weapon_shoot()
 				{
 					pill_list[++counter]={(planet.size+attribute::player_height)*cos(player.position),
 									  (planet.size+attribute::player_height)*sin(player.position),
-									  weap.pill_speed*weap.combined_effect.pill_speed_rate*cos(player.position+player.weapon_direct),
-									  weap.pill_speed*weap.combined_effect.pill_speed_rate*sin(player.position+player.weapon_direct),
-									  weap.type,weap.hurt_count,weap.combined_effect};
+									  weap0.pill_speed*weap.combined_effect.pill_speed_rate*cos(player.position+player.weapon_direct),
+									  weap0.pill_speed*weap.combined_effect.pill_speed_rate*sin(player.position+player.weapon_direct),
+									  weap.type,weap0.hurt_count,weap.combined_effect};
 				}
 				player.hunger-=HD_SHOOT;
 				if(!weap.combined_effect.infinate_pills)
@@ -784,13 +831,28 @@ void use_effect()
 
 void player_move()
 {
-	if(int16_t dir=comu_control::move)
+	if(int16_t dir=comu_control::move;dir&&player.hunger>=HD_MOVE)
 	{
 		if(dir==1)
 			player.position+=player.speed,player.hunger-=HD_MOVE;
 		else
 			player.position-=player.speed,player.hunger-=HD_MOVE;
 		//comu_control::move=0;
+	}
+}
+
+void check_win_or_lose()
+{
+	std::cout<<boxes_and_meteorites_left<<std::endl;
+	if(planet.health<0)
+	{
+		//TODO:失败
+		comu_menu::game_ended=true;
+	}
+	else if(!boxes_and_meteorites_left&&last_destroy_clock+200<game_clock)
+	{
+		//TODO:成功
+		comu_menu::game_ended=true;
 	}
 }
 
@@ -805,6 +867,7 @@ void process_oneround()
 	weapon_shoot();
 	use_effect();
 	player_move();
+	check_win_or_lose();
 	////////////////////////////////////
 	prepare_data_for_painting();
 }

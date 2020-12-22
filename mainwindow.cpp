@@ -53,10 +53,12 @@ mainwindow::mainwindow(QWidget *parent)
 	auto [name,difficulty]=menu::show_welcome();
 	autoupdate_timer=new QTimer(this);
 	connect(autoupdate_timer,&QTimer::timeout,this,&mainwindow::auto_repaint);
+	connect(autoupdate_timer,&QTimer::timeout,this,&mainwindow::game_end);
 	if(difficulty!=65535)
 	{
 		state=STATE_PLAYING;
 		setMouseTracking(true);
+		kernel::comu_menu::game_ended=false;
 		kernel::start_game(name,difficulty);
 		autoupdate_timer->start(5);
 		should_close=false;
@@ -127,28 +129,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 			is_choosing=true;
 			if(menu::show_pause())
 			{
-				state=STATE_STOP;
-				is_choosing=false;
-				kernel::stop_game();
-				autoupdate_timer->stop();
-				hide();
-				update();
-				is_choosing=true;
-				auto [name,difficulty]=menu::show_welcome();
-				is_choosing=false;
-				if(difficulty!=65535)
-				{
-					state=STATE_PLAYING;
-					paint::draw_map(this,STATE_PLAYING);
-					show();
-					setMouseTracking(true);
-					kernel::start_game(name,difficulty);
-					autoupdate_timer->start(5);
-				}
-				else
-				{
-					close();
-				}
+				stop_game();
 			}
 			else
 			{
@@ -195,4 +176,36 @@ void mainwindow::auto_repaint()
 	{
 		update();
 	}
+}
+
+void mainwindow::stop_game()
+{
+	state=STATE_STOP;
+	is_choosing=false;
+	kernel::stop_game();
+	autoupdate_timer->stop();
+	hide();
+	is_choosing=true;
+	auto [name,difficulty]=menu::show_welcome();
+	is_choosing=false;
+	if(difficulty!=65535)
+	{
+		state=STATE_PLAYING;
+		show();
+		paint::draw_map(this,STATE_PLAYING);
+		setMouseTracking(true);
+		kernel::comu_menu::game_ended=false;
+		kernel::start_game(name,difficulty);
+		autoupdate_timer->start(5);
+	}
+	else
+	{
+		close();
+	}
+}
+
+void mainwindow::game_end()
+{
+	if(kernel::comu_menu::game_ended)
+		stop_game();
 }

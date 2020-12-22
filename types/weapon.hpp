@@ -22,34 +22,27 @@
 //未生成的武器（weapon_t去掉received_effect和combined_effect）
 struct weapon0_t
 {
-	uint64_t value;
-	uint64_t shoot_speed;
-	uint16_t hurt_count;
+	uint64_t value;//武器的价值
+	uint64_t shoot_speed;//射击速度（两次射击至少间隔shoot_speed tk）
+	uint16_t hurt_count;//一枚子弹可穿透多少个陨石，为了方便，姑且令穿透陨石后不减速
 	uint16_t type;
-	bool infinate_speed;
+	bool infinate_speed;//子弹可瞬间命中，即在下一次更新场景时，清除子弹前进方向上的第一个目标
+	//use(intmp_t &x,const double &power_rate_pill,
+	//const double &power_rate_meteorite/*or power_rate_box*/)
+	//对某个剩余强度为x的陨石（或补给箱）成功使用一次该武器后，该陨石（或补给箱）新的剩余强度
 	std::function<void(intmp_t&,const double&,const double&)> use;
-	std::u32string name;
+	std::u32string name;//武器的名称
+	//子弹的速率，不能为inf
 	double pill_speed;
 };
 
 //武器
 struct weapon_t
 {
-	uint64_t value;//武器的价值
-	uint64_t shoot_speed;//射击速度（两次射击至少间隔shoot_speed tk）
+	uint16_t type;
 	uint64_t last_use_time;//上一次使用武器的时间
-	uint16_t hurt_count;//一枚子弹可穿透多少个陨石，为了方便，姑且令穿透陨石后不减速
-	uint16_t type=65535;//武器类型
-	bool infinate_speed;//子弹可瞬间命中，即在下一次更新场景时，清除子弹前进方向上的第一个目标
-	//use(intmp_t &x,const double &power_rate_pill,
-	//const double &power_rate_meteorite/*or power_rate_box*/)
-	//对某个剩余强度为x的陨石（或补给箱）成功使用一次该武器后，该陨石（或补给箱）新的剩余强度
-	std::function<void(intmp_t&,const double&,const double&)> use;
 	//效果编号，持续时间
 	std::set<std::pair<uint16_t,uint64_t>> received_effect;
 	received_effect_weapon_t combined_effect;
-	std::u32string name;//武器的名称
-	//子弹的速率，不能为inf
-	double pill_speed;
 	void from_0(const weapon0_t&);
 };

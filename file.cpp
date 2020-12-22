@@ -22,15 +22,7 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 
-#ifdef NDEBUG
-const std::string program_dir=QCoreApplication::applicationDirPath().toStdString();
-const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
-const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
-#else
-const std::string program_dir=QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString()+"/ProPlanet";
-const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
-const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
-#endif
+
 //考虑到该函数会被频繁地调用，不放在命名空间内
 //将文件的程序内路径转换为绝对路径
 //路径一律用正斜杠/
@@ -42,6 +34,15 @@ const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempL
 #ifdef _WIN32
 std::string trpath(const std::string &path)
 {
+#ifdef NDEBUG
+static const std::string program_dir=QCoreApplication::applicationDirPath().toStdString();
+static const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
+static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
+#else
+static const std::string program_dir=QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString()+"/ProPlanet";
+static const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
+static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
+#endif
 	assert(path[0]=='[');
 	size_t i;
 	std::string ans;
@@ -70,6 +71,15 @@ std::string trpath(const std::string &path)
 #else
 std::string trpath(const std::string &path)
 {
+#ifdef NDEBUG
+static const std::string program_dir=QCoreApplication::applicationDirPath().toStdString();
+static const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
+static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
+#else
+static const std::string program_dir=QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString()+"/ProPlanet";
+static const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
+static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
+#endif
 	assert(path[0]=='[');
 	size_t i;
 	for(i=0;i<path.size();++i)
