@@ -48,6 +48,9 @@ std::pair<double,double> planet_GM={0.99e17,1.01e17};
 //地图属性
 double map_size=2e8;
 double player_height=4e6;
+
+uint64_t minimum_select_dropped_item_skip=20;
+uint64_t maximum_dropped_box_stay_time=750;
 }//namespace attribute
 
 namespace kernel
@@ -76,6 +79,10 @@ volatile std::atomic<double> weapon_direct;
 //12,0：丢弃当前效果
 //0~9,0~9：选择效果
 volatile std::atomic<uint32_t> active_effect;
+//更换掉在行星上的补给箱内的物品（含义见操作）
+//0：不更换
+//1/-1：更换
+volatile std::atomic<int16_t> change_dropped_item;
 }
 
 //与渲染模块通信
@@ -92,7 +99,7 @@ std::vector<pill_t> pill_list;
 planet_t planet;
 player_t player;
 uint64_t game_clock,level,score;
-std::vector<std::pair<uint32_t,uint64_t>> dropped_items_list;
+std::pair<uint32_t,uint64_t> dropped_item;
 }
 
 std::thread process_thread;
@@ -124,7 +131,8 @@ uint64_t counter;//绝对编号
 uint64_t level;//玩家通过的关卡数
 uint64_t score;
 uint16_t difficulty;//游戏难度
-std::vector<std::pair<uint32_t,uint64_t>> dropped_items_list;//未被捡起的到达行星的补给箱内的物品
+uint64_t opened_dropped_box;
+int64_t selected_item_in_dropped_items_list;
 //游戏时钟
 uint64_t game_clock;
 
@@ -325,8 +333,9 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	comu_control::move=0;
 	comu_control::active_effect=compress16(10,0);
 	comu_control::weapon_direct=0;
+	comu_control::change_dropped_item=0;
     //新建关卡
-	if(!save_load.load(name,difficulty,level,counter,score,player,planet,dropped_box_list))
+	if(!save_load.load(name,difficulty,level,counter,score,player,planet))
     {
         level=0;
         counter=0;
@@ -345,7 +354,6 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		player.weapon_direct=0;
         player.score=0;
         player.name=name;
-		dropped_box_list.clear();
 		///////////
 		planet.size=frand_between(attribute::planet_size);
 		planet.GM=frand_between(attribute::planet_GM);
@@ -387,10 +395,13 @@ void stop_game()
 	meteorites_thisround.clear();
 	boxes_thisround.clear();
 	meteorite_list.clear();
+	dropped_box_list.clear();
 	box_list.clear();
 	comu_paint::box_list.clear();
 	comu_paint::meteorite_list.clear();
-	save_load.save(player.name,difficulty,level,counter,score,player,planet,dropped_box_list);
+	comu_paint::dropped_box_list.clear();
+	comu_paint::dropped_item.first=0xFFFFFFFF;
+	save_load.save(player.name,difficulty,level,counter,score,player,planet);
 }
 
 void clear()
@@ -585,7 +596,10 @@ void prepare_data_for_painting()
 		{
 			comu_paint::pill_list[i]=(it->second);
 		}
-		comu_paint::dropped_items_list=dropped_items_list;
+		if(~opened_dropped_box)
+			comu_paint::dropped_item=dropped_box_list[opened_dropped_box].first.contains[selected_item_in_dropped_items_list];
+		else
+			comu_paint::dropped_item={0xFFFFFFFF,0};
 		comu_paint::game_clock=game_clock;
 		comu_paint::score=score;
 		comu_paint::level=level;
@@ -776,9 +790,6 @@ void check_hit_planet()
 			i->second.to_d(boxd);
 			dropped_box_list.insert({i->first,{boxd,game_clock}});
 			i=box_list.erase(i);
-			--boxes_and_meteorites_left;
-			if(!boxes_and_meteorites_left)
-				last_destroy_clock=game_clock;
 		}
 		else ++i;
 	}
@@ -844,6 +855,139 @@ void player_move()
 	}
 }
 
+void check_open_dropped_box()
+{
+	for(auto &i:dropped_box_list)
+	{
+		if(planet.size*sqrt(2-2*cos(player.position-i.second.first.theta))<i.second.first.size*2)
+		{
+			if(opened_dropped_box!=i.first)
+			{
+				opened_dropped_box=i.first;
+				selected_item_in_dropped_items_list=0;
+			}
+			return;
+		}
+	}
+	opened_dropped_box=0xFFFFFFFFFFFFFFFF;
+}
+
+void clear_up_dropped_box()
+{
+	for(auto it=dropped_box_list.begin();it!=dropped_box_list.end();)
+	{
+		if(it->second.second+attribute::maximum_dropped_box_stay_time<game_clock)
+		{
+			if(opened_dropped_box==it->first)
+			{
+				opened_dropped_box=0xFFFFFFFFFFFFFFFF;
+				selected_item_in_dropped_items_list=0;
+			}
+			it=dropped_box_list.erase(it);
+			--boxes_and_meteorites_left;
+			if(!boxes_and_meteorites_left)
+				last_destroy_clock=game_clock;
+		}
+		else ++it;
+	}
+}
+
+void change_selected_item()
+{
+	static uint64_t last_change_clock=0;
+	if(int16_t tmp=comu_control::change_dropped_item)
+	{
+		//两次更换的最小间隔是0.4s
+		if(game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip)
+		{
+			last_change_clock=game_clock;
+			switch(tmp)
+			{
+			case 1:
+				selected_item_in_dropped_items_list++;
+				if(selected_item_in_dropped_items_list>=static_cast<int64_t>(dropped_box_list[opened_dropped_box].first.contains.size()))
+								selected_item_in_dropped_items_list=0;
+				break;
+			case -1:
+				selected_item_in_dropped_items_list--;
+				if(selected_item_in_dropped_items_list<0)
+					selected_item_in_dropped_items_list=dropped_box_list[opened_dropped_box].first.contains.size()-1;
+				break;
+			case 2:
+			{
+				auto & item=dropped_box_list[opened_dropped_box].first.contains[selected_item_in_dropped_items_list];
+				bool success=false;
+				switch(item.first&0xFFFF)
+				{
+				case CONTAIN_TYPE_FOOD:
+					player.hunger+=ako_food[item.first>>16].add_hunger*item.second;
+					success=true;
+					break;
+				case CONTAIN_TYPE_PILL:
+					player.pills+=item.second;
+					success=true;
+					break;
+				case CONTAIN_TYPE_EFFECT:
+				{
+					//每个效果可能有多个
+					for(uint64_t k=0;k<item.second;++k)
+					{
+						for(uint16_t i=0;true;++i)
+						{
+							for(uint16_t j=0;j<10;++j)
+							{
+								if(player.effect.count(compress16(i,j))==0||player.effect[compress16(i,j)]==65535)
+								{
+									player.effect[compress16(i,j)]=item.first>>16;
+									goto endfor;
+								}
+							}
+						}
+						endfor:;
+					}
+					success=true;
+					break;
+				}
+				case CONTAIN_TYPE_WEAPON:
+				{
+					for(int i=0;i<10;++i)
+					{
+						if(player.weapon[i].type==65535)
+						{
+							player.weapon[i].from_0(ako_weapon[item.first>>16]);
+							success=true;
+							break;
+						}
+					}
+					break;
+				}
+				}//switch(item.first&0xFFFF)
+				if(success)
+				{
+					dropped_box_list[opened_dropped_box].first.contains.erase(dropped_box_list[opened_dropped_box].first.contains.begin()+selected_item_in_dropped_items_list);
+					if(size_t size=dropped_box_list[opened_dropped_box].first.contains.size();size==0)
+					{
+						dropped_box_list.erase(opened_dropped_box);
+						--boxes_and_meteorites_left;
+						if(!boxes_and_meteorites_left)
+							last_destroy_clock=game_clock;
+						opened_dropped_box=0xFFFFFFFFFFFFFFFF;
+					}
+					else
+					{
+						selected_item_in_dropped_items_list++;
+						if(selected_item_in_dropped_items_list>=static_cast<int64_t>(size))
+							selected_item_in_dropped_items_list=0;
+					}
+				}
+				break;
+			}//case 2
+			}//switch(tmp)
+
+		}
+	}
+}
+
 void check_win_or_lose()
 {
 	//std::cout<<boxes_and_meteorites_left<<std::endl;
@@ -852,9 +996,10 @@ void check_win_or_lose()
 		//TODO:失败
 		comu_menu::game_ended=true;
 	}
-	else if(!boxes_and_meteorites_left&&last_destroy_clock+200<game_clock)
+	else if(!boxes_and_meteorites_left&&last_destroy_clock+150<game_clock)
 	{
 		//TODO:成功
+		level++;
 		comu_menu::game_ended=true;
 	}
 }
@@ -870,6 +1015,9 @@ void process_oneround()
 	weapon_shoot();
 	use_effect();
 	player_move();
+	check_open_dropped_box();
+	clear_up_dropped_box();
+	change_selected_item();
 	check_win_or_lose();
 	////////////////////////////////////
 	prepare_data_for_painting();

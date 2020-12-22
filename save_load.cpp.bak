@@ -1,3 +1,4 @@
+//可保存dropped_box_list的备份
 //save_load.cpp: 配置和存档的读取和写入
 
 //	-* mode: C++		encoding:UTF-8 *-
@@ -168,7 +169,8 @@ bool save_load_class::delete_user(const std::u32string &name)
 }
 
 bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,
-						uint64_t &score,player_t &player,planet_t &planet)
+						uint64_t &score,player_t &player,planet_t &planet,
+						std::map<uint64_t,std::pair<boxd_t,uint64_t>> &dropped_box)
 {
 	if(player.name!=name)return false;
 	if(auto tmp=user_list.find(name);tmp==user_list.end())
@@ -248,6 +250,31 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 			}
 			fin.read(reinterpret_cast<char*>(&planet.combined_effect),sizeof(planet.combined_effect));
 		}
+		//读取dropped_box
+		{
+			uint64_t size;
+			read64(size);
+			for(uint64_t i=0;i<size;++i)
+			{
+				boxd_t tmp;
+				readdb(tmp.r);readdb(tmp.theta);
+				read16(tmp.complete_rate);
+				readdb(tmp.size);
+				uint64_t size2;
+				read64(size2);
+				tmp.contains.resize(size2);
+				for(uint64_t j=0;j<size2;++j)
+				{
+					uint32_t first;uint64_t second;
+					read32(first);read64(second);
+					tmp.contains[j]={first,second};
+				}
+				read16(tmp.type);
+				uint64_t tmp2;
+				read64(tmp2);
+				dropped_box.insert({tmp2,{tmp,0}});
+			}
+		}
 		if(fin)
 		{
 			fin.close();
@@ -262,7 +289,8 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 }
 
 bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,
-						   uint64_t score,const player_t &player,const planet_t &planet)
+						   uint64_t score,const player_t &player,const planet_t &planet,
+						   const std::map<uint64_t,std::pair<boxd_t,uint64_t>> &dropped_box)
 {
 	if(player.name!=name)return false;
 	if(auto tmp=user_list.find(name);tmp==user_list.end())
@@ -335,6 +363,24 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 				write16(i.first);write64(i.second);
 			}
 			fout.write(reinterpret_cast<const char*>(&planet.combined_effect),sizeof(planet.combined_effect));
+		}
+		//写入dropped_box
+		{
+			write64(dropped_box.size());
+			for(auto &i:dropped_box)
+			{
+				auto &tmp=i.second.first;
+				writedb(tmp.r);writedb(tmp.theta);
+				write16(tmp.complete_rate);
+				writedb(tmp.size);
+				write64(tmp.contains.size());
+				for(auto &j:tmp.contains)
+				{
+					write32(j.first);write64(j.second);
+				}
+				write16(tmp.type);
+				write64(i.first);
+			}
 		}
 		if(fout)
 		{

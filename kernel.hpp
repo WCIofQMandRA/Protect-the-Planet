@@ -102,6 +102,11 @@ extern volatile std::atomic<double> weapon_direct;
 //12,0：丢弃当前效果
 //0~9,0~9：选择效果
 extern volatile std::atomic<uint32_t> active_effect;
+//更换掉在行星上的补给箱内的物品（含义参考游戏时的操作）
+//0：不更换
+//1/-1：更换
+//2：获取
+extern volatile std::atomic<int16_t> change_dropped_item;
 }
 
 //与渲染模块通信
@@ -118,7 +123,7 @@ extern std::vector<pill_t> pill_list;
 extern planet_t planet;
 extern player_t player;
 extern uint64_t game_clock,level,score;
-extern std::vector<std::pair<uint32_t,uint64_t>> dropped_items_list;
+extern std::pair<uint32_t,uint64_t> dropped_item;
 }
 
 //内核开始执行时会创建一个线程，该线程储存在process_thread中
