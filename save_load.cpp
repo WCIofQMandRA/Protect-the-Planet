@@ -144,6 +144,7 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 			for(uint64_t i=0;i<size;++i)
 			{
 				uint32_t first;uint16_t second;
+                read32(first);read16(second);
 				player.effect[first]=second;
 			}
 			read64(size);
