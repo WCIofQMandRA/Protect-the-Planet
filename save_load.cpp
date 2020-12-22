@@ -45,6 +45,7 @@ save_load_class::save_load_class()
 		cout<<"无法读取用户信息，已创建新用户列表"<<trpath("[storage]/userlist")<<"。"<<endl;
 		uint64_t a=0;
 		fout.write(reinterpret_cast<char*>(&a),8);
+		fout.write(reinterpret_cast<char*>(&a),8);//没错，写入两个0ull，第二个表示最后一个进行游戏的玩家是0号玩家
 		fout.close();
 		return;
 	}
@@ -54,30 +55,99 @@ save_load_class::save_load_class()
 	{
 		u32string a;
 		uint64_t m,b;
+		uint16_t c;
 		fin.read(reinterpret_cast<char*>(&m),8);
 		a.resize(m);
 		fin.read(reinterpret_cast<char*>(a.data()),4*m);
 		fin.read(reinterpret_cast<char*>(&b),8);
-		user_list[a]=b;
+		fin.read(reinterpret_cast<char*>(&c),2);
+		user_list[a]={b,c};
+	}
+	fin.read(reinterpret_cast<char*>(&last_play_user),8);
+	fin.close();
+}
+
+void save_load_class::save_user_list()
+{
+	using namespace std;
+	string filename=trpath("[storage]/userlist");
+	if(fs::is_regular_file(filename))
+		fs::copy(filename,filename+".bak");
+	ofstream fout(filename);
+	if(!fout)
+	{
+		cerr<<"无法保存用户信息"<<endl;
+		fout.close();
+		return;
+	}
+	uint64_t n=user_list.size();
+	fout.write(reinterpret_cast<const char*>(&n),8);
+	for(auto &i:user_list)
+	{
+		uint64_t m;
+		m=i.first.size();
+		fout.write(reinterpret_cast<const char*>(&m),8);
+		fout.write(reinterpret_cast<const char*>(i.first.data()),4*m);
+		fout.write(reinterpret_cast<const char*>(&i.second.first),8);
+		fout.write(reinterpret_cast<const char*>(&i.second.second),2);
+	}
+	fout.write(reinterpret_cast<char*>(&last_play_user),8);
+	if(fout)
+	{
+		fout.close();
+	}
+	else
+	{
+		cerr<<"保存用户信息失败"<<endl;
+		fout.close();
+		fs::copy(filename+".bak",filename);
 	}
 }
 
-std::vector<std::u32string> save_load_class::get_userlist()
+save_load_class::~save_load_class()
 {
-	std::vector<std::u32string> tmp(user_list.size());
+	save_user_list();
+}
+
+std::vector<std::pair<std::u32string,uint16_t>> save_load_class::get_userlist()
+{
+	std::vector<std::tuple<std::u32string,uint64_t,uint16_t>> tmp(user_list.size());
+	std::vector<std::pair<std::u32string,uint16_t>> tmp2(user_list.size());
 	size_t j=0;
 	for(const auto &i:user_list)
 	{
-		tmp[j++]=i.first;
+		tmp[j++]={i.first,i.second.first,i.second.second};
 	}
-	return tmp;
+	for(size_t i=0;i<tmp.size();++i)
+	{
+		if(std::get<1>(tmp[i])==last_play_user)
+		{
+			std::swap(tmp[i],tmp[0]);
+			break;
+		}
+	}
+	if(tmp.size()>2)
+	{
+		std::sort(tmp.begin()+1,tmp.end(),
+		[](const std::tuple<std::u32string,uint64_t,uint16_t> &x,std::tuple<std::u32string,uint64_t,uint16_t> &y)->bool
+		{
+			return std::get<1>(x)<std::get<1>(y);
+		});
+	}
+	for(size_t i=0;i<tmp.size();++i)
+	{
+		tmp2[i]={std::get<0>(tmp[i]),std::get<2>(tmp[i])};
+	}
+	return tmp2;
 }
 
 bool save_load_class::add_user(const std::u32string &name)
 {
 	if(user_list.count(name))
 		return false;
-	user_list[name]=user_list.size();
+	user_list[name]={user_list.size(),0};
+	last_play_user=user_list[name].first;
+	save_user_list();
 	return true;
 }
 
@@ -85,7 +155,10 @@ bool save_load_class::delete_user(const std::u32string &name)
 {
 	if(auto tmp=user_list.find(name);tmp!=user_list.end())
 	{
+		if(last_play_user==tmp->second.first)
+			last_play_user=0;
 		user_list.erase(tmp);
+		save_user_list();
 		return true;
 	}
 	else
@@ -95,7 +168,8 @@ bool save_load_class::delete_user(const std::u32string &name)
 }
 
 bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,
-						uint64_t &score,player_t &player,planet_t &planet)
+						uint64_t &score,player_t &player,planet_t &planet,
+						std::map<uint64_t,std::pair<boxd_t,uint64_t>> &dropped_box)
 {
 	if(player.name!=name)return false;
 	if(auto tmp=user_list.find(name);tmp==user_list.end())
@@ -105,7 +179,7 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 	else
 	{
 		using namespace std;
-		string filename=trpath("[storage]/user.")+to_string(user_list[name])+"-"+to_string(difficulty);
+		string filename=trpath("[storage]/user.")+to_string(tmp->second.first)+"-"+to_string(difficulty);
 		ifstream fin(filename,ios_base::in|ios_base::binary);
 		if(!fin)
 		{
@@ -175,6 +249,31 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 			}
 			fin.read(reinterpret_cast<char*>(&planet.combined_effect),sizeof(planet.combined_effect));
 		}
+		//读取dropped_box
+		{
+			uint64_t size;
+			read64(size);
+			for(uint64_t i=0;i<size;++i)
+			{
+				boxd_t tmp;
+				readdb(tmp.r);readdb(tmp.theta);
+				read16(tmp.complete_rate);
+				readdb(tmp.size);
+				uint64_t size2;
+				read64(size2);
+				tmp.contains.resize(size2);
+				for(uint64_t j=0;j<size2;++j)
+				{
+					uint32_t first;uint64_t second;
+					read32(first);read64(second);
+					tmp.contains[j]={first,second};
+				}
+				read16(tmp.type);
+				uint64_t tmp2;
+				read64(tmp2);
+				dropped_box.insert({tmp2,{tmp,0}});
+			}
+		}
 		if(fin)
 		{
 			fin.close();
@@ -189,7 +288,8 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 }
 
 bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,
-						   uint64_t score,const player_t &player,const planet_t &planet)
+						   uint64_t score,const player_t &player,const planet_t &planet,
+						   const std::map<uint64_t,std::pair<boxd_t,uint64_t>> &dropped_box)
 {
 	if(player.name!=name)return false;
 	if(auto tmp=user_list.find(name);tmp==user_list.end())
@@ -199,7 +299,8 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 	else
 	{
 		using namespace std;
-		string filename=trpath("[storage]/user.")+to_string(user_list[name])+"-"+to_string(difficulty);
+		last_play_user=tmp->second.first;
+		string filename=trpath("[storage]/user.")+to_string(tmp->second.first)+"-"+to_string(difficulty);
 		if(fs::is_regular_file(filename))
 			fs::copy(filename,filename+".bak");
 		ofstream fout(filename,ios_base::out|ios_base::binary);
@@ -208,6 +309,8 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 			cerr<<"写入存档失败"<<endl;
 			return false;
 		}
+		//更新用户最后一次进行游戏时的难度
+		user_list[name].second=difficulty;
 		auto write64=[&fout](uint64_t x){fout.write(reinterpret_cast<char*>(&x),8);};
 		auto writes64=[&fout](int64_t x){fout.write(reinterpret_cast<char*>(&x),8);};
 		auto writedb=[&fout](double x){fout.write(reinterpret_cast<char*>(&x),8);};
@@ -260,9 +363,28 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 			}
 			fout.write(reinterpret_cast<const char*>(&planet.combined_effect),sizeof(planet.combined_effect));
 		}
+		//写入dropped_box
+		{
+			write64(dropped_box.size());
+			for(auto &i:dropped_box)
+			{
+				auto &tmp=i.second.first;
+				writedb(tmp.r);writedb(tmp.theta);
+				write16(tmp.complete_rate);
+				writedb(tmp.size);
+				write64(tmp.contains.size());
+				for(auto &j:tmp.contains)
+				{
+					write32(j.first);write64(j.second);
+				}
+				write16(tmp.type);
+				write64(i.first);
+			}
+		}
 		if(fout)
 		{
 			fout.close();
+			save_user_list();
 			return true;
 		}
 		else

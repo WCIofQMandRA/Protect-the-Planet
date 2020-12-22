@@ -33,6 +33,7 @@ extern double player_height;
 namespace paint
 {
 std::vector<QPixmap> meteorite_resources;
+std::vector<QPixmap> player_resources;
 std::vector<size_t> meteorite_view={0,0,0,0,0,0,0};
 bool inited=false;
 
@@ -54,6 +55,10 @@ void init()
 {
 	meteorite_resources.resize(1);
 	meteorite_resources[0].load(":/pictures/resources/meteorite0.png");
+	player_resources.resize(3);
+	player_resources[0].load(":/pictures/resources/player0.png");
+	player_resources[1].load(":/pictures/resources/player1.png");
+	player_resources[2].load(":/pictures/resources/player2.png");
 }
 
 void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)

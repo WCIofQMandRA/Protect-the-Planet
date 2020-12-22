@@ -28,6 +28,17 @@ struct boxp_t
 	std::vector<uint16_t> effects;
 };
 
+//掉落的补给箱
+struct boxd_t
+{
+	double r,theta;//位置
+	uint16_t complete_rate;//完整度，取值范围1~3
+	double size;//大小，决定碰撞箱和渲染
+	std::vector<std::pair<uint32_t,uint64_t>> contains;
+	uint16_t type;
+	void to_p(boxp_t &)const;
+};
+
 //补给箱
 struct box_t
 {
@@ -47,6 +58,7 @@ struct box_t
 	received_effect_box_t combined_effect;
 	uint16_t type;
 	void to_p(boxp_t &)const;
+	void to_d(boxd_t &)const;
 };
 
 //未生成的补给箱

@@ -77,10 +77,31 @@ void box_t::to_p(boxp_t &p)const
 	p.type=type;
 	p.complete_rate=static_cast<uint16_t>(3*(strength_left-1)/strength)+1;
 	size_t i=0;
+	p.effects.resize(received_effect.size());
 	for(auto it=received_effect.cbegin();it!=received_effect.cend();++it,++i)
 	{
 		p.effects[i]=it->first;
 	}
+}
+
+void box_t::to_d(boxd_t &d) const
+{
+	d.r=orbit.calc_r(theta);
+	d.theta=theta;
+	d.complete_rate=static_cast<uint16_t>(3*(strength_left-1)/strength)+1;
+	d.size=size;
+	d.contains=contains;
+	d.type=type;
+}
+
+void boxd_t::to_p(boxp_t &p) const
+{
+	p.x=r*cos(theta);
+	p.y=r*sin(theta);
+	p.size=size;
+	p.type=type;
+	p.complete_rate=complete_rate;
+	p.effects.clear();
 }
 
 void weapon_t::from_0(const weapon0_t &x)

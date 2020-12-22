@@ -192,7 +192,7 @@ void mainwindow::stop_game()
 	{
 		state=STATE_PLAYING;
 		show();
-		paint::draw_map(this,STATE_PLAYING);
+		//paint::draw_map(this,STATE_PLAYING);
 		setMouseTracking(true);
 		kernel::comu_menu::game_ended=false;
 		kernel::start_game(name,difficulty);
@@ -207,5 +207,13 @@ void mainwindow::stop_game()
 void mainwindow::game_end()
 {
 	if(kernel::comu_menu::game_ended)
+	{
+		state=STATE_PAUSE;
+		setMouseTracking(false);
+		kernel::comu_menu::should_pause=true;
+		autoupdate_timer->stop();
+		update();
+		is_choosing=true;
 		stop_game();
+	}
 }

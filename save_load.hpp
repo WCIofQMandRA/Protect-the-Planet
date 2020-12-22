@@ -26,6 +26,7 @@
 class save_load_class
 {
 private:
+	//用户名，编号，上一次游戏时的难度
 	std::map<std::u32string,std::pair<uint64_t,uint16_t>> user_list;
 	uint64_t last_play_user;
 	void save_user_list();
@@ -38,8 +39,8 @@ public:
 	std::vector<std::pair<std::u32string,uint16_t>> get_userlist();
 	bool add_user(const std::u32string &name);
 	bool delete_user(const std::u32string &name);
-	bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,uint64_t &score,player_t&,planet_t&,std::map<uint64_t,std::pair<box_t,uint64_t>>&);
-	bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,uint64_t score,const player_t&,const planet_t&,const std::map<uint64_t,std::pair<box_t,uint64_t>>&);
+	bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,uint64_t &score,player_t&,planet_t&,std::map<uint64_t,std::pair<boxd_t,uint64_t>>&);
+	bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,uint64_t score,const player_t&,const planet_t&,const std::map<uint64_t,std::pair<boxd_t,uint64_t>>&);
 };
 
 extern save_load_class save_load;

@@ -116,7 +116,7 @@ std::vector<received_effect_weapon_t> ako_weapon_effect;
 //uint64_t是绝对编号，从游戏开始运行时记
 std::map<uint64_t,meteorite_t> meteorite_list;
 std::map<uint64_t,box_t> box_list;
-std::map<uint64_t,std::pair<box_t,uint64_t>> dropped_box_list;
+std::map<uint64_t,std::pair<boxd_t,uint64_t>> dropped_box_list;
 std::map<uint64_t,pill_t> pill_list;
 planet_t planet;
 player_t player;
@@ -326,7 +326,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	comu_control::active_effect=compress16(10,0);
 	comu_control::weapon_direct=0;
     //新建关卡
-	if(!save_load.load(name,difficulty,level,counter,score,player,planet))
+	if(!save_load.load(name,difficulty,level,counter,score,player,planet,dropped_box_list))
     {
         level=0;
         counter=0;
@@ -345,6 +345,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		player.weapon_direct=0;
         player.score=0;
         player.name=name;
+		dropped_box_list.clear();
 		///////////
 		planet.size=frand_between(attribute::planet_size);
 		planet.GM=frand_between(attribute::planet_GM);
@@ -389,7 +390,7 @@ void stop_game()
 	box_list.clear();
 	comu_paint::box_list.clear();
 	comu_paint::meteorite_list.clear();
-	save_load.save(player.name,difficulty,level,counter,score,player,planet);
+	save_load.save(player.name,difficulty,level,counter,score,player,planet,dropped_box_list);
 }
 
 void clear()
@@ -771,7 +772,9 @@ void check_hit_planet()
 	{
 		if(i->second.orbit.calc_r(i->second.theta)<planet.size+i->second.size)
 		{
-			dropped_box_list.insert({i->first,{i->second,game_clock}});
+			boxd_t boxd;
+			i->second.to_d(boxd);
+			dropped_box_list.insert({i->first,{boxd,game_clock}});
 			i=box_list.erase(i);
 			--boxes_and_meteorites_left;
 			if(!boxes_and_meteorites_left)
@@ -843,7 +846,7 @@ void player_move()
 
 void check_win_or_lose()
 {
-	std::cout<<boxes_and_meteorites_left<<std::endl;
+	//std::cout<<boxes_and_meteorites_left<<std::endl;
 	if(planet.health<0)
 	{
 		//TODO:失败
