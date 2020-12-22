@@ -41,6 +41,7 @@ std::vector<size_t> meteorite_view={0,0,0,0,0,0,0};
 std::vector<std::u32string> food_namelist={U"糖果"};
 std::vector<std::u32string> weapon_namelist={U"手枪"};
 std::vector<std::u32string> effect_namelist={U"快速射击I"};
+uint64_t animate;
 bool inited=false;
 
 void drawText(QPainter &painter,qreal x,qreal y,Qt::Alignment flags,const QString &text,QRectF *boundingRect=0)
@@ -120,7 +121,10 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	painter.setPen(QPen(Qt::black));
 	painter.setBrush(Qt::black);
 	QPoint ptmp=trp(0,0);
-	painter.drawRect(ptmp.x()-10,ptmp.y()-trs(kernel::comu_paint::planet.size)-trs(attribute::player_height),20,trs(attribute::player_height));
+	int which=(animate++)%9/3;
+	int ysize=trs(attribute::player_height)*3/2;
+	int xsize=player_resources[which].size().width()*ysize/player_resources[which].size().height();
+	painter.drawPixmap(ptmp.x()-xsize/2,ptmp.y()-trs(kernel::comu_paint::planet.size)-trs(attribute::player_height),player_resources[which].scaled(xsize,ysize));
 	////////////////////
 	//绘制子弹
 	painter.setPen(QPen(Qt::red,trs(1e6)*0.6));
@@ -135,8 +139,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	{
 		painter.setPen(QColor(88,88,88));
 		painter.setBrush(QColor(127,127,127));
-		QPoint cpoint=trp(0,0);
-		painter.drawRect(cpoint.x()-10,cpoint.y()-10,20,20);
+		painter.drawRect(ptmp.x()-10,ptmp.y()-10,20,20);
 		QString name;
 		//TODO：绘制图标
 		auto &item=kernel::comu_paint::dropped_item;
@@ -164,7 +167,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		}
 		}
 		painter.setPen(Qt::red);
-		drawText(painter,cpoint.x(),cpoint.y()-15,Qt::AlignTop|Qt::AlignHCenter,name);
+		drawText(painter,ptmp.x(),ptmp.y()-15,Qt::AlignTop|Qt::AlignHCenter,name);
 	}
 }
 
