@@ -39,8 +39,6 @@ private slots:
 	void on_button_stop_clicked();
 	void on_button_continue_clicked();
 
-	void on_button_save_clicked();
-
 private:
 	Ui::dialog_pause *ui;
 };

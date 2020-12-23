@@ -49,9 +49,9 @@ void dialog_pause::on_button_continue_clicked()
 	done(0);
 }
 
-void dialog_pause::on_button_save_clicked()
+/*void dialog_pause::on_button_save_clicked()
 {
 	//todo
 	std::cout<<"a";
 	ui->success_save->setText("进度已储存！");
-}
+}*/

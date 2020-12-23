@@ -7,6 +7,7 @@ dialog_difficulty::dialog_difficulty(uint16_t dif_,QWidget *parent) :
 	ui(new Ui::dialog_difficulty)
 {
 	ui->setupUi(this);
+	game_entered=false;
 	if(save_load.get_userlist().empty()){
 		ui->but_dif0->setChecked(true);
 	}else{
@@ -41,6 +42,12 @@ void dialog_difficulty::on_but_dif2_clicked()
 }
 
 void dialog_difficulty::on_but_start_clicked()
+{
+	game_entered=true;
+	done(0);
+}
+
+void dialog_difficulty::on_but_back_clicked()
 {
 	done(0);
 }

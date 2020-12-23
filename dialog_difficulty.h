@@ -20,10 +20,12 @@ private:
 
 public:
 	uint16_t dif;
+	bool game_entered;
 private slots:
 	void on_but_dif0_clicked();
 	void on_but_dif1_clicked();
 	void on_but_dif2_clicked();
 	void on_but_start_clicked();
+	void on_but_back_clicked();
 };
 #endif // DIALOG_DIFFICULTY_H

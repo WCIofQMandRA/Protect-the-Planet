@@ -94,7 +94,7 @@
     </rect>
    </property>
    <property name="text">
-    <string/>
+    <string>欢迎您！  用户</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_lastname">
