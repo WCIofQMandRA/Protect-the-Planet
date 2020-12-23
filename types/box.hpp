@@ -67,6 +67,7 @@ struct box0_t
 	std::pair<uint64_t,uint64_t> fly_time;//从生成到落到行星表面的时间范围（first~second）
 	std::pair<uint64_t,uint64_t> total_value;//内容物的总价值的范围
 	std::vector<uint32_t> probal_contain;//可能含有的内容物（first:种类，second:物品编号）
+	std::vector<std::pair<uint32_t,uint64_t>> defint_contain;//一定含有的内容物，不计算在总价值内
 	uint64_t type;
 	intmp_t strength;
 	double size;

@@ -228,10 +228,8 @@ void mainwindow::game_end()
 	{
 		state=STATE_PAUSE;
 		setMouseTracking(false);
-		kernel::comu_menu::should_pause=true;
 		autoupdate_timer->stop();
 		update();
-		is_choosing=true;
 		stop_game();
 	}
 }

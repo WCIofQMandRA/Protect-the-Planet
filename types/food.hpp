@@ -25,5 +25,4 @@ struct food_t
 	uint64_t add_hunger;//饥饿值的增加量
 	uint64_t value;
 	uint16_t type;
-	std::u32string name;//食物的名称
 };

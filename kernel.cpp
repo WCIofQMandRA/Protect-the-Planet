@@ -133,6 +133,7 @@ uint64_t score;
 uint16_t difficulty;//游戏难度
 uint64_t opened_dropped_box;
 int64_t selected_item_in_dropped_items_list;
+int32_t succeeded;
 //游戏时钟
 uint64_t game_clock;
 
@@ -193,6 +194,7 @@ inline double frand_between(const tp &x)
 void process_thread_main()
 {
 	//由于GM是thread_local，必须在这里set_GM
+	//std::cout<<"thread start"<<std::endl;
 	orbit_t::set_GM(planet.GM);
 	using namespace std::chrono_literals;
 	auto process_time=std::chrono::system_clock::now()+1ms;
@@ -203,6 +205,7 @@ void process_thread_main()
 		process_time+=20ms;
 		++game_clock;
 	}
+	//std::cout<<"thread end"<<std::endl;
 }
 
 void init()
@@ -294,11 +297,11 @@ void init()
 		ako_weapon.push_back({5,18,1,0,false,[](intmp_t &x,const double &power_rate_pill,const double &power_rate_meteorite/*or power_rate_box*/)
 							  {
 								  x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);
-							  },U"手枪",2e6});
+							  },2e6});
 	}
 	//生成食物列表
 	{
-		ako_food.push_back({4000,3,0,U"糖果"});
+		ako_food.push_back({4000,3,0});
 	}
 	//生成武器收到的效果的列表
 	{
@@ -307,14 +310,19 @@ void init()
 
 	//生成效果列表
 	{
-		ako_effect.push_back({1500,10,EFFECT_RECIVER_CURRENT_WEAPON,0,0,false,U"快速射击I",
-							  std::function<void(void)>()});
+		ako_effect.push_back({1500,10,EFFECT_RECIVER_CURRENT_WEAPON,0,0,false,
+							  std::function<void(void*)>()});
 	}
 	//生成补给箱列表
 	{
-		ako_box.push_back({std::make_pair(500,550),std::make_pair(11,19),
-						   {compress16(CONTAIN_TYPE_FOOD,0),compress16(CONTAIN_TYPE_EFFECT,0)},
-						   0,15,2.3e6});
+		ako_box.push_back({std::make_pair(200,300),std::make_pair(0,0),
+						   {},
+						   {{compress16(CONTAIN_TYPE_PILL,0),30}},
+						  0,15,3.7e6});
+		ako_box.push_back({std::make_pair(500,550),std::make_pair(17,19),
+						   {compress16(CONTAIN_TYPE_FOOD,0),compress16(CONTAIN_TYPE_PILL,0)},
+						   {{compress16(CONTAIN_TYPE_EFFECT,0),1}},
+						   1,15,2.3e6});
 	}
 
 	//初始化随机数引擎
@@ -325,7 +333,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 {
 	std::cout<<"kernel:开始游戏"<<std::endl;
 	kernel::difficulty=difficulty;
-	game_clock=0;
+	game_clock=0;succeeded=0;
 	comu_menu::should_pause=false;
 	comu_menu::game_ended=false;
 	comu_paint::ready=false;
@@ -337,6 +345,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
     //新建关卡
 	if(!save_load.load(name,difficulty,level,counter,score,player,planet))
     {
+		std::cout<<"加载存档失败"<<std::endl;
         level=0;
         counter=0;
 		score=0;
@@ -361,6 +370,12 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		planet.health=attribute::planet_init_health[difficulty];
 		planet.received_effect.clear();
 		planet.combined_effect=received_effect_planet_t();
+	}
+	if(level>=trans_level[difficulty].size())
+	{
+		std::cerr<<"关卡"<<level<<"不存在"<<std::endl;
+		level=0;
+		//abort();
 	}
 	for(auto &i:player.weapon)
 		i.last_use_time=0;
@@ -393,16 +408,28 @@ void continue_game()
 void stop_game()
 {
 	std::cout<<"kernel:终止游戏"<<std::endl;
+	comu_menu::should_pause=true;
+	process_thread.join();
 	meteorites_thisround.clear();
 	boxes_thisround.clear();
 	meteorite_list.clear();
+	pill_list.clear();
 	dropped_box_list.clear();
 	box_list.clear();
 	comu_paint::box_list.clear();
 	comu_paint::meteorite_list.clear();
 	comu_paint::dropped_box_list.clear();
 	comu_paint::dropped_item.first=0xFFFFFFFF;
-	save_load.save(player.name,difficulty,level,counter,score,player,planet);
+	if(succeeded==1)
+	{
+		if(save_load.save(player.name,difficulty,level,counter,score,player,planet))
+			std::cout<<"保存成功"<<std::endl;
+	}
+	else if(succeeded==-1)
+	{
+		if(save_load.remove(player.name,difficulty))
+			std::cout<<"保存成功"<<std::endl;
+	}
 }
 
 void clear()
@@ -451,7 +478,8 @@ std::tuple<orbit_t,double,double> generate_orbit(double t,double msize)
 }
 
 //TODO: 允许补给箱中一定包含某些物品
-std::vector<std::pair<uint32_t,uint64_t>> generate_contains(std::pair<uint64_t,uint64_t> value,const std::vector<uint32_t> &items)
+std::vector<std::pair<uint32_t,uint64_t>> generate_contains(std::pair<uint64_t,uint64_t> value,const std::vector<uint32_t> &items,
+															const std::vector<std::pair<uint32_t,uint64_t>> &compulsory_items)
 {
 	std::vector<uint64_t> value_list;//value_list[i]:items[i]的价值
 	value_list.resize(items.size());
@@ -517,13 +545,18 @@ std::vector<std::pair<uint32_t,uint64_t>> generate_contains(std::pair<uint64_t,u
 	//将重复的物品合并
 	std::sort(contain_list0.begin(),contain_list0.end());
 	std::vector<std::pair<uint32_t,uint64_t>> contain_list;
-	contain_list.push_back({items[contain_list0[0]],1});
+	if(contain_list0.size())
+		contain_list.push_back({items[contain_list0[0]],1});
 	for(size_t i=1;i<contain_list0.size();++i)
 	{
 		if(items[contain_list0[i]]==(--contain_list.end())->first)
 			++(--contain_list.end())->second;
 		else
 			contain_list.push_back({items[contain_list0[i]],1});
+	}
+	for(auto &i:compulsory_items)
+	{
+		contain_list.push_back(i);
 	}
 	std::shuffle(contain_list.begin(),contain_list.end(),rand64);
 	return contain_list;
@@ -560,7 +593,7 @@ void generate_mete_and_box()
 			assert(i==ako_box[i].type);
 			tmp.strength=ako_box[i].strength;
 			tmp.strength_left=ako_box[i].strength;
-			tmp.contains=generate_contains(ako_box[i].total_value,ako_box[i].probal_contain);
+			tmp.contains=generate_contains(ako_box[i].total_value,ako_box[i].probal_contain,ako_box[i].defint_contain);
 			box_list[++counter]=std::move(tmp);
 		}
 	}
@@ -899,7 +932,7 @@ void change_selected_item()
 	if(int16_t tmp=comu_control::change_dropped_item)
 	{
 		//两次更换的最小间隔是0.4s
-		if(game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip)
+		if(~opened_dropped_box&&game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip)
 		{
 			last_change_clock=game_clock;
 			switch(tmp)
@@ -995,11 +1028,14 @@ void check_win_or_lose()
 	if(planet.health<0)
 	{
 		//TODO:失败
+		succeeded=-1;
 		comu_menu::game_ended=true;
 	}
-	else if(!boxes_and_meteorites_left&&last_destroy_clock+150<game_clock)
+	//警惕线程通信的延时！
+	else if(!boxes_and_meteorites_left&&last_destroy_clock+150<game_clock&&!succeeded)
 	{
 		//TODO:成功
+		succeeded=1;
 		level++;
 		comu_menu::game_ended=true;
 	}

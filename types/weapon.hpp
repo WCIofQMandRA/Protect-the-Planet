@@ -31,7 +31,6 @@ struct weapon0_t
 	//const double &power_rate_meteorite/*or power_rate_box*/)
 	//对某个剩余强度为x的陨石（或补给箱）成功使用一次该武器后，该陨石（或补给箱）新的剩余强度
 	std::function<void(intmp_t&,const double&,const double&)> use;
-	std::u32string name;//武器的名称
 	//子弹的速率，不能为inf
 	double pill_speed;
 };

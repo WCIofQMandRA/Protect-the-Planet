@@ -139,7 +139,8 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	{
 		painter.setPen(QColor(88,88,88));
 		painter.setBrush(QColor(127,127,127));
-		painter.drawRect(ptmp.x()-32,ptmp.y()-32,64,64);
+		int icon_size=std::min(64,trs(1.5e7));
+		painter.drawRect(ptmp.x()-icon_size/2,ptmp.y()-icon_size/2,icon_size,icon_size);
 		QString name;
 		//TODO：绘制图标
 		auto &item=kernel::comu_paint::dropped_item;
@@ -211,6 +212,7 @@ void draw_map(QWidget *place,uint16_t state)
 		drawText(painter,10,height-10,Qt::AlignLeft|Qt::AlignBottom,QString::fromUtf8("饥饿值：%1").arg(kernel::comu_paint::player.hunger));
 		drawText(painter,width-10,10,Qt::AlignRight|Qt::AlignTop,QString::fromUtf8("第 %1 关").arg(kernel::comu_paint::level));
 		drawText(painter,width-10,30,Qt::AlignRight|Qt::AlignTop,QString::fromUtf8("得分：%1").arg(kernel::comu_paint::score));
+		drawText(painter,width-10,50,Qt::AlignRight|Qt::AlignTop,QString::fromStdU32String(kernel::comu_paint::player.name));
 		break;
 	}
 	case STATE_STOP:
