@@ -112,7 +112,9 @@ void Dialog_load::on_but_create_clicked()
 	dia.setWindowTitle("New Player");
 	dia.show();
 	dia.exec();
-	name = dia.new_name;
-	save_load.add_user(name);
-	done(0);
+	if(dia.clicked_back==false){
+		name = dia.new_name;
+		save_load.add_user(name);
+		done(0);
+	}
 }

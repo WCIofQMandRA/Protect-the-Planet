@@ -28,6 +28,7 @@
 #include "dialog_newgame.h"
 #include "dialog_difficulty.h"
 #include "dialog_load.h"
+#include "QPalette"
 dialog_start::dialog_start(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_start)
@@ -36,7 +37,13 @@ dialog_start::dialog_start(QWidget *parent) :
 #ifdef _WIN32
 	QFont font;
 	font.setFamily("Microsoft Yahei");
+	font.setBold(true);
 	setFont(font);
+	pal_label.setColor(QPalette::WindowText,Qt::white);
+	pal_but.setColor(QPalette::ButtonText,Qt::white);
+	//pal_but.setColor(QPalette::Background,Qt::black);
+	ui->but_changeuser->setPalette(pal_but);
+	ui->but_changeuser->setStyleSheet("background-color:rgb(0,0,0)");
 #endif
 	wel_img.load(":/pictures/resources/game_name.png");
 	ui->label1->setPixmap(wel_img.scaled(ui->label1->size(),Qt::KeepAspectRatio));
@@ -51,12 +58,16 @@ dialog_start::dialog_start(QWidget *parent) :
 		dia.exec();
 		name=dia.new_name;
 		save_load.add_user(name);
-		ui->label_lastname->setText(QString::fromStdU32String(name));
+		//ui->label_lastname->setText(ui->label_static->text()+QString::fromStdU32String(name));
+		ui->label_lastname->setText("欢迎您！ 用户"+QString::fromStdU32String(name));
+		ui->label_lastname->setPalette(pal_label);
 	}
 	else
 	{
 		//ui->label_static->setText("欢迎回来 用户");
-		ui->label_lastname->setText(QString::fromStdU32String(name_list[0]));
+		//ui->label_lastname->setText(QString::fromStdU32String(name_list[0]));
+		ui->label_lastname->setText("欢迎您！ 用户"+QString::fromStdU32String(name_list[0]));
+		ui->label_lastname->setPalette(pal_label);
 	}
 }
 
@@ -97,5 +108,7 @@ void dialog_start::on_but_changeuser_clicked()
 	dia.show();
 	dia.exec();
 	name = dia.name;
-	ui->label_lastname->setText(QString::fromStdU32String(name));
+	//ui->label_lastname->setText(QString::fromStdU32String(name));
+	ui->label_lastname->setText("欢迎您！ 用户"+QString::fromStdU32String(name));
+	ui->label_lastname->setPalette(pal_label);
 }

@@ -20,9 +20,11 @@ private:
 public:
 	std::u32string new_name;
 	int new_dif;
+	bool clicked_back;
 private slots:
 	void on_nameedit_textEdited(const QString &arg1);
 	void on_but_sure_clicked();
 	void on_pushButton_clicked();
+	void on_but_back_clicked();
 };
 #endif // DIALOG_NEWGAME_H
