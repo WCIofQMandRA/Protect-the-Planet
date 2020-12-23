@@ -24,6 +24,7 @@ Dialog_load::Dialog_load(QWidget *parent) :
 	if(tot_user_num>=1) ui->but_1->setText(QString::fromStdU32String(name_list[0])),ui->but_1->setEnabled(true);
 	ui->but_1->setChecked(true); //默认选中了第一个
 	name = name_list[0];
+	prename=name;
 	max_down_num = tot_user_num - 6;   //最多可向下移动的次数
 	if(max_down_num<0) max_down_num=0;
 	cur_down_num = 0;         //当前向下移动的次数
@@ -101,6 +102,7 @@ void Dialog_load::on_but_6_clicked()
 
 void Dialog_load::on_but_back_clicked()
 {
+	name = prename;
 	done(0);
 }
 

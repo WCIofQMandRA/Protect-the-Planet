@@ -49,6 +49,7 @@ private:
 	int16_t max_down_num;
 	int16_t cur_down_num;
 	int16_t tot_user_num;
+	std::u32string prename;
 };
 
 #endif // DIALOG_LOAD_H
