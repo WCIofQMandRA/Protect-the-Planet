@@ -42,6 +42,7 @@ public:
 	bool delete_user(const std::u32string &name);
 	bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,uint64_t &score,player_t&,planet_t&);
 	bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,uint64_t score,const player_t&,const planet_t&);
+	bool remove(const std::u32string &name,uint16_t difficulty);
 };
 
 extern save_load_class save_load;

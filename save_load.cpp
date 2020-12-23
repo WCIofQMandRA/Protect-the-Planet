@@ -29,7 +29,14 @@ save_load_class save_load;
 save_load_class::save_load_class()
 {
 	using namespace std;
-	ifstream fin(trpath("[storage]/userlist"),ios_base::in|ios_base::binary);
+	auto filename=trpath("[storage]/userlist");
+	if(fs::is_regular_file(filename+".bak"))
+	{
+		std::cout<<"检测到上次保存用户列表时出现错误，并且很可能引起了程序崩溃"<<std::endl;
+		fs::remove(filename);
+		fs::rename(filename+".bak",filename);
+	}
+	ifstream fin(filename,ios_base::in|ios_base::binary);
 	if(!fin)
 	{
 		fin.close();
@@ -75,7 +82,7 @@ void save_load_class::save_user_list()
 	{
 		if(fs::is_regular_file(filename+".bak"))
 			fs::remove(filename+".bak");
-		fs::copy_file(filename,filename+".bak");
+		fs::rename(filename,filename+".bak");
 		//由于不明原因，overwrite_existing选择在文件已存在时仍然会报错
 		//fs::copy_file(filename,filename+".bak",fs::copy_options::overwrite_existing);
 	}
@@ -101,13 +108,14 @@ void save_load_class::save_user_list()
 	if(fout)
 	{
 		fout.close();
+		fs::remove(filename+".bak");
 	}
 	else
 	{
 		cerr<<"保存用户信息失败"<<endl;
 		fout.close();
 		fs::remove(filename);
-		fs::copy_file(filename+".bak",filename);
+		fs::rename(filename+".bak",filename);
 	}
 }
 
@@ -191,6 +199,12 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 	{
 		using namespace std;
 		string filename=trpath("[storage]/user.")+to_string(tmp->second.first)+"-"+to_string(difficulty);
+		if(fs::is_regular_file(filename+".bak"))
+		{
+			cout<<"检测到上次保存存档时出现错误，并且很可能引起了程序崩溃"<<endl;
+			fs::remove(filename);
+			fs::rename(filename+".bak",filename);
+		}
 		ifstream fin(filename,ios_base::in|ios_base::binary);
 		if(!fin)
 		{
@@ -296,7 +310,7 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 		{
 			if(fs::is_regular_file(filename+".bak"))
 				fs::remove(filename+".bak");
-			fs::copy_file(filename,filename+".bak");
+			fs::rename(filename,filename+".bak");
 		}
 		ofstream fout(filename,ios_base::out|ios_base::binary);
 		if(!fout)
@@ -367,6 +381,7 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 		if(fout)
 		{
 			fout.close();
+			fs::remove(filename+".bak");
 			save_user_list();
 			return true;
 		}
@@ -374,8 +389,26 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 		{
 			fout.close();
 			fs::remove(filename);
-			fs::copy_file(filename+".bak",filename);
+			fs::rename(filename+".bak",filename);
 			return false;
 		}
+	}
+}
+
+bool save_load_class::remove(const std::u32string &name, uint16_t difficulty)
+{
+	if(auto tmp=user_list.find(name);tmp==user_list.end())
+	{
+		return false;
+	}
+	else
+	{
+		using namespace std;
+		auto filename=trpath("[storage]/user.")+to_string(tmp->second.first)+"-"+to_string(difficulty);
+		if(fs::is_regular_file(filename))
+			fs::remove(filename);
+		if(fs::is_regular_file(filename+".bak"))
+			fs::remove(filename+".bak");
+		return true;
 	}
 }
