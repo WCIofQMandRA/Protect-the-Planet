@@ -333,20 +333,12 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	comu_control::move=0;
 	comu_control::active_effect=compress16(10,0);
 	comu_control::weapon_direct=0;
-<<<<<<< HEAD
-	//新建关卡
-	if(!save_load.load(name,difficulty,level,counter,score,player,planet,dropped_box_list))
-	{
-		level=0;
-		counter=0;
-=======
 	comu_control::change_dropped_item=0;
     //新建关卡
 	if(!save_load.load(name,difficulty,level,counter,score,player,planet))
     {
         level=0;
         counter=0;
->>>>>>> 1ee83122441ec376d42fda823a093d0c6ac8a2dd
 		score=0;
 		player.pills=attribute::player_init_pills[difficulty];
 		player.hunger=attribute::player_init_hunger[difficulty];
@@ -360,14 +352,9 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		player.combined_effect=received_effect_player_t();
 		player.position=0;
 		player.weapon_direct=0;
-<<<<<<< HEAD
 		player.score=0;
 		player.name=name;
 		dropped_box_list.clear();
-=======
-        player.score=0;
-        player.name=name;
->>>>>>> 1ee83122441ec376d42fda823a093d0c6ac8a2dd
 		///////////
 		planet.size=frand_between(attribute::planet_size);
 		planet.GM=frand_between(attribute::planet_GM);
