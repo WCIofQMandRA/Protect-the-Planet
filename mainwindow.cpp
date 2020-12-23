@@ -109,7 +109,7 @@ void mainwindow::mouseReleaseEvent(QMouseEvent *)
 {
 	if(is_choosing)return;
 	//QWidget::mouseReleaseEvent(event);
-	//std::cout<<"mouseReleaseEvent"<<event->x()<<" "<<event->y()<<std::endl;
+	kernel::comu_control::weapon=10;
 }
 
 void mainwindow::keyPressEvent(QKeyEvent *event)

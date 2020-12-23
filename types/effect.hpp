@@ -42,7 +42,7 @@ struct received_effect_weapon_t
 	bool hurt_box=true;
 	//子弹可穿透无限个陨石。合并方式：||
 	bool infinate_hurt_count=false;
-	//射击速度倍率。合并方式：*
+	//射击速度倍率（一般小于1）。合并方式：*
 	double shoot_speed_rate=1;
 	//子弹速度的倍率。合并方式：*
 	double pill_speed_rate=1;
@@ -111,5 +111,5 @@ struct effect_t
 	//对于瞬间作用的效果，调用use函数，使之处理作用对象
 	
 	//void use(void *receiver) receiver可能指向player_t、box_t、weapon_t、meteorite_t、planet_t
-	std::function<void(void*)> use;
+	std::function<void(void)> use;
 };

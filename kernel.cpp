@@ -286,7 +286,7 @@ void init()
 		ako_meteorite.push_back({std::make_pair(2000,2130),6,1000,2.5e6,
 								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
-									health=static_cast<intmp_t>(exp(static_cast<double>(health)-log(static_cast<double>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
+									health=static_cast<intmp_t>(exp(log(static_cast<floatmp_t>(health))-log(static_cast<floatmp_t>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
 								}});
 	}
 	//生成武器列表
@@ -298,7 +298,7 @@ void init()
 	}
 	//生成食物列表
 	{
-		ako_food.push_back({8000,1,0,U"糖果"});
+		ako_food.push_back({4000,3,0,U"糖果"});
 	}
 	//生成武器收到的效果的列表
 	{
@@ -307,12 +307,12 @@ void init()
 
 	//生成效果列表
 	{
-		ako_effect.push_back({600,10,EFFECT_RECIVER_CURRENT_WEAPON,0,0,false,U"快速射击I",
-							  std::function<void(void*)>()});
+		ako_effect.push_back({1500,10,EFFECT_RECIVER_CURRENT_WEAPON,0,0,false,U"快速射击I",
+							  std::function<void(void)>()});
 	}
 	//生成补给箱列表
 	{
-		ako_box.push_back({std::make_pair(500,550),std::make_pair(10,13),
+		ako_box.push_back({std::make_pair(500,550),std::make_pair(11,19),
 						   {compress16(CONTAIN_TYPE_FOOD,0),compress16(CONTAIN_TYPE_EFFECT,0)},
 						   0,15,2.3e6});
 	}
@@ -835,7 +835,7 @@ void weapon_shoot()
 				}
 			}
 		}
-		kernel::comu_control::weapon=10;
+		//kernel::comu_control::weapon=10;
 	}
 }
 

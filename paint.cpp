@@ -139,7 +139,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	{
 		painter.setPen(QColor(88,88,88));
 		painter.setBrush(QColor(127,127,127));
-		painter.drawRect(ptmp.x()-10,ptmp.y()-10,20,20);
+		painter.drawRect(ptmp.x()-32,ptmp.y()-32,64,64);
 		QString name;
 		//TODO：绘制图标
 		auto &item=kernel::comu_paint::dropped_item;
@@ -166,8 +166,11 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			break;
 		}
 		}
-		painter.setPen(Qt::red);
-		drawText(painter,ptmp.x(),ptmp.y()-15,Qt::AlignTop|Qt::AlignHCenter,name);
+		painter.setPen(Qt::white);
+		QFont font=painter.font();
+		font.setBold(true);
+		painter.setFont(font);
+		drawText(painter,ptmp.x(),ptmp.y()+66,Qt::AlignTop|Qt::AlignHCenter,name);
 	}
 }
 

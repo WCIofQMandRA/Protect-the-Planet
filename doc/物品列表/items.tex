@@ -1,0 +1,142 @@
+%items.tex 游戏内所有陨石、补给箱、效果、武器、食物的列表
+
+%	-* mode: XeLaTeX		encoding:UTF-8 *-
+%	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
+%
+%	This file is part of the game 保卫行星
+%
+%	This game is free software; you can redistribute it and/or modify it
+%	under the terms of the GNU Lesser General Public License as published by
+%	the Free Software Foundation; either version 3, or (at your option) any
+%	later version.
+%
+%	This game is distributed in the hope that it will be useful, but
+%	WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+%	or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+%	License for more details.
+%
+%	You should have received copies of the GNU Lesser General Public License
+%	and the GNU Gerneral Public License along with 保卫行星 .
+%	If not, see https://www.gnu.org/licenses/.
+%
+%	This document itself is released under the GNU Free Documentation License.
+%	
+%	Permission is granted to copy, distribute and/or modify this document under 
+%	the terms of the GNU Free Documentation License, Version 1.3 or any later 
+%	version published by the Free Software Foundation; with no Invariant Sections, 
+%	no Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included
+%	in the file named FDL-1.3.txt.
+\documentclass[UTF8,fontset=none,linespread=1.2]{ctexart}
+\setCJKmainfont[ItalicFont={KaiTi},BoldItalicFont={KaiTi},
+BoldItalicFeatures={FakeBold=3}]{Source Han Serif SC}
+\setCJKsansfont[AutoFakeSlant,BoldItalicFeatures={FakeSlant}]
+{Source Han Sans SC Normal}
+\setCJKmonofont[AutoFakeBold=3,AutoFakeSlant]{FangSong}
+\setmainfont{cmun}[Extension=.otf,UprightFont=*rm,
+ItalicFont=*ti,BoldFont=*bx,BoldItalicFont=*bi]
+\setsansfont{cmun}[Extension=.otf,UprightFont=*ss,
+ItalicFont=*si,BoldFont=*sx,BoldItalicFont=*so]
+\setmonofont{cmun}[Extension=.otf,UprightFont=*btl,
+ItalicFont=*bto,BoldFont=*tb,BoldItalicFont=*tx]
+\usepackage[a4paper,landscape,vmargin=2.5cm,hmargin=3cm]{geometry}
+\usepackage{amsmath,amsfonts,amsthm,amssymb,upgreek}
+\usepackage{longtable,array,listings}
+\lstset{basicstyle={\normalfont\ttfamily},breaklines,tabsize=4}
+
+\pagestyle{empty}
+
+\begin{document}
+\section{武器}
+\begin{center}
+\begin{longtable}{|c|c|c|c|c|c|>{\centering\arraybackslash}m{10cm}|}
+\hline
+编号&名称&价值&射击速度&子弹速度&穿透陨石数&伤害方式\\
+\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|shoot_speed|&\lstinline|pill_speed|&\lstinline|hurt_count|&\lstinline|use|\\\hline
+\endfirsthead
+\multicolumn{7}{r}{（续表）}\\\hline
+编号&名称&价值&射击速度&子弹速度&可击中的陨石数&伤害方式\\
+\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|shoot_speed|&\lstinline|pill_speed|&\lstinline|hurt_count|&\lstinline|use|\\\hline
+\endhead
+0&手枪&5&18&$2\times10^6$&1&\lstinline|x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);|\\\hline
+1&机关枪&10&6&$4\times10^6$&1&\lstinline|x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);|\\\hline
+2&大炮&15&60&$1.7\times10^6$&1&\lstinline|x-=static_cast<intmp_t>(50*power_rate_pill*power_rate_meteorite);|\\\hline
+3&小型激光枪&30&5&$\infty$&1&\lstinline|x-=static_cast<intmp_t>(1*power_rate_pill*power_rate_meteorite);|\\\hline
+4&中型激光枪&50&5&$\infty$&3&\lstinline|x-=static_cast<intmp_t>(2*power_rate_pill*power_rate_meteorite);|\\\hline
+5&大型激光枪&80&50&$\infty$&20&\lstinline|x-=static_cast<intmp_t>(100*power_rate_pill*power_rate_meteorite);|\\\hline
+6&连续型激光枪&80&0&$\infty$&20&\lstinline|x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);|\\\hline
+7&衰变之枪&75&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(1.2))*power_rate_pill*power_rate_meteorite));|\\\hline
+8&强化的衰变之枪&95&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(1.7))*power_rate_pill*power_rate_meteorite));|\\\hline
+9&二分之枪&120&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(2))*power_rate_pill*power_rate_meteorite));|\\\hline
+10&开方之枪&200&100&$3\times10^6$&2&\lstinline|x=static_cast<intmp_t>(sqrt(floatmp_t(x)));|\\\hline
+11&对数之枪&400&300&$5\times10^5$&10&\lstinline|x=static_cast<intmp_t>(log(floatmp_t(x))/(log(floatmp_t(2))*power_rate_pill*power_rate_meteorite))|\\\hline
+%12&反向调分之枪&400&10&$2\times10^6$&1&\lstinline|x=|\\
+%13&随机打乱之枪\\
+%14&排序之枪\\
+\end{longtable}
+\end{center}
+\section{效果}
+\begin{center}
+\begin{longtable}{|c|c|c|c|c|c|>{\centering\arraybackslash}m{10cm}|}
+\hline
+编号&名称&价值&持续时间&接受者&编号&效果\\
+\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|time|&\lstinline|reciever|&\lstinline|detail|&\\\hline
+\endfirsthead
+\multicolumn{7}{r}{（续表）}\\\hline
+编号&名称&价值&持续时间&接受者&编号&效果描述\\
+\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|time|&\lstinline|reciever|&\lstinline|detail|&\\\hline
+\endhead
+0&快速射击I&10&1500&当前武器&0&射击速度×0.7\\\hline
+1&快速射击II&15&1500&当前武器&1&射击速度×0.5\\\hline
+2&快速射击III&20&1500&当前武器&2&射击速度×0.2\\\hline
+3&快速射击IV&40&1500&所有武器&1&射击速度×0.5\\\hline
+4&快速射击V&40&1500&所有武器&2&射击速度×0.2\\\hline
+5&保护盾I&25&500&行星&0&行星被击中时，完整度不下降\\\hline
+6&保护盾II&60&1500&行星&0&行星被击中时，完整度不下降\\\hline
+7&保护盾III&100&3000&行星&0&行星被击中时，完整度不下降\\\hline
+8&修补I&15&1&行星&1&\lstinline|health_add=100|\\\hline
+9&修补II&20&1&行星&2&\lstinline|health_add=500|\\\hline
+10&修补III&30&1&行星&3&\lstinline|health_add=1000|\\\hline
+11&修补IV&50&1&行星&4&\lstinline|health_mul=2|\\\hline
+12&修补V&80&1&行星&5&\lstinline|health_mul=5|\\\hline
+13&冻结I&17&250&陨石&0&陨石速度×0.5\\\hline
+14&冻结II&31&250&陨石&1&陨石速度×0.1\\\hline
+15&冻结III&60&250&陨石&2&陨石速度×0\\\hline
+16&冻结IV&60&500&陨石&2&陨石速度×0\\\hline
+17&速捷I&10&1500&玩家&0&移动速度×1.5\\\hline
+18&速捷II&15&1500&玩家&1&移动速度×2\\\hline
+19&饱和&20&1500&玩家&2&饥饿值停止下降\\\hline
+20&坚硬I&19&1500&补给箱&0&\lstinline|power_rate=0.5|\\\hline
+21&坚硬II&19&1500&补给箱&1&\lstinline|power_rate=0.1|\\\hline
+22&坚硬III&19&1500&补给箱&1&\lstinline|hurt_by_weapon=false|\\\hline
+23&生命恢复I&18&250&行星&6&\lstinline|health_add=1|\\\hline
+24&生命恢复II&24&250&行星&7&\lstinline|health_add=3|\\\hline
+25&生命恢复III&36&250&行星&8&\lstinline|health_add=6|\\\hline
+26&生命恢复IV&68&250&行星&9&\lstinline|health_mul=1.004|\\\hline
+27&生命恢复V&89&250&行星&10&\lstinline|health_mul=1.009|\\\hline
+28&清理I&40&500&陨石&3&\lstinline|power_rate=5|\\\hline
+29&清理II&47&500&陨石&4&\lstinline|kill_after_shooted=true|\\\hline
+30&清理III&72&瞬时&陨石&5&\lstinline|box_and_mete_left-=meteorites_list.size();meteorites_list.clear();|\\\hline
+31&无限I&20&1500&当前武器&3&射击后子弹不减少\\\hline
+32&无限II&60&1500&所有武器&3&射击后子弹不减少\\\hline
+\end{longtable}
+\end{center}
+\section{食物}
+\begin{center}
+\begin{longtable}{|c|c|c|c||c|c|c|c||c|c|c|c|}
+\hline
+编号&名称&价值&恢复的饥饿值&编号&名称&价值&恢复的饥饿值&编号&名称&价值&恢复的饥饿值\\
+\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|&\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|&\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|\\\hline
+\endfirsthead
+\multicolumn{4}{r}{（续表）}\\
+\hline
+编号&名称&价值&恢复的饥饿值&编号&名称&价值&恢复的饥饿值&编号&名称&价值&恢复的饥饿值\\
+\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|&\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|&\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|\\\hline
+\endhead
+0&糖果&3&4000&1&面包&4&8000&2&牛肉&6&15000\\\hline
+3&数学分析教程&30&2147483647&\multicolumn{8}{c}{}\\\cline{1-4}
+\end{longtable}
+\end{center}
+\section{陨石}
+\section{补给箱}
+
+\end{document}
