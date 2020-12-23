@@ -22,9 +22,7 @@ public:
 	int new_dif;
 private slots:
 	void on_nameedit_textEdited(const QString &arg1);
-	void on_dif_1_clicked();
-	void on_dif_2_clicked();
-	void on_dif_3_clicked();
 	void on_but_sure_clicked();
+	void on_pushButton_clicked();
 };
 #endif // DIALOG_NEWGAME_H

@@ -36,7 +36,8 @@ public:
 	save_load_class(const save_load_class&)=delete;
 	save_load_class& operator=(const save_load_class&)=delete;
 	//玩家名和玩家上次退出游戏时选择的难度
-	std::vector<std::pair<std::u32string,uint16_t>> get_userlist();
+	std::vector<std::u32string> get_userlist();
+	uint16_t get_last_diff(const std::u32string&);
 	bool add_user(const std::u32string &name);
 	bool delete_user(const std::u32string &name);
 	bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,uint64_t &score,player_t&,planet_t&,std::map<uint64_t,std::pair<boxd_t,uint64_t>>&);

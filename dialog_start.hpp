@@ -22,7 +22,6 @@
 #define DIALOG_START_H
 
 #include <QDialog>
-
 namespace Ui {
 class dialog_start;
 }
@@ -33,6 +32,7 @@ class dialog_start : public QDialog
 
 public:
 	explicit dialog_start(QWidget *parent = nullptr);
+	std::vector<std::u32string> name_list;
 	std::u32string name;
 	uint16_t difficulty=0;
 	~dialog_start();
@@ -46,6 +46,8 @@ private slots:
 	//void on_button_diff3_clicked();
 
 	//void on_chosed_name_windowIconTextChanged(const QString &iconText);
+
+	void on_but_changeuser_clicked();
 
 protected:
 	void paintEvent(QPaintEvent *event) override;

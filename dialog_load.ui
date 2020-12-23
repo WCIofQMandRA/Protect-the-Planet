@@ -13,90 +13,90 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="but_auto">
+  <widget class="QPushButton" name="but_6">
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>70</y>
+     <y>170</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="but_1">
    <property name="geometry">
     <rect>
-     <x>240</x>
-     <y>70</y>
+     <x>80</x>
+     <y>20</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="but_2">
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>140</y>
+     <y>50</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="but_3">
    <property name="geometry">
     <rect>
-     <x>240</x>
-     <y>140</y>
+     <x>80</x>
+     <y>80</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="but_4">
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>210</y>
+     <y>110</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="but_5">
    <property name="geometry">
     <rect>
-     <x>240</x>
-     <y>210</y>
+     <x>80</x>
+     <y>140</y>
      <width>93</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="but_sure">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>260</y>
-     <width>93</width>
+     <x>250</x>
+     <y>230</y>
+     <width>81</width>
      <height>28</height>
     </rect>
    </property>
@@ -104,6 +104,69 @@
     <string>确定</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="but_up">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>150</y>
+     <width>21</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>up</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="but_down">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>180</y>
+     <width>21</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>down</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="but_back">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>230</y>
+     <width>71</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>返回</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="but_create">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>230</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>创建新用户</string>
+   </property>
+  </widget>
+  <zorder>but_6</zorder>
+  <zorder>but_1</zorder>
+  <zorder>but_2</zorder>
+  <zorder>but_3</zorder>
+  <zorder>but_4</zorder>
+  <zorder>but_5</zorder>
+  <zorder>but_up</zorder>
+  <zorder>but_down</zorder>
+  <zorder>but_back</zorder>
+  <zorder>but_create</zorder>
+  <zorder>but_sure</zorder>
  </widget>
  <resources/>
  <connections/>

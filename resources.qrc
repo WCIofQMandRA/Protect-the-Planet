@@ -1,12 +1,12 @@
 <RCC>
-    <qresource lang="zh_CN" prefix="/pictures">
-        <file>resources/exit_button.png</file>
-        <file>resources/game_name.png</file>
-        <file>resources/start_button.png</file>
-        <file>resources/background.png</file>
-        <file>resources/meteorite0.png</file>
-        <file>resources/player0.png</file>
-        <file>resources/player1.png</file>
-        <file>resources/player2.png</file>
-    </qresource>
+	<qresource lang="zh_CN" prefix="/pictures">
+		<file>resources/exit_button.png</file>
+		<file>resources/game_name.png</file>
+		<file>resources/start_button.png</file>
+		<file>resources/background.png</file>
+		<file>resources/meteorite0.png</file>
+		<file>resources/player0.png</file>
+		<file>resources/player1.png</file>
+		<file>resources/player2.png</file>
+	</qresource>
 </RCC>

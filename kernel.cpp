@@ -193,7 +193,7 @@ void process_thread_main()
 		std::this_thread::sleep_until(process_time);
 		process_oneround();
 		process_time+=20ms;
-        ++game_clock;
+		++game_clock;
 	}
 }
 
@@ -316,8 +316,8 @@ void init()
 void start_game(const std::u32string &name,uint16_t difficulty)
 {
 	std::cout<<"kernel:开始游戏"<<std::endl;
-    kernel::difficulty=difficulty;
-    game_clock=0;
+	kernel::difficulty=difficulty;
+	game_clock=0;
 	comu_menu::should_pause=false;
 	comu_menu::game_ended=false;
 	comu_paint::ready=false;
@@ -325,26 +325,26 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	comu_control::move=0;
 	comu_control::active_effect=compress16(10,0);
 	comu_control::weapon_direct=0;
-    //新建关卡
+	//新建关卡
 	if(!save_load.load(name,difficulty,level,counter,score,player,planet,dropped_box_list))
-    {
-        level=0;
-        counter=0;
+	{
+		level=0;
+		counter=0;
 		score=0;
 		player.pills=attribute::player_init_pills[difficulty];
 		player.hunger=attribute::player_init_hunger[difficulty];
 		player.speed=attribute::player_base_speed[difficulty];
-        player.chosen_effect=0;
-        player.chosen_weapon=0;
+		player.chosen_effect=0;
+		player.chosen_weapon=0;
 		player.weapon.fill(weapon_t());
 		player.weapon[0].from_0(ako_weapon[0]);
-        player.effect.clear();
-        player.received_effect.clear();
-        player.combined_effect=received_effect_player_t();
-        player.position=0;
+		player.effect.clear();
+		player.received_effect.clear();
+		player.combined_effect=received_effect_player_t();
+		player.position=0;
 		player.weapon_direct=0;
-        player.score=0;
-        player.name=name;
+		player.score=0;
+		player.name=name;
 		dropped_box_list.clear();
 		///////////
 		planet.size=frand_between(attribute::planet_size);

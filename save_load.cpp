@@ -72,7 +72,13 @@ void save_load_class::save_user_list()
 	using namespace std;
 	string filename=trpath("[storage]/userlist");
 	if(fs::is_regular_file(filename))
-		fs::copy(filename,filename+".bak");
+	{
+		if(fs::is_regular_file(filename+".bak"))
+			fs::remove(filename+".bak");
+		fs::copy_file(filename,filename+".bak");
+		//由于不明原因，overwrite_existing选择在文件已存在时仍然会报错
+		//fs::copy_file(filename,filename+".bak",fs::copy_options::overwrite_existing);
+	}
 	ofstream fout(filename);
 	if(!fout)
 	{
@@ -100,7 +106,8 @@ void save_load_class::save_user_list()
 	{
 		cerr<<"保存用户信息失败"<<endl;
 		fout.close();
-		fs::copy(filename+".bak",filename);
+		fs::remove(filename);
+		fs::copy_file(filename+".bak",filename);
 	}
 }
 
@@ -109,10 +116,10 @@ save_load_class::~save_load_class()
 	save_user_list();
 }
 
-std::vector<std::pair<std::u32string,uint16_t>> save_load_class::get_userlist()
+std::vector<std::u32string> save_load_class::get_userlist()
 {
 	std::vector<std::tuple<std::u32string,uint64_t,uint16_t>> tmp(user_list.size());
-	std::vector<std::pair<std::u32string,uint16_t>> tmp2(user_list.size());
+	std::vector<std::u32string> tmp2(user_list.size());
 	size_t j=0;
 	for(const auto &i:user_list)
 	{
@@ -136,9 +143,14 @@ std::vector<std::pair<std::u32string,uint16_t>> save_load_class::get_userlist()
 	}
 	for(size_t i=0;i<tmp.size();++i)
 	{
-		tmp2[i]={std::get<0>(tmp[i]),std::get<2>(tmp[i])};
+		tmp2[i]=std::get<0>(tmp[i]);
 	}
 	return tmp2;
+}
+
+uint16_t save_load_class::get_last_diff(const std::u32string &name)
+{
+	return user_list[name].second;
 }
 
 bool save_load_class::add_user(const std::u32string &name)
@@ -218,7 +230,7 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 			for(uint64_t i=0;i<size;++i)
 			{
 				uint32_t first;uint16_t second;
-                read32(first);read16(second);
+				read32(first);read16(second);
 				player.effect[first]=second;
 			}
 			read64(size);
@@ -302,7 +314,11 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 		last_play_user=tmp->second.first;
 		string filename=trpath("[storage]/user.")+to_string(tmp->second.first)+"-"+to_string(difficulty);
 		if(fs::is_regular_file(filename))
-			fs::copy(filename,filename+".bak");
+		{
+			if(fs::is_regular_file(filename+".bak"))
+				fs::remove(filename+".bak");
+			fs::copy_file(filename,filename+".bak");
+		}
 		ofstream fout(filename,ios_base::out|ios_base::binary);
 		if(!fout)
 		{
@@ -390,7 +406,8 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 		else
 		{
 			fout.close();
-			fs::copy(filename+".bak",filename);
+			fs::remove(filename);
+			fs::copy_file(filename+".bak",filename);
 			return false;
 		}
 	}

@@ -4,10 +4,10 @@
  <widget class="QDialog" name="dialog_newgame">
   <property name="geometry">
    <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
+	<x>0</x>
+	<y>0</y>
+	<width>400</width>
+	<height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,90 +15,64 @@
   </property>
   <widget class="QLabel" name="label_user">
    <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>40</y>
-     <width>171</width>
-     <height>16</height>
-    </rect>
+	<rect>
+	 <x>130</x>
+	 <y>80</y>
+	 <width>171</width>
+	 <height>16</height>
+	</rect>
    </property>
    <property name="text">
-    <string>请输入您的用户名</string>
+	<string>请输入您的用户名</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="nameedit">
    <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>80</y>
-     <width>161</width>
-     <height>21</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_dif">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>130</y>
-     <width>91</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>请选择难度</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="dif_1">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>170</y>
-     <width>115</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>简单</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="dif_3">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>230</y>
-     <width>115</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>困难</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="dif_2">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>200</y>
-     <width>115</width>
-     <height>19</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>普通</string>
+	<rect>
+	 <x>110</x>
+	 <y>130</y>
+	 <width>161</width>
+	 <height>21</height>
+	</rect>
    </property>
   </widget>
   <widget class="QPushButton" name="but_sure">
    <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>250</y>
-     <width>93</width>
-     <height>28</height>
-    </rect>
+	<rect>
+	 <x>150</x>
+	 <y>180</y>
+	 <width>93</width>
+	 <height>28</height>
+	</rect>
    </property>
    <property name="text">
-    <string>确定</string>
+	<string>确定</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+	<rect>
+	 <x>280</x>
+	 <y>240</y>
+	 <width>93</width>
+	 <height>28</height>
+	</rect>
+   </property>
+   <property name="text">
+	<string>帮助</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+	<rect>
+	 <x>150</x>
+	 <y>40</y>
+	 <width>91</width>
+	 <height>20</height>
+	</rect>
+   </property>
+   <property name="text">
+	<string>欢迎新用户！</string>
    </property>
   </widget>
  </widget>

@@ -25,6 +25,10 @@
 #include <QImage>
 #include "file.hpp"
 #include "dialog_names.hpp"
+#include "save_load.hpp"
+#include "dialog_newgame.h"
+#include "dialog_difficulty.h"
+#include "dialog_load.h"
 dialog_start::dialog_start(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_start)
@@ -40,6 +44,21 @@ dialog_start::dialog_start(QWidget *parent) :
 	//ui->button_diff1->setChecked(true);
 	//font.setPointSize(12);
 	//ui->label_dif->setFont(font);
+	if(name_list=save_load.get_userlist();name_list.empty()){
+		ui->label_static->setText("欢迎您！ 用户");
+		dialog_newgame dia;
+		dia.setWindowTitle("New Player");
+		dia.show();
+		dia.exec();
+		name=dia.new_name;
+		save_load.add_user(name);
+		ui->label_lastname->setText(QString::fromStdU32String(name));
+	}
+	else
+	{
+		ui->label_static->setText("欢迎回来 用户");
+		ui->label_lastname->setText(QString::fromStdU32String(name_list[0]));
+	}
 }
 
 dialog_start::~dialog_start()
@@ -56,11 +75,11 @@ void dialog_start::on_button_start_clicked()
 {
 	//name=ui->editor_player_name->toPlainText().toStdU32String();//TODO!!!
 	//difficulty=static_cast<uint16_t>(ui->diffculty->checkedId());
-	dialog_names dia;
+	dialog_difficulty dia(save_load.get_last_diff(name));
+	dia.setWindowTitle("Difficulty");
 	dia.show();
 	dia.exec();
-	name = dia.player_name;
-	difficulty=dia.player_dif;
+	difficulty=dia.dif;
 	//ui->chosed_name ->setText(QString::fromStdU32String(name));
 	//QFont ft; ft.setPixelSize(30);
 	//ui->chosed_name->setFont(ft);
@@ -73,3 +92,12 @@ void dialog_start::on_button_exit_clicked()
 	done(0);
 }
 
+void dialog_start::on_but_changeuser_clicked()
+{
+	Dialog_load dia;
+	dia.setWindowTitle("Change Player");
+	dia.show();
+	dia.exec();
+	name = dia.name;
+	ui->label_lastname->setText(QString::fromStdU32String(name));
+}

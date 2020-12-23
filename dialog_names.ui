@@ -4,10 +4,10 @@
  <widget class="QWidget" name="dialog_names">
   <property name="geometry">
    <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
+	<x>0</x>
+	<y>0</y>
+	<width>400</width>
+	<height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,41 +15,41 @@
   </property>
   <widget class="QPushButton" name="play_new">
    <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>190</y>
-     <width>93</width>
-     <height>28</height>
-    </rect>
+	<rect>
+	 <x>150</x>
+	 <y>190</y>
+	 <width>93</width>
+	 <height>28</height>
+	</rect>
    </property>
    <property name="text">
-    <string>新游戏</string>
+	<string>新游戏</string>
    </property>
   </widget>
   <widget class="QPushButton" name="play_last">
    <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>50</y>
-     <width>91</width>
-     <height>28</height>
-    </rect>
+	<rect>
+	 <x>150</x>
+	 <y>50</y>
+	 <width>91</width>
+	 <height>28</height>
+	</rect>
    </property>
    <property name="text">
-    <string>继续游戏</string>
+	<string>继续游戏</string>
    </property>
   </widget>
   <widget class="QPushButton" name="play_saved">
    <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>120</y>
-     <width>93</width>
-     <height>28</height>
-    </rect>
+	<rect>
+	 <x>150</x>
+	 <y>120</y>
+	 <width>93</width>
+	 <height>28</height>
+	</rect>
    </property>
    <property name="text">
-    <string>读档</string>
+	<string>读档</string>
    </property>
   </widget>
  </widget>
