@@ -54,6 +54,8 @@ protected:
 
 private:
 	QPixmap wel_img;
+	QPalette pal_label;
+	QPalette pal_but;
 private:
 	Ui::dialog_start *ui;
 };
