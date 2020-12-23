@@ -50,6 +50,8 @@ private:
 	int16_t cur_down_num;
 	int16_t tot_user_num;
 	std::u32string prename;
+	QPalette pal_label;
+	QPalette pal_but;
 };
 
 #endif // DIALOG_LOAD_H

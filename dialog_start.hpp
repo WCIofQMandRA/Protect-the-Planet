@@ -40,13 +40,6 @@ public:
 private slots:
 	void on_button_start_clicked();
 	void on_button_exit_clicked();
-	//void on_button_user_clicked();
-	//void on_button_diff1_clicked();
-	//void on_button_diff2_clicked();
-	//void on_button_diff3_clicked();
-
-	//void on_chosed_name_windowIconTextChanged(const QString &iconText);
-
 	void on_but_changeuser_clicked();
 
 protected:

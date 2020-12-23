@@ -21,6 +21,7 @@
 
 #include "dialog_pause.hpp"
 #include "ui_dialog_pause.h"
+#include <QPalette>
 #include <iostream>
 dialog_pause::dialog_pause(QWidget *parent) :
 	QDialog(parent),
@@ -32,6 +33,12 @@ dialog_pause::dialog_pause(QWidget *parent) :
 	font.setFamily("Microsoft Yahei");
 	setFont(font);
 #endif
+	QPalette pal;
+	pal.setColor(QPalette::ButtonText,Qt::white);
+	ui->button_stop->setPalette(pal);
+	ui->button_stop->setStyleSheet("background-color:rgb(0,0,0)");
+	ui->button_continue->setPalette(pal);
+	ui->button_continue->setStyleSheet("background-color:rgb(0,0,0)");
 }
 
 dialog_pause::~dialog_pause()

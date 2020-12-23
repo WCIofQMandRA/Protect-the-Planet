@@ -34,19 +34,25 @@ dialog_start::dialog_start(QWidget *parent) :
 	ui(new Ui::dialog_start)
 {
 	ui->setupUi(this);
+	setFixedSize(width(),height());
 #ifdef _WIN32
 	QFont font;
 	font.setFamily("Microsoft Yahei");
 	font.setBold(true);
 	setFont(font);
-	pal_label.setColor(QPalette::WindowText,Qt::white);
+#endif
+	pal_label.setColor(QPalette::WindowText,Qt::black);
+	//pal_label.setColor(QPalette::Background,Qt::black);
+	//pal_but.setColor(QPalette::Border,Qt::white);
 	pal_but.setColor(QPalette::ButtonText,Qt::white);
 	//pal_but.setColor(QPalette::Background,Qt::black);
 	ui->but_changeuser->setPalette(pal_but);
 	ui->but_changeuser->setStyleSheet("background-color:rgb(0,0,0)");
-#endif
-	wel_img.load(":/pictures/resources/game_name.png");
-	ui->label1->setPixmap(wel_img.scaled(ui->label1->size(),Qt::KeepAspectRatio));
+	//wel_img.load(":/pictures/resources/title_bk.png");
+	//ui->label1->setScaledContents(true);
+	//ui->label1->setPixmap(wel_img.scaled(ui->label1->size(),Qt::KeepAspectRatio));
+	//ui->label1->setPixmap(wel_img);
+	//ui->label1->resize(wel_img.width(),wel_img.height());
 	//ui->button_diff1->setChecked(true);
 	//font.setPointSize(12);
 	//ui->label_dif->setFont(font);
@@ -59,14 +65,16 @@ dialog_start::dialog_start(QWidget *parent) :
 		name=dia.new_name;
 		save_load.add_user(name);
 		//ui->label_lastname->setText(ui->label_static->text()+QString::fromStdU32String(name));
-		ui->label_lastname->setText("欢迎您！ 用户"+QString::fromStdU32String(name));
+		ui->label_lastname->setText("用户  "+QString::fromStdU32String(name)+"  欢迎您！");
+		//ui->label_lastname->setAutoFillBackground(true);
 		ui->label_lastname->setPalette(pal_label);
 	}
 	else
 	{
 		//ui->label_static->setText("欢迎回来 用户");
 		//ui->label_lastname->setText(QString::fromStdU32String(name_list[0]));
-		ui->label_lastname->setText("欢迎您！ 用户"+QString::fromStdU32String(name_list[0]));
+		ui->label_lastname->setText("用户  "+QString::fromStdU32String(name_list[0])+"  欢迎您！");
+		//ui->label_lastname->setAutoFillBackground(true);
 		ui->label_lastname->setPalette(pal_label);
 	}
 }
@@ -109,6 +117,6 @@ void dialog_start::on_but_changeuser_clicked()
 	dia.exec();
 	name = dia.name;
 	//ui->label_lastname->setText(QString::fromStdU32String(name));
-	ui->label_lastname->setText("欢迎您！ 用户"+QString::fromStdU32String(name));
+	ui->label_lastname->setText("用户  "+QString::fromStdU32String(name)+"  欢迎您！");
 	ui->label_lastname->setPalette(pal_label);
 }

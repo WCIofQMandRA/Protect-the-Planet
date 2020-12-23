@@ -3,11 +3,30 @@
 #include "save_load.hpp"
 #include "dialog_newgame.h"
 #include "dialog_start.hpp"
+#include <QPalette>
 Dialog_load::Dialog_load(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::Dialog_load)
 {
 	ui->setupUi(this);
+	setFixedSize(width(),height());
+#ifdef _WIN32
+	QFont font;
+	font.setFamily("Microsoft Yahei");
+	font.setBold(true);
+	setFont(font);
+#endif
+	pal_but.setColor(QPalette::ButtonText,Qt::white);
+	/*ui->but_1->setPalette(pal_but);
+	ui->but_2->setPalette(pal_but);
+	ui->but_3->setPalette(pal_but);
+	ui->but_4->setPalette(pal_but);
+	ui->but_5->setPalette(pal_but);
+	ui->but_6->setPalette(pal_but);*/
+	//ui->but_changeuser->setStyleSheet("background-color:rgb(0,0,0)");
+	ui->but_back->setPalette(pal_but);ui->but_back->setStyleSheet("background-color:rgb(0,0,0)");
+	ui->but_sure->setPalette(pal_but);ui->but_sure->setStyleSheet("background-color:rgb(0,0,0)");
+	ui->but_create->setPalette(pal_but);ui->but_create->setStyleSheet("background-color:rgb(0,0,0)");
 	ui->but_1->setText("[No player]");ui->but_1->setDisabled(true);
 	ui->but_2->setText("[No player]");ui->but_2->setDisabled(true);
 	ui->but_3->setText("[No player]");ui->but_3->setDisabled(true);

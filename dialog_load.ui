@@ -13,10 +13,13 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QPushButton" name="but_6">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>150</x>
      <y>170</y>
      <width>93</width>
      <height>28</height>
@@ -29,11 +32,14 @@
   <widget class="QPushButton" name="but_1">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>150</x>
      <y>20</y>
      <width>93</width>
      <height>28</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
    <property name="text">
     <string/>
@@ -42,7 +48,7 @@
   <widget class="QPushButton" name="but_2">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>150</x>
      <y>50</y>
      <width>93</width>
      <height>28</height>
@@ -55,7 +61,7 @@
   <widget class="QPushButton" name="but_3">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>150</x>
      <y>80</y>
      <width>93</width>
      <height>28</height>
@@ -68,7 +74,7 @@
   <widget class="QPushButton" name="but_4">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>150</x>
      <y>110</y>
      <width>93</width>
      <height>28</height>
@@ -81,7 +87,7 @@
   <widget class="QPushButton" name="but_5">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>150</x>
      <y>140</y>
      <width>93</width>
      <height>28</height>
@@ -107,27 +113,33 @@
   <widget class="QPushButton" name="but_up">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>260</x>
      <y>150</y>
      <width>21</width>
      <height>28</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">border-image: url(:/pictures/resources/up.png);</string>
+   </property>
    <property name="text">
-    <string>up</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="but_down">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>260</x>
      <y>180</y>
      <width>21</width>
      <height>28</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">border-image: url(:/pictures/resources/down.png);</string>
+   </property>
    <property name="text">
-    <string>down</string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="but_back">

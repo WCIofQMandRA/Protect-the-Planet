@@ -49,7 +49,7 @@
     <string>确定</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="but_help">
    <property name="geometry">
     <rect>
      <x>280</x>

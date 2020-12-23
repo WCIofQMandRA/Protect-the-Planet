@@ -2,11 +2,25 @@
 #include "ui_dialog_difficulty.h"
 #include "save_load.hpp"
 #include "dialog_start.hpp"
+#include <QPalette>
 dialog_difficulty::dialog_difficulty(uint16_t dif_,QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_difficulty)
 {
 	ui->setupUi(this);
+	setFixedSize(width(),height());
+#ifdef _WIN32
+	QFont font;
+	font.setFamily("Microsoft Yahei");
+	font.setBold(true);
+	setFont(font);
+#endif
+	QPalette pal;
+	pal.setColor(QPalette::ButtonText,Qt::white);
+	ui->but_back->setPalette(pal);
+	ui->but_back->setStyleSheet("background-color:rgb(0,0,0)");
+	ui->but_start->setPalette(pal);
+	ui->but_start->setStyleSheet("background-color:rgb(0,0,0)");
 	game_entered=false;
 	if(save_load.get_userlist().empty()){
 		ui->but_dif0->setChecked(true);
