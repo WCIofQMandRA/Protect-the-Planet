@@ -34,7 +34,14 @@ namespace paint
 {
 std::vector<QPixmap> meteorite_resources;
 std::vector<QPixmap> player_resources;
+std::vector<QPixmap> food_resources;
+std::vector<QPixmap> weapon_resources;
+std::vector<QPixmap> effect_resources;
 std::vector<size_t> meteorite_view={0,0,0,0,0,0,0};
+std::vector<std::u32string> food_namelist={U"糖果"};
+std::vector<std::u32string> weapon_namelist={U"手枪"};
+std::vector<std::u32string> effect_namelist={U"快速射击I"};
+uint64_t animate;
 bool inited=false;
 
 void drawText(QPainter &painter,qreal x,qreal y,Qt::Alignment flags,const QString &text,QRectF *boundingRect=0)
@@ -77,10 +84,13 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		return s/msize*maxsize;
 	};
 	QPainter painter(pix);
+	////////////////////////////////////
+	//绘制行星
 	painter.setPen(QPen(QColor(128,64,0)));
 	painter.setBrush(QColor(128,64,0));
 	painter.drawEllipse(trp(0,0),trs(kernel::comu_paint::planet.size),trs(kernel::comu_paint::planet.size));
 	///////////////////////////////////
+	//绘制陨石
 	painter.setPen(QPen(QColor(146,139,129)));
 	painter.setBrush(QColor(146,139,129));
 	for(const auto &i:kernel::comu_paint::meteorite_list)
@@ -91,6 +101,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		painter.drawPixmap(point.x()-tmp.width()/2,point.y()-tmp.height()/2,tmp);
 	}
 	////////////////////////
+	//绘制补给箱
 	painter.setPen(QPen(QColor(58,70,216)));
 	painter.setBrush(QColor(58,70,216));
 	for(const auto &i:kernel::comu_paint::box_list)
@@ -98,6 +109,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
 	}
 	////////////////////////
+	//绘制掉落的补给箱
 	painter.setPen(QPen(QColor(58,70,128)));
 	painter.setBrush(QColor(58,70,128));
 	for(const auto &i:kernel::comu_paint::dropped_box_list)
@@ -105,16 +117,57 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
 	}
 	//////////////////////
+	//绘制玩家
 	painter.setPen(QPen(Qt::black));
 	painter.setBrush(Qt::black);
 	QPoint ptmp=trp(0,0);
-	painter.drawRect(ptmp.x()-10,ptmp.y()-trs(kernel::comu_paint::planet.size)-trs(attribute::player_height),20,trs(attribute::player_height));
+	int which=(animate++)%9/3;
+	int ysize=trs(attribute::player_height)*3/2;
+	int xsize=player_resources[which].size().width()*ysize/player_resources[which].size().height();
+	painter.drawPixmap(ptmp.x()-xsize/2,ptmp.y()-trs(kernel::comu_paint::planet.size)-trs(attribute::player_height),player_resources[which].scaled(xsize,ysize));
 	////////////////////
+	//绘制子弹
 	painter.setPen(QPen(Qt::red,trs(1e6)*0.6));
 	painter.setBrush(Qt::yellow);
 	for(const auto &i:kernel::comu_paint::pill_list)
 	{
 		painter.drawEllipse(trp(i.x,i.y),trs(1e6),trs(1e6));
+	}
+	///////////////////
+	//绘制选择补给箱内物品的界面
+	if(kernel::comu_paint::dropped_item.first!=0xFFFFFFFF)
+	{
+		painter.setPen(QColor(88,88,88));
+		painter.setBrush(QColor(127,127,127));
+		painter.drawRect(ptmp.x()-10,ptmp.y()-10,20,20);
+		QString name;
+		//TODO：绘制图标
+		auto &item=kernel::comu_paint::dropped_item;
+		switch(item.first&0xFFFF)
+		{
+		case CONTAIN_TYPE_FOOD:
+		{
+			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(food_namelist[item.first>>16])).arg(item.second);
+			break;
+		}
+		case CONTAIN_TYPE_PILL:
+		{
+			name=QString::fromUtf8("子弹 ×%1").arg(item.second);
+			break;
+		}
+		case CONTAIN_TYPE_WEAPON:
+		{
+			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(weapon_namelist[item.first>>16])).arg(item.second);
+			break;
+		}
+		case CONTAIN_TYPE_EFFECT:
+		{
+			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(effect_namelist[item.first>>16])).arg(item.second);
+			break;
+		}
+		}
+		painter.setPen(Qt::red);
+		drawText(painter,ptmp.x(),ptmp.y()-15,Qt::AlignTop|Qt::AlignHCenter,name);
 	}
 }
 

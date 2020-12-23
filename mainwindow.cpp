@@ -152,6 +152,21 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 		kernel::comu_control::move=-1;
 		break;
 	}
+	case Qt::Key::Key_Z:
+	{
+		kernel::comu_control::change_dropped_item=-1;
+		break;
+	}
+	case Qt::Key::Key_X:
+	{
+		kernel::comu_control::change_dropped_item=2;
+		break;
+	}
+	case Qt::Key::Key_C:
+	{
+		kernel::comu_control::change_dropped_item=1;
+		break;
+	}
 	}
 }
 
@@ -162,10 +177,13 @@ void mainwindow::keyReleaseEvent(QKeyEvent *event)
 	switch(event->key())
 	{
 	case Qt::Key::Key_A:
-		kernel::comu_control::move=0;
-		break;
 	case Qt::Key::Key_D:
 		kernel::comu_control::move=0;
+		break;
+	case Qt::Key::Key_Z:
+	case Qt::Key::Key_X:
+	case Qt::Key::Key_C:
+		kernel::comu_control::change_dropped_item=0;
 		break;
 	}
 }
