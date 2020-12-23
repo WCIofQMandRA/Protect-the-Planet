@@ -182,7 +182,7 @@ bool save_load_class::delete_user(const std::u32string &name)
 bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,
 						uint64_t &score,player_t &player,planet_t &planet)
 {
-	if(player.name!=name)return false;
+	player.name=name;
 	if(auto tmp=user_list.find(name);tmp==user_list.end())
 	{
 		return false;
@@ -258,7 +258,13 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 				read16(first);read64(second);
 				planet.received_effect.insert({first,second});
 			}
-			fin.read(reinterpret_cast<char*>(&planet.combined_effect),sizeof(planet.combined_effect));
+			//不能直接读，因为received_effect_planet_t中含有intmp
+			//fin.read(reinterpret_cast<char*>(&planet.combined_effect),sizeof(planet.combined_effect));
+			fin.read(reinterpret_cast<char*>(&planet.combined_effect.stop_heath_decrease),1);
+			fin.read(reinterpret_cast<char*>(&planet.combined_effect.negtive_hurt),1);
+			readdb(planet.combined_effect.hurt_rate);
+			readdb(planet.combined_effect.health_mul);
+			readmp(planet.combined_effect.health_add);
 		}
 		if(fin)
 		{
@@ -350,7 +356,13 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 			{
 				write16(i.first);write64(i.second);
 			}
-			fout.write(reinterpret_cast<const char*>(&planet.combined_effect),sizeof(planet.combined_effect));
+			//不能直接写，因为received_effect_planet_t中含有intmp
+			//fout.write(reinterpret_cast<const char*>(&planet.combined_effect),sizeof(planet.combined_effect));
+			fout.write(reinterpret_cast<const char*>(&planet.combined_effect.stop_heath_decrease),1);
+			fout.write(reinterpret_cast<const char*>(&planet.combined_effect.negtive_hurt),1);
+			writedb(planet.combined_effect.hurt_rate);
+			writedb(planet.combined_effect.health_mul);
+			writemp(planet.combined_effect.health_add);
 		}
 		if(fout)
 		{
