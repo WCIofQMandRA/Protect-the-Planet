@@ -40,7 +40,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         dialog_difficulty.cpp \
         dialog_load.cpp \
-        dialog_names.cpp \
         dialog_newgame.cpp \
         dialog_pause.cpp \
         dialog_start.cpp \
@@ -59,7 +58,6 @@ LIBS += -lstdc++fs -Wl,-Bstatic -lmpfr -lgmp -Wl,-Bdynamic
 HEADERS += \
         dialog_difficulty.h \
         dialog_load.h \
-        dialog_names.hpp \
         dialog_newgame.h \
         dialog_pause.hpp \
         dialog_start.hpp \
@@ -76,7 +74,6 @@ HEADERS += \
 FORMS += \
         dialog_difficulty.ui \
         dialog_load.ui \
-        dialog_names.ui \
         dialog_newgame.ui \
         dialog_pause.ui \
         dialog_start.ui \
