@@ -38,6 +38,7 @@ std::vector<QPixmap> food_resources;
 std::vector<QPixmap> weapon_resources;
 std::vector<QPixmap> effect_resources;
 std::vector<size_t> meteorite_view={0,0,0,0,0,0,0};
+std::vector<size_t> effect_view={0,0,0,0,0,1,1,1};
 std::vector<std::u32string> food_namelist={U"糖果"};
 std::vector<std::u32string> weapon_namelist={U"手枪"};
 std::vector<std::u32string> effect_namelist={U"快速射击I"};
@@ -66,6 +67,11 @@ void init()
 	player_resources[0].load(":/pictures/resources/player0.png");
 	player_resources[1].load(":/pictures/resources/player1.png");
 	player_resources[2].load(":/pictures/resources/player2.png");
+	weapon_resources.resize(1);
+	weapon_resources[0].load(":/pictures/resources/weapon0.png");
+	effect_resources.resize(2);
+	effect_resources[0].load(":/pictures/resources/effect0.png");
+	effect_resources[1].load(":/pictures/resources/effect1.png");
 }
 
 void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
@@ -149,27 +155,30 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		int icon_size=std::min(64,trs(1.5e7));
 		painter.drawRect(ptmp.x()-icon_size/2,ptmp.y()-icon_size/2,icon_size,icon_size);
 		QString name;
-		//TODO：绘制图标
 		auto &item=dropped_item;
 		switch(item.first&0xFFFF)
 		{
 		case CONTAIN_TYPE_FOOD:
 		{
+			//TODO：绘制图标
 			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(food_namelist[item.first>>16])).arg(item.second);
 			break;
 		}
 		case CONTAIN_TYPE_PILL:
 		{
+			//TODO：绘制图标
 			name=QString::fromUtf8("子弹 ×%1").arg(item.second);
 			break;
 		}
 		case CONTAIN_TYPE_WEAPON:
 		{
+			painter.drawPixmap(ptmp.x()-icon_size/2,ptmp.y()-icon_size/2,weapon_resources[item.first>>16].scaled(icon_size,icon_size));
 			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(weapon_namelist[item.first>>16])).arg(item.second);
 			break;
 		}
 		case CONTAIN_TYPE_EFFECT:
 		{
+			painter.drawPixmap(ptmp.x()-icon_size/2,ptmp.y()-icon_size/2,effect_resources[effect_view[item.first>>16]].scaled(icon_size,icon_size));
 			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(effect_namelist[item.first>>16])).arg(item.second);
 			break;
 		}
@@ -205,9 +214,9 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			for(int j=0;j<5;++j)
 			{
 				painter.drawRect(10,10+j*(icon_size+10),icon_size,icon_size);
-				//TODO: 绘制图标
 				if(auto it=player.effect.find(compress16(i,j));it!=player.effect.end())
 				{
+					painter.drawPixmap(10,10+j*(icon_size+10),effect_resources[effect_view[it->second]].scaled(icon_size,icon_size));
 					auto old_pen=painter.pen();
 					painter.setPen(Qt::white);
 					drawText(painter,12+icon_size,10+j*(icon_size+10)+icon_size/2,Qt::AlignLeft|Qt::AlignVCenter,
@@ -239,7 +248,10 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			for(int i=0;i<5;++i)
 			{
 				painter.drawRect(width-(10+icon_size)*2,height-(10+icon_size)*(5-i),icon_size,icon_size);
-				//TODO: 绘制图标
+				if(uint16_t wtype=player.weapon[i].type;wtype!=65535)
+				{
+					painter.drawPixmap(width-(10+icon_size)*2,height-(10+icon_size)*(5-i),weapon_resources[wtype].scaled(icon_size,icon_size));
+				}
 				if(i==player.chosen_weapon)
 				{
 					auto old_pen=painter.pen();
@@ -258,7 +270,10 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			for(int i=5;i<10;++i)
 			{
 				painter.drawRect(width-(10+icon_size),height-(10+icon_size)*(10-i),icon_size,icon_size);
-				//TODO: 绘制图标
+				if(uint16_t wtype=player.weapon[i].type;wtype!=65535)
+				{
+					painter.drawPixmap(width-(10+icon_size),height-(10+icon_size)*(10-i),weapon_resources[wtype].scaled(icon_size,icon_size));
+				}
 				if(i==player.chosen_weapon)
 				{
 					auto old_pen=painter.pen();
