@@ -41,7 +41,7 @@ struct weapon_t
 	uint16_t type;
 	uint64_t last_use_time;//上一次使用武器的时间
 	//效果编号，持续时间
-	std::set<std::pair<uint16_t,uint64_t>> received_effect;
+	std::map<uint16_t,uint64_t> received_effect;
 	received_effect_weapon_t combined_effect;
 	void from_0(const weapon0_t&);
 };

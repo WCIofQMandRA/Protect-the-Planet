@@ -39,6 +39,7 @@ received_effect_weapon_t& received_effect_weapon_t::operator+=(const received_ef
 	shoot_speed_rate*=x.shoot_speed_rate;
 	pill_speed_rate*=x.pill_speed_rate;
 	power_rate*=x.power_rate;
+	hurt_count_rate*=x.hurt_count_rate;
 	return *this;
 }
 
@@ -49,6 +50,27 @@ received_effect_planet_t& received_effect_planet_t::operator+=(const received_ef
 	hurt_rate*=x.hurt_rate;
 	health_add+=x.health_add;
 	health_mul*=x.health_mul;
+	return *this;
+}
+
+received_effect_meteorite_t& received_effect_meteorite_t::operator+=(const received_effect_meteorite_t &x)
+{
+	kill_after_shooted=kill_after_shooted||x.kill_after_shooted;
+	hurt_rate*=x.hurt_rate;
+	power_rate*=x.power_rate;
+	strength_add+=x.strength_add;
+	strength_mul*=x.strength_mul;
+	speed_rate*=x.speed_rate;
+	return *this;
+}
+
+received_effect_box_t& received_effect_box_t::operator+=(const received_effect_box_t &x)
+{
+	hurt_by_weapon=hurt_by_weapon&&x.hurt_by_weapon;
+	power_rate*=x.power_rate;
+	speed_rate*=x.speed_rate;
+	strength_mul*=x.strength_mul;
+	strength_add+=x.strength_add;
 	return *this;
 }
 

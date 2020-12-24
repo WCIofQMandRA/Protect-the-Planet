@@ -54,7 +54,7 @@ struct box_t
 	//改为get<0>和get<1>以小端序压位
 	std::vector<std::pair<uint32_t,uint64_t>> contains;
 	//效果编号，持续时间
-	std::set<std::pair<uint16_t,uint64_t>> received_effect;
+	std::map<uint16_t,uint64_t> received_effect;
 	received_effect_box_t combined_effect;
 	uint16_t type;
 	void to_p(boxp_t &)const;

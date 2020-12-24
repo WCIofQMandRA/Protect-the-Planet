@@ -30,9 +30,9 @@
 
 //HD=hunger decrease
 //不同事件造成的饥饿值下降量
-const int64_t HD_SHOOT=500;
-const int64_t HD_MOVE=1;
-const int64_t HD_EFFECT=2000;
+const uint64_t HD_SHOOT=500;
+const uint64_t HD_MOVE=1;
+const uint64_t HD_EFFECT=2000;
 
 namespace attribute
 {
@@ -49,7 +49,7 @@ std::pair<double,double> planet_GM={0.99e17,1.01e17};
 double map_size=2e8;
 double player_height=8e6;
 
-uint64_t minimum_select_dropped_item_skip=6;
+uint64_t minimum_keyboard_operating_skip=6;
 uint64_t maximum_dropped_box_stay_time=750;
 }//namespace attribute
 
@@ -119,6 +119,7 @@ std::vector<received_effect_box_t> ako_box_effect;
 std::vector<received_effect_meteorite_t> ako_meteorite_effect;
 std::vector<received_effect_planet_t> ako_planet_effect;
 std::vector<received_effect_weapon_t> ako_weapon_effect;
+std::vector<received_effect_player_t> ako_player_effect;
 
 //uint64_t是绝对编号，从游戏开始运行时记
 std::map<uint64_t,meteorite_t> meteorite_list;
@@ -305,7 +306,7 @@ void init()
 	}
 	//生成武器收到的效果的列表
 	{
-		ako_weapon_effect.push_back({false,false,false,true,false,1.5,1,1});
+		ako_weapon_effect.push_back({false,false,false,true,false,0.7,1,1});
 	}
 
 	//生成效果列表
@@ -647,11 +648,11 @@ void move_mete_and_box()
 {
 	for(auto &i:meteorite_list)
 	{
-		i.second.theta=i.second.orbit.calc_theta(i.second.orbit.calc_time(i.second.theta)+1);
+		i.second.theta=i.second.orbit.calc_theta(i.second.orbit.calc_time(i.second.theta)+i.second.combined_effect.speed_rate);
 	}
 	for(auto &i:box_list)
 	{
-		i.second.theta=i.second.orbit.calc_theta(i.second.orbit.calc_time(i.second.theta)+1);
+		i.second.theta=i.second.orbit.calc_theta(i.second.orbit.calc_time(i.second.theta)+i.second.combined_effect.speed_rate);
 	}
 }
 
@@ -759,7 +760,10 @@ void check_shooted_by_pill()
 			//如果打中陨石
 			else if(auto k=meteorite_list.find(j.first);k!=meteorite_list.end())
 			{
-				ako_weapon[i->second.type].use(k->second.strength_left,i->second.combined_effect.power_rate,k->second.combined_effect.power_rate);
+				if(i->second.combined_effect.infinate_power||k->second.combined_effect.kill_after_shooted)
+					k->second.strength_left=0;
+				else
+					ako_weapon[i->second.type].use(k->second.strength_left,i->second.combined_effect.power_rate,k->second.combined_effect.power_rate);
 				if(k->second.strength_left<=0)
 				{
 					score+=static_cast<uint64_t>((k->second.strength>64?64+log2(static_cast<floatmp_t>(k->second.strength-63)):k->second.strength));
@@ -768,7 +772,7 @@ void check_shooted_by_pill()
 					if(!boxes_and_meteorites_left)
 						last_destroy_clock=game_clock;
 				}
-				if(--i->second.hurt_count==0)
+				if(!i->second.combined_effect.infinate_hurt_count&&--i->second.hurt_count==0)
 				{
 					flag=true;
 					break;
@@ -780,7 +784,10 @@ void check_shooted_by_pill()
 				auto l=box_list.find(j.first);
 				if(l->second.combined_effect.hurt_by_weapon)
 				{
-					ako_weapon[i->second.type].use(l->second.strength_left,i->second.combined_effect.power_rate,l->second.combined_effect.power_rate);
+					if(i->second.combined_effect.infinate_power)
+						l->second.strength_left=0;
+					else
+						ako_weapon[i->second.type].use(l->second.strength_left,i->second.combined_effect.power_rate,l->second.combined_effect.power_rate);
 					if(l->second.strength_left<=0)
 					{
 						box_list.erase(l);
@@ -788,7 +795,7 @@ void check_shooted_by_pill()
 						if(!boxes_and_meteorites_left)
 							last_destroy_clock=game_clock;
 					}
-					if(--i->second.hurt_count==0)
+					if(!i->second.combined_effect.infinate_hurt_count&&--i->second.hurt_count==0)
 					{
 						flag=true;
 						break;
@@ -808,8 +815,11 @@ void check_hit_planet()
 	{
 		if(i->second.orbit.calc_r(i->second.theta)<planet.size+i->second.size)
 		{
-			i->second.hurt(planet.health,(double)i->second.strength_left/(double)i->second.strength,planet.combined_effect.negtive_hurt
-						   ,planet.combined_effect.hurt_rate,i->second.combined_effect.hurt_rate);
+			if(!planet.combined_effect.stop_heath_decrease)
+			{
+				i->second.hurt(planet.health,(double)i->second.strength_left/(double)i->second.strength,planet.combined_effect.negtive_hurt,
+							   planet.combined_effect.hurt_rate,i->second.combined_effect.hurt_rate);
+			}
 			i=meteorite_list.erase(i);
 			--boxes_and_meteorites_left;
 			if(!boxes_and_meteorites_left)
@@ -834,7 +844,8 @@ void change_weapon()
 {
 	static uint64_t last_change_clock=0;
 	if(uint16_t tmp=comu_control::weapon;(tmp==1||tmp==2)
-			&&(game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip||last_change_clock>game_clock))
+			//||last_...非必要，因为无符号整数的自然溢出
+			&&(game_clock-last_change_clock>=attribute::minimum_keyboard_operating_skip/*||last_change_clock>game_clock*/))
 	{
 		last_change_clock=game_clock;
 		if(tmp==1)
@@ -854,7 +865,8 @@ void change_effect()
 {
 	static uint64_t last_change_clock=0;
 	if(uint32_t tmp=comu_control::active_effect;tmp
-			&&(game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip||last_change_clock>game_clock))
+			//||last_...非必要，因为无符号整数的自然溢出
+			&&(game_clock-last_change_clock>=attribute::minimum_keyboard_operating_skip/*||last_change_clock>game_clock*/))
 	{
 		last_change_clock=game_clock;
 		int i=player.chosen_effect&0xFFFF,j=player.chosen_effect>>16;
@@ -883,7 +895,7 @@ void weapon_shoot()
 				if((player.pills||weap.combined_effect.infinate_pills)&&//有子弹并且已过冷却时间并且饥饿值足够
 						(weap.last_use_time+weap0.shoot_speed*weap.combined_effect.shoot_speed_rate<game_clock
 						 ||weap.combined_effect.infinate_pill_speed)&&
-						player.hunger>=HD_SHOOT)
+						(player.combined_effect.stop_hunger_decrease||player.hunger>=HD_SHOOT))
 				{
 					player.weapon[player.chosen_weapon].last_use_time=game_clock;
 					if(weap.combined_effect.infinate_pill_speed)
@@ -896,9 +908,10 @@ void weapon_shoot()
 										  (planet.size+attribute::player_height)*sin(player.position),
 										  weap0.pill_speed*weap.combined_effect.pill_speed_rate*cos(player.position+player.weapon_direct),
 										  weap0.pill_speed*weap.combined_effect.pill_speed_rate*sin(player.position+player.weapon_direct),
-										  weap.type,weap0.hurt_count,weap.combined_effect};
+										  weap.type,uint16_t(weap0.hurt_count*weap.combined_effect.hurt_count_rate),weap.combined_effect};
 					}
-					player.hunger-=HD_SHOOT;
+					if(!player.combined_effect.stop_hunger_decrease)
+						player.hunger-=HD_SHOOT;
 					if(!weap.combined_effect.infinate_pills)
 					{
 						player.pills--;
@@ -910,19 +923,22 @@ void weapon_shoot()
 	}
 }
 
-void use_effect()
-{
-
-}
-
 void player_move()
 {
-	if(int16_t dir=comu_control::move;dir&&player.hunger>=HD_MOVE)
+	if(int16_t dir=comu_control::move;dir&&(player.combined_effect.stop_hunger_decrease||player.hunger>=HD_MOVE))
 	{
 		if(dir==1)
-			player.position+=player.speed,player.hunger-=HD_MOVE;
+		{
+			player.position+=player.speed*player.combined_effect.speed_rate;
+			if(!player.combined_effect.stop_hunger_decrease)
+				player.hunger-=HD_MOVE;
+		}
 		else
-			player.position-=player.speed,player.hunger-=HD_MOVE;
+		{
+			player.position-=player.speed*player.combined_effect.speed_rate;
+			if(!player.combined_effect.stop_hunger_decrease)
+				player.hunger-=HD_MOVE;
+		}
 		//comu_control::move=0;
 	}
 }
@@ -970,7 +986,8 @@ void change_selected_item()
 	if(int16_t tmp=comu_control::change_dropped_item)
 	{
 		//两次更换的最小间隔是0.4s,last_change_clock>game_clock说明进入了新的一轮游戏
-		if(~opened_dropped_box&&(game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip||last_change_clock>game_clock))
+		//||last_...非必要，因为无符号整数的自然溢出
+		if(~opened_dropped_box&&(game_clock-last_change_clock>=attribute::minimum_keyboard_operating_skip/*||last_change_clock>game_clock*/))
 		{
 			last_change_clock=game_clock;
 			switch(tmp)
@@ -1079,21 +1096,267 @@ void check_win_or_lose()
 	}
 }
 
+//处理effect中的health/strength add/mul
+void add_and_mul_health()
+{
+	planet.health=static_cast<intmp_t>(static_cast<floatmp_t>(planet.health)*planet.combined_effect.health_mul)
+			+planet.combined_effect.health_add;
+	for(auto &i:box_list)
+	{
+		i.second.strength_left=static_cast<intmp_t>(static_cast<floatmp_t>(i.second.strength_left)*i.second.combined_effect.strength_mul)
+				+i.second.combined_effect.strength_add;
+	}
+	for(auto &i:meteorite_list)
+	{
+		i.second.strength_left=static_cast<intmp_t>(static_cast<floatmp_t>(i.second.strength_left+i.second.combined_effect.strength_add)
+													*i.second.combined_effect.strength_mul);
+	}
+}
+
+void use_effect()
+{
+	uint64_t last_use_clock=0;
+	if(uint16_t tmp=comu_control::active_effect;tmp==5&&game_clock-last_use_clock>attribute::minimum_keyboard_operating_skip)
+	{
+		last_use_clock=game_clock;
+		if(auto it=player.effect.find(player.chosen_effect);it!=player.effect.end()&&it->second!=65535)
+		{
+			bool active_success=false;
+			if(!player.combined_effect.stop_hunger_decrease||player.hunger>=HD_EFFECT)
+			{
+				switch (ako_effect[it->second].reciever)
+				{
+				case EFFECT_RECIVER_CURRENT_WEAPON:
+				{
+					if(player.weapon[player.chosen_weapon].type!=65535)
+					{
+						if(ako_effect[it->second].instant)
+						{
+							ako_effect[it->second].use(&player.weapon[player.chosen_weapon]);
+						}
+						else
+						{
+							player.weapon[player.chosen_weapon].received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+						}
+						active_success=true;
+					}
+					break;
+				}
+				case EFFECT_RECIVER_ALL_WEAPONS:
+				{
+					if(ako_effect[it->second].instant)
+					{
+						for(int i=0;i<10;++i)
+						{
+							if(player.weapon[i].type!=65535)
+							{
+								ako_effect[it->second].use(&player.weapon[i]);
+								active_success=true;
+							}
+						}
+					}
+					else
+					{
+						for(int i=0;i<10;++i)
+						{
+							if(player.weapon[i].type!=65535)
+							{
+								player.weapon[i].received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+								active_success=true;
+							}
+						}
+					}
+					break;
+				}
+				case EFFECT_RECIVER_PLAYER:
+				{
+					if(ako_effect[it->second].instant)
+					{
+						ako_effect[it->second].use(&player);
+					}
+					else
+					{
+						player.received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+					}
+					active_success=true;
+					break;
+				}
+				case EFFECT_RECIVER_BOX:
+				{
+					if(ako_effect[it->second].instant)
+					{
+						for(auto &i:box_list)
+						{
+							ako_effect[it->second].use(&i.second);
+							active_success=true;
+						}
+					}
+					else
+					{
+						for(auto &i:box_list)
+						{
+							i.second.received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+							active_success=true;
+						}
+					}
+					break;
+				}
+				case EFFECT_RECIVER_METE:
+				{
+					if(ako_effect[it->second].instant)
+					{
+						for(auto &i:meteorite_list)
+						{
+							ako_effect[it->second].use(&i.second);
+							active_success=true;
+						}
+					}
+					else
+					{
+						for(auto &i:meteorite_list)
+						{
+							i.second.received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+							active_success=true;
+						}
+					}
+					break;
+				}
+				case EFFECT_RECIVER_PLANET:
+				{
+					if(ako_effect[it->second].instant)
+					{
+						ako_effect[it->second].use(&planet);
+					}
+					else
+					{
+						planet.received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+					}
+					active_success=true;
+				}
+				}
+			}
+			if(active_success)
+			{
+				//被use_effect触发的效果不会改变combined_effect，
+				//故player.combined_effect.stop_hunger_decrease不会因此改变
+				if(!player.combined_effect.stop_hunger_decrease)
+					player.hunger-=HD_EFFECT;
+				player.effect.erase(it);
+			}
+		}
+	}
+}
+
+void remove_timeout_effect()
+{
+	for(auto it=player.received_effect.begin();it!=player.received_effect.end();)
+	{
+		//在t时刻触发的效果在t+1时刻开始作用，在(t+持续时间)结束时被清除
+		if(it->second--==0)
+			it=player.received_effect.erase(it);
+		else
+			++it;
+	}
+	for(auto &i:player.weapon)
+	{
+		for(auto it=i.received_effect.begin();it!=i.received_effect.end();)
+		{
+			if(it->second--==0)
+				it=i.received_effect.erase(it);
+			else
+				++it;
+		}
+	}
+	for(auto it=planet.received_effect.begin();it!=planet.received_effect.end();)
+	{
+		if(it->second--==0)
+			it=planet.received_effect.erase(it);
+		else
+			++it;
+	}
+	for(auto &i:meteorite_list)
+	{
+		for(auto it=i.second.received_effect.begin();it!=i.second.received_effect.end();)
+		{
+			if(it->second--==0)
+				it=i.second.received_effect.erase(it);
+			else
+				++it;
+		}
+	}
+	for(auto &i:box_list)
+	{
+		for(auto it=i.second.received_effect.begin();it!=i.second.received_effect.end();)
+		{
+			if(it->second--==0)
+				it=i.second.received_effect.erase(it);
+			else
+				++it;
+		}
+	}
+}
+
+void calc_combined_effect()
+{
+	player.combined_effect=received_effect_player_t();
+	for(auto &i:player.received_effect)
+	{
+		player.combined_effect+=ako_player_effect[i.first];
+	}
+	for(auto &i:player.weapon)
+	{
+		if(i.type!=65535)
+		{
+			i.combined_effect=received_effect_weapon_t();
+			for(auto &j:i.received_effect)
+			{
+				i.combined_effect+=ako_weapon_effect[j.first];
+			}
+		}
+	}
+	planet.combined_effect=received_effect_planet_t();
+	for(auto &i:planet.received_effect)
+	{
+		planet.combined_effect+=ako_planet_effect[i.first];
+	}
+	for(auto &i:meteorite_list)
+	{
+		i.second.combined_effect=received_effect_meteorite_t();
+		for(auto &j:i.second.received_effect)
+		{
+			i.second.combined_effect+=ako_meteorite_effect[j.first];
+		}
+	}
+	for(auto &i:box_list)
+	{
+		i.second.combined_effect=received_effect_box_t();
+		for(auto &j:i.second.received_effect)
+		{
+			i.second.combined_effect+=ako_box_effect[j.first];
+		}
+	}
+}
+
 void process_oneround()
 {
 	generate_mete_and_box();
 	move_mete_and_box();
 	move_pill();
+	add_and_mul_health();
 	check_shooted_by_pill();
 	check_hit_planet();
 	change_weapon();
 	change_effect();
 	weapon_shoot();
-	use_effect();
 	player_move();
 	check_open_dropped_box();
 	clear_up_dropped_box();
 	change_selected_item();
+
+	use_effect();
+	remove_timeout_effect();
+	calc_combined_effect();
+
 	check_win_or_lose();
 	////////////////////////////////////
 	prepare_data_for_painting();

@@ -41,7 +41,7 @@ struct meteorite_t
 	//complete_rate=(double)strength_left/strength
 	std::function<void(intmp_t &,const double &,bool,const double &,const double &)> hurt;
 	//效果编号，持续时间
-	std::set<std::pair<uint16_t,uint64_t>> received_effect;
+	std::map<uint16_t,uint64_t> received_effect;
 	received_effect_meteorite_t combined_effect;
 	uint16_t type;//陨石的种类，与材质关联
 	void to_p(meteoritep_t &)const;
