@@ -1,8 +1,5 @@
 <RCC>
-    <qresource prefix="/pictures" lang="zh_CN">
-        <file>resources/exit_button.png</file>
-        <file>resources/game_name.png</file>
-        <file>resources/start_button.png</file>
+    <qresource lang="zh_CN" prefix="/pictures">
         <file>resources/background.png</file>
         <file>resources/meteorite0.png</file>
         <file>resources/player0.png</file>
@@ -13,7 +10,6 @@
         <file>resources/effect1.png</file>
         <file>resources/effect2.png</file>
         <file>resources/effect3.png</file>
-        <file>resources/exit_bk.png</file>
         <file>resources/meteorite1.png</file>
         <file>resources/meteorite2.png</file>
         <file>resources/meteorite3.png</file>
@@ -21,8 +17,6 @@
         <file>resources/meteorite5.png</file>
         <file>resources/meteorite6.png</file>
         <file>resources/meteorite7.png</file>
-        <file>resources/start_bk.png</file>
-        <file>resources/title_bk.png</file>
         <file>resources/weapon0.png</file>
         <file>resources/background_star.png</file>
         <file>resources/up.png</file>
