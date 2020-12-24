@@ -113,8 +113,7 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">border-color:rgb(255, 255, 255);
-background-color:rgb(0,0,0);</string>
+    <string notr="true"/>
    </property>
    <property name="text">
     <string>切换用户</string>
