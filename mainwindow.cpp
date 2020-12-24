@@ -142,31 +142,17 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 		}
 		break;
 	}
-	case Qt::Key::Key_A:
-	{
-		kernel::comu_control::move=1;
-		break;
-	}
-	case Qt::Key::Key_D:
-	{
-		kernel::comu_control::move=-1;
-		break;
-	}
-	case Qt::Key::Key_Z:
-	{
-		kernel::comu_control::change_dropped_item=-1;
-		break;
-	}
-	case Qt::Key::Key_X:
-	{
-		kernel::comu_control::change_dropped_item=2;
-		break;
-	}
-	case Qt::Key::Key_C:
-	{
-		kernel::comu_control::change_dropped_item=1;
-		break;
-	}
+	case Qt::Key::Key_A:kernel::comu_control::move=1;break;
+	case Qt::Key::Key_D:kernel::comu_control::move=-1;break;
+	case Qt::Key::Key_Z:kernel::comu_control::change_dropped_item=-1;break;
+	case Qt::Key::Key_X:kernel::comu_control::change_dropped_item=2;break;
+	case Qt::Key::Key_C:kernel::comu_control::change_dropped_item=1;break;
+	case Qt::Key::Key_1:kernel::comu_control::weapon=1;break;
+	case Qt::Key::Key_2:kernel::comu_control::weapon=2;break;
+	case Qt::Key::Key_W:kernel::comu_control::active_effect=4;break;
+	case Qt::Key::Key_S:kernel::comu_control::active_effect=3;break;
+	case Qt::Key::Key_Q:kernel::comu_control::active_effect=1;break;
+	case Qt::Key::Key_E:kernel::comu_control::active_effect=2;break;
 	}
 }
 
@@ -184,6 +170,16 @@ void mainwindow::keyReleaseEvent(QKeyEvent *event)
 	case Qt::Key::Key_X:
 	case Qt::Key::Key_C:
 		kernel::comu_control::change_dropped_item=0;
+		break;
+	case Qt::Key::Key_1:
+	case Qt::Key::Key_2:
+		kernel::comu_control::weapon=10;
+		break;
+	case Qt::Key::Key_W:
+	case Qt::Key::Key_S:
+	case Qt::Key::Key_Q:
+	case Qt::Key::Key_E:
+		kernel::comu_control::active_effect=0;
 		break;
 	}
 }

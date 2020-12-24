@@ -44,6 +44,7 @@ int main(int argc, char **argv)
 	init_program();
 	QApplication app(argc, argv);
 	mainwindow window;
+	window.resize(1024,768);
 	window.showMaximized();
 	exit_program(app.exec());
 	return 0;

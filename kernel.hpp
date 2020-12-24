@@ -93,15 +93,15 @@ extern volatile std::atomic<int16_t> move;//玩家移动，取1/-1/0
 //10：不使用
 //11：射击
 //12：丢弃当前武器
-//0~9：选择武器
+//1/2：选择武器
 extern volatile std::atomic<int16_t> weapon;
 extern volatile std::atomic<double> weapon_direct;
 //触发的效果
-//10,0：不触发
-//11,0：触发当前效果
-//12,0：丢弃当前效果
-//0~9,0~9：选择效果
-extern volatile std::atomic<uint32_t> active_effect;
+//0：无操作
+//1: 左，2: 右，3: 下，4：上
+//5：触发当前效果
+//6：丢弃当前效果
+extern volatile std::atomic<uint16_t> active_effect;
 //更换掉在行星上的补给箱内的物品（含义参考游戏时的操作）
 //0：不更换
 //1/-1：更换

@@ -1,3 +1,6 @@
 *.user
 *.note
 *.user.*
+*.log
+*.aux
+*.synctex.*

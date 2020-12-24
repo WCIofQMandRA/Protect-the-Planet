@@ -192,11 +192,11 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	drawText(painter,width-10,10,Qt::AlignRight|Qt::AlignTop,QString::fromStdU32String(player.name));
 	//绘制物品栏
 	{
-		painter.setPen(QColor(88,88,88));
-		painter.setBrush(QColor(127,127,127));
 		int icon_size=std::min(64,trs(1.5e7));
 		//效果
 		{
+			painter.setPen(QColor(88,88,88));
+			painter.setBrush(QColor(127,127,127));
 			int i=player.chosen_effect&0xFFFF;
 			for(int j=0;j<5;++j)
 			{
@@ -217,16 +217,21 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 					pen.setColor(QColor(0,190,0));
 					pen.setWidth(4);
 					painter.setPen(pen);
-					painter.drawLine(10,10+j*(icon_size+10),10+icon_size,10+j*(icon_size+10));
-					painter.drawLine(10+icon_size,10+j*(icon_size+10),10+icon_size,10+j*(icon_size)+icon_size);
-					painter.drawLine(10+icon_size,10+j*(icon_size)+icon_size,10,10+j*(icon_size)+icon_size);
-					painter.drawLine(10,10+j*(icon_size)+icon_size,10,10+j*(icon_size+10));
+					int x0=10,y0=10+j*(icon_size+10);
+					painter.drawLine(x0,y0,x0+icon_size,y0);
+					painter.drawLine(x0+icon_size,y0,x0+icon_size,y0+icon_size);
+					painter.drawLine(x0+icon_size,y0+icon_size,x0,y0+icon_size);
+					painter.drawLine(x0,y0+icon_size,x0,y0);
 					painter.setPen(old_pen);
 				}
 			}
+			painter.setPen(Qt::white);
+			drawText(painter,10+icon_size/2,10+5*(icon_size+10)+2,Qt::AlignTop|Qt::AlignHCenter,QString::fromUtf8("[%1]").arg(i));
 		}
 		//武器
 		{
+			painter.setPen(QColor(88,88,88));
+			painter.setBrush(QColor(127,127,127));
 			for(int i=0;i<5;++i)
 			{
 				painter.drawRect(width-(10+icon_size)*2,height-(10+icon_size)*(5-i),icon_size,icon_size);
@@ -257,13 +262,19 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 					pen.setColor(QColor(0,190,0));
 					pen.setWidth(4);
 					painter.setPen(pen);
-					int x0=width-(10+icon_size)*2,y0=height-(10+icon_size)*(5-i);
+					int x0=width-(10+icon_size),y0=height-(10+icon_size)*(10-i);
 					painter.drawLine(x0,y0,x0+icon_size,y0);
 					painter.drawLine(x0+icon_size,y0,x0+icon_size,y0+icon_size);
 					painter.drawLine(x0+icon_size,y0+icon_size,x0,y0+icon_size);
 					painter.drawLine(x0,y0+icon_size,x0,y0);
 					painter.setPen(old_pen);
 				}
+			}
+			if(auto weapon_id=player.weapon[player.chosen_weapon].type;weapon_id!=65535)
+			{
+				painter.setPen(Qt::white);
+				drawText(painter,width-icon_size-5,height-5*(icon_size+10)-2,Qt::AlignBottom|Qt::AlignHCenter,
+						 QString::fromStdU32String(weapon_namelist[weapon_id]));
 			}
 		}
 	}

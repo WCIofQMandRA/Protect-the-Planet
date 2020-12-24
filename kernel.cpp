@@ -49,7 +49,7 @@ std::pair<double,double> planet_GM={0.99e17,1.01e17};
 double map_size=2e8;
 double player_height=8e6;
 
-uint64_t minimum_select_dropped_item_skip=20;
+uint64_t minimum_select_dropped_item_skip=6;
 uint64_t maximum_dropped_box_stay_time=750;
 }//namespace attribute
 
@@ -78,7 +78,7 @@ volatile std::atomic<double> weapon_direct;
 //11,0：触发当前效果
 //12,0：丢弃当前效果
 //0~9,0~9：选择效果
-volatile std::atomic<uint32_t> active_effect;
+volatile std::atomic<uint16_t> active_effect;
 //更换掉在行星上的补给箱内的物品（含义见操作）
 //0：不更换
 //1/-1：更换
@@ -339,7 +339,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	comu_paint::ready=false;
 	comu_control::weapon=10;
 	comu_control::move=0;
-	comu_control::active_effect=compress16(10,0);
+	comu_control::active_effect=0;
 	comu_control::weapon_direct=0;
 	comu_control::change_dropped_item=0;
     //新建关卡
@@ -354,8 +354,9 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		player.speed=attribute::player_base_speed[difficulty];
 		player.chosen_effect=0;
 		player.chosen_weapon=0;
-		player.weapon.fill(weapon_t());
 		player.weapon[0].from_0(ako_weapon[0]);
+		for(int i=1;i<10;++i)
+			player.weapon[i].type=65535;
 		player.effect.clear();
 		player.received_effect.clear();
 		player.combined_effect=received_effect_player_t();
@@ -829,9 +830,43 @@ void check_hit_planet()
 	}
 }
 
-void change_weapon_and_effect()
+void change_weapon()
 {
+	static uint64_t last_change_clock=0;
+	if(uint16_t tmp=comu_control::weapon;(tmp==1||tmp==2)
+			&&(game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip||last_change_clock>game_clock))
+	{
+		last_change_clock=game_clock;
+		if(tmp==1)
+		{
+			if(player.chosen_weapon)
+				--player.chosen_weapon;
+		}
+		else
+		{
+			if(player.chosen_weapon<9)
+				++player.chosen_weapon;
+		}
+	}
+}
 
+void change_effect()
+{
+	static uint64_t last_change_clock=0;
+	if(uint32_t tmp=comu_control::active_effect;tmp
+			&&(game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip||last_change_clock>game_clock))
+	{
+		last_change_clock=game_clock;
+		int i=player.chosen_effect&0xFFFF,j=player.chosen_effect>>16;
+		switch(tmp)
+		{
+		case 1:if(i)--i;break;
+		case 2:++i;break;
+		case 3:if(j<4)++j;break;
+		case 4:if(j)--j;break;
+		}
+		player.chosen_effect=compress16(i,j);
+	}
 }
 
 void weapon_shoot()
@@ -842,32 +877,35 @@ void weapon_shoot()
 		if(tmp==11)
 		{
 			auto &weap=player.weapon[player.chosen_weapon];
-			auto &weap0=ako_weapon[weap.type];
-			if((player.pills||weap.combined_effect.infinate_pills)&&//有子弹并且已过冷却时间并且饥饿值足够
-					(weap.last_use_time+weap0.shoot_speed*weap.combined_effect.shoot_speed_rate<game_clock
-					 ||weap.combined_effect.infinate_pill_speed)&&
-					player.hunger>=HD_SHOOT)
+			if(weap.type!=65535)
 			{
-				player.weapon[player.chosen_weapon].last_use_time=game_clock;
-				if(weap.combined_effect.infinate_pill_speed)
+				auto &weap0=ako_weapon[weap.type];
+				if((player.pills||weap.combined_effect.infinate_pills)&&//有子弹并且已过冷却时间并且饥饿值足够
+						(weap.last_use_time+weap0.shoot_speed*weap.combined_effect.shoot_speed_rate<game_clock
+						 ||weap.combined_effect.infinate_pill_speed)&&
+						player.hunger>=HD_SHOOT)
 				{
-					std::cerr<<"暂不支持infinate_pill_speed"<<std::endl;
+					player.weapon[player.chosen_weapon].last_use_time=game_clock;
+					if(weap.combined_effect.infinate_pill_speed)
+					{
+						std::cerr<<"暂不支持infinate_pill_speed"<<std::endl;
+					}
+					else
+					{
+						pill_list[++counter]={(planet.size+attribute::player_height)*cos(player.position),
+										  (planet.size+attribute::player_height)*sin(player.position),
+										  weap0.pill_speed*weap.combined_effect.pill_speed_rate*cos(player.position+player.weapon_direct),
+										  weap0.pill_speed*weap.combined_effect.pill_speed_rate*sin(player.position+player.weapon_direct),
+										  weap.type,weap0.hurt_count,weap.combined_effect};
+					}
+					player.hunger-=HD_SHOOT;
+					if(!weap.combined_effect.infinate_pills)
+					{
+						player.pills--;
+					}
 				}
-				else
-				{
-					pill_list[++counter]={(planet.size+attribute::player_height)*cos(player.position),
-									  (planet.size+attribute::player_height)*sin(player.position),
-									  weap0.pill_speed*weap.combined_effect.pill_speed_rate*cos(player.position+player.weapon_direct),
-									  weap0.pill_speed*weap.combined_effect.pill_speed_rate*sin(player.position+player.weapon_direct),
-									  weap.type,weap0.hurt_count,weap.combined_effect};
-				}
-				player.hunger-=HD_SHOOT;
-				if(!weap.combined_effect.infinate_pills)
-				{
-					player.pills--;
-				}
-			}
-		}
+			}//if(weap.type!=65535)
+		}//if(tmp==11)
 		//kernel::comu_control::weapon=10;
 	}
 }
@@ -931,8 +969,8 @@ void change_selected_item()
 	static uint64_t last_change_clock=0;
 	if(int16_t tmp=comu_control::change_dropped_item)
 	{
-		//两次更换的最小间隔是0.4s
-		if(~opened_dropped_box&&game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip)
+		//两次更换的最小间隔是0.4s,last_change_clock>game_clock说明进入了新的一轮游戏
+		if(~opened_dropped_box&&(game_clock-last_change_clock>=attribute::minimum_select_dropped_item_skip||last_change_clock>game_clock))
 		{
 			last_change_clock=game_clock;
 			switch(tmp)
@@ -968,7 +1006,7 @@ void change_selected_item()
 					{
 						for(uint16_t i=0;true;++i)
 						{
-							for(uint16_t j=0;j<10;++j)
+							for(uint16_t j=0;j<5;++j)
 							{
 								if(player.effect.count(compress16(i,j))==0||player.effect[compress16(i,j)]==65535)
 								{
@@ -1048,7 +1086,8 @@ void process_oneround()
 	move_pill();
 	check_shooted_by_pill();
 	check_hit_planet();
-	change_weapon_and_effect();
+	change_weapon();
+	change_effect();
 	weapon_shoot();
 	use_effect();
 	player_move();
