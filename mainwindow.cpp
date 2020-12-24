@@ -153,6 +153,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 	case Qt::Key::Key_S:kernel::comu_control::active_effect=3;break;
 	case Qt::Key::Key_Q:kernel::comu_control::active_effect=1;break;
 	case Qt::Key::Key_E:kernel::comu_control::active_effect=2;break;
+	case Qt::Key::Key_F:kernel::comu_control::active_effect=5;break;
 	}
 }
 

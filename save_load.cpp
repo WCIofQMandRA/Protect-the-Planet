@@ -212,7 +212,6 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 			return false;
 		}
 		auto read64=[&fin](uint64_t &x){fin.read(reinterpret_cast<char*>(&x),8);};
-		auto reads64=[&fin](int64_t &x){fin.read(reinterpret_cast<char*>(&x),8);};
 		auto readdb=[&fin](double &x){fin.read(reinterpret_cast<char*>(&x),8);};
 		auto read32=[&fin](uint32_t &x){fin.read(reinterpret_cast<char*>(&x),4);};
 		auto read16=[&fin](uint16_t &x){fin.read(reinterpret_cast<char*>(&x),2);};
@@ -223,7 +222,7 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 		read64(score);
 		//读取player
 		{
-			reads64(player.hunger);read64(player.pills);
+			read64(player.hunger);read64(player.pills);
 			read32(player.chosen_effect);read16(player.chosen_weapon);
 			for(auto &i:player.weapon)
 			{
@@ -321,7 +320,6 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 		//更新用户最后一次进行游戏时的难度
 		user_list[name].second=difficulty;
 		auto write64=[&fout](uint64_t x){fout.write(reinterpret_cast<char*>(&x),8);};
-		auto writes64=[&fout](int64_t x){fout.write(reinterpret_cast<char*>(&x),8);};
 		auto writedb=[&fout](double x){fout.write(reinterpret_cast<char*>(&x),8);};
 		auto write32=[&fout](uint32_t x){fout.write(reinterpret_cast<char*>(&x),4);};
 		auto write16=[&fout](uint16_t x){fout.write(reinterpret_cast<char*>(&x),2);};
@@ -332,7 +330,7 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 		write64(score);
 		//写入player
 		{
-			writes64(player.hunger);write64(player.pills);
+			write64(player.hunger);write64(player.pills);
 			write32(player.chosen_effect);write16(player.chosen_weapon);
 			for(auto &i:player.weapon)
 			{

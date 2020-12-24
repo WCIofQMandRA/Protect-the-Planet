@@ -48,6 +48,7 @@ struct received_effect_weapon_t
 	double pill_speed_rate=1;
 	//子弹威力倍率，交给weapon_t::use函数处理。合并方式：*
 	double power_rate=1;
+	double hurt_count_rate=1;
 	received_effect_weapon_t& operator+=(const received_effect_weapon_t&);
 };
 
@@ -82,6 +83,7 @@ struct received_effect_meteorite_t
 	//每游戏刻，强度*strength_mul。合并方式：*
 	//规定：先加后乘
 	double strength_mul=1;//通常0<strength_mul<=1，要求strength_mul>0
+	double speed_rate=1;
 	received_effect_meteorite_t& operator+=(const received_effect_meteorite_t&);
 };
 
@@ -92,6 +94,11 @@ struct received_effect_box_t
 	bool hurt_by_weapon=true;
 	//受到子弹的破坏的倍率，交给weapon_t::use函数处理。合并方式：*
 	double power_rate=1;
+	double speed_rate=1;
+	//通常strength_add>=0,strength_mul>=1
+	//规定：先乘后加
+	intmp_t strength_add=0;
+	double strength_mul=1;
 	received_effect_box_t& operator+=(const received_effect_box_t&);
 };
 

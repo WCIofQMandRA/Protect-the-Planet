@@ -86,6 +86,10 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	};
 	QPainter painter(pix);
 	QFont font=painter.font();
+#ifdef _WIN32
+	font.setFamily("Microsoft Yahei");
+	painter.setFont(font);
+#endif
 	int width=pix->width(),height=pix->height();
 	////////////////////////////////////
 	//绘制行星
