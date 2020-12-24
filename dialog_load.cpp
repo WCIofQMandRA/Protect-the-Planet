@@ -33,7 +33,7 @@ Dialog_load::Dialog_load(QWidget *parent) :
 	ui->but_4->setText("[No player]");ui->but_4->setDisabled(true);
 	ui->but_5->setText("[No player]");ui->but_5->setDisabled(true);
 	ui->but_6->setText("[No player]");ui->but_6->setDisabled(true);
-	name_list = save_load.get_userlist();
+	name_list = save_load->get_userlist();
 	tot_user_num= name_list.size();
 	if(tot_user_num>=6) ui->but_6->setText(QString::fromStdU32String(name_list[5])),ui->but_6->setEnabled(true);
 	if(tot_user_num>=5) ui->but_5->setText(QString::fromStdU32String(name_list[4])),ui->but_5->setEnabled(true);
@@ -132,7 +132,7 @@ void Dialog_load::on_but_create_clicked()
 	dia.exec();
 	if(dia.clicked_back==false){
 		name = dia.new_name;
-		save_load.add_user(name);
+		save_load->add_user(name);
 		done(0);
 	}
 }

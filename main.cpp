@@ -26,6 +26,7 @@
 
 static void init_program()
 {
+	save_load=new save_load_class;
 	kernel::init();
 }
 
@@ -36,13 +37,14 @@ static void exit_program(int returnval)
 	if(kernel::process_thread.joinable())
 		kernel::process_thread.join();
 	kernel::clear();
+	delete save_load;
 	exit(returnval);
 }
 
 int main(int argc, char **argv)
 {
-	init_program();
 	QApplication app(argc, argv);
+	init_program();
 	mainwindow window;
 	window.resize(1024,768);
 	window.showMaximized();

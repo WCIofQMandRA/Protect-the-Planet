@@ -21,7 +21,35 @@
 #include "file.hpp"
 #include <QCoreApplication>
 #include <QStandardPaths>
+#include <filesystem>
 
+std::string program_dir;
+std::string storage_dir;
+std::string tmp_dir;
+static bool dir_inited=false;
+
+static void init_dir()
+{
+	#ifdef NDEBUG
+	program_dir=QCoreApplication::applicationDirPath().toStdString();
+	storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString();
+	tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
+	#else
+	program_dir=QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString()+"/ProtectPlanet";
+	storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString();
+	tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
+	#endif
+	size_t i;
+	//使用writableLocation获得的路径的尾部含有可执行文件的名字，应去除
+	for(i=storage_dir.length()-1;storage_dir[i]!='\\'&&storage_dir[i]!='/';--i);
+	storage_dir=storage_dir.substr(0,i)+"/ProtectPlanet";
+	//for(i=tmp_dir.length()-1;tmp_dir[i]!='\\'&&tmp_dir[i]!='/';--i);
+	//tmp_dir=tmp_dir.substr(0,i)+"/ProtectPlanet";
+	//在原始的、不始终使用Unicode的Mircrosoft Windows上，路径中含有非ASCII字符可能导致无法访问，这时直接用“.”代替可执行文件所在的目录
+	if(!std::filesystem::is_directory(program_dir))
+		program_dir=".";
+	dir_inited=true;
+}
 
 //考虑到该函数会被频繁地调用，不放在命名空间内
 //将文件的程序内路径转换为绝对路径
@@ -34,15 +62,7 @@
 #ifdef _WIN32
 std::string trpath(const std::string &path)
 {
-#ifdef NDEBUG
-static const std::string program_dir=QCoreApplication::applicationDirPath().toStdString();
-static const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
-static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
-#else
-static const std::string program_dir=QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString()+"/ProPlanet";
-static const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
-static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
-#endif
+	if(!dir_inited)init_dir();
 	assert(path[0]=='[');
 	size_t i;
 	std::string ans;
@@ -71,15 +91,7 @@ static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths
 #else
 std::string trpath(const std::string &path)
 {
-#ifdef NDEBUG
-static const std::string program_dir=QCoreApplication::applicationDirPath().toStdString();
-static const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
-static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
-#else
-static const std::string program_dir=QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString()+"/ProPlanet";
-static const std::string storage_dir=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/ProPlanet";
-static const std::string tmp_dir=QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString()+"/ProPlanet";
-#endif
+	if(!dir_inited)init_dir();
 	assert(path[0]=='[');
 	size_t i;
 	for(i=0;i<path.size();++i)

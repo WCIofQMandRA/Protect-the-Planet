@@ -24,7 +24,10 @@
 #include <fstream>
 #include <filesystem>
 namespace fs=std::filesystem;
-save_load_class save_load;
+//QCoreApplication::applicationDirPath函数必须在主函数中定义，
+//而save_load_class的构造函数中调用的trpath函数会调用QCoreApplication::applicationDirPath
+//故不能定义save_load_class的全局变量
+save_load_class *save_load;
 
 save_load_class::save_load_class()
 {

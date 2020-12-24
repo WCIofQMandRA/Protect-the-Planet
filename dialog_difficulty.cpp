@@ -22,7 +22,7 @@ dialog_difficulty::dialog_difficulty(uint16_t dif_,QWidget *parent) :
 	ui->but_start->setPalette(pal);
 	ui->but_start->setStyleSheet("background-color:rgb(0,0,0)");
 	game_entered=false;
-	if(save_load.get_userlist().empty()){
+	if(save_load->get_userlist().empty()){
 		ui->but_dif0->setChecked(true);
 	}else{
 	   dif = dif_;

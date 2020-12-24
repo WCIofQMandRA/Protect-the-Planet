@@ -54,6 +54,7 @@ mainwindow::mainwindow(QWidget *parent)
 	autoupdate_timer=new QTimer(this);
 	connect(autoupdate_timer,&QTimer::timeout,this,&mainwindow::auto_repaint);
 	connect(autoupdate_timer,&QTimer::timeout,this,&mainwindow::game_end);
+	is_choosing=false;
 	if(difficulty!=65535)
 	{
 		state=STATE_PLAYING;
@@ -180,6 +181,7 @@ void mainwindow::keyReleaseEvent(QKeyEvent *event)
 	case Qt::Key::Key_S:
 	case Qt::Key::Key_Q:
 	case Qt::Key::Key_E:
+	case Qt::Key::Key_F:
 		kernel::comu_control::active_effect=0;
 		break;
 	}

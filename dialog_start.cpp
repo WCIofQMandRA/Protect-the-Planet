@@ -57,14 +57,14 @@ dialog_start::dialog_start(QWidget *parent) :
 	//ui->button_diff1->setChecked(true);
 	//font.setPointSize(12);
 	//ui->label_dif->setFont(font);
-	if(name_list=save_load.get_userlist();name_list.empty()){
+	if(name_list=save_load->get_userlist();name_list.empty()){
 		//ui->label_static->setText("欢迎您！ 用户");
 		dialog_newgame dia;
 		dia.setWindowTitle("New Player");
 		dia.show();
 		dia.exec();
 		name=dia.new_name;
-		save_load.add_user(name);
+		save_load->add_user(name);
 		//ui->label_lastname->setText(ui->label_static->text()+QString::fromStdU32String(name));
 		QFont ft=this->font();ft.setPointSize(15);ui->label_lastname->setFont(ft);
 		ui->label_lastname->setText("用户  "+QString::fromStdU32String(name)+"  欢迎您！");
@@ -94,7 +94,7 @@ void dialog_start::paintEvent(QPaintEvent *event)
 void dialog_start::on_button_start_clicked()
 {
 //	name = save_load.get_userlist()[0];
-	dialog_difficulty dia(save_load.get_last_diff(name));
+	dialog_difficulty dia(save_load->get_last_diff(name));
 	dia.setWindowTitle("Difficulty");
 	dia.show();
 	dia.exec();

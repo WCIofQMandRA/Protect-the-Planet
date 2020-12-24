@@ -16,7 +16,7 @@ dialog_newgame::dialog_newgame(QWidget *parent) :
 	font.setBold(true);
 	setFont(font);
 #endif
-	if(save_load.get_userlist().empty()) ui->but_back->setDisabled(true);
+	if(save_load->get_userlist().empty()) ui->but_back->setDisabled(true);
 	else ui->but_back->setEnabled(true);
 	clicked_back=false;
 	QPalette pal;
@@ -34,7 +34,7 @@ dialog_newgame::~dialog_newgame()
 	delete ui;
 }
 
-void dialog_newgame::on_nameedit_textEdited(const QString &arg1)
+void dialog_newgame::on_nameedit_textEdited(const QString &)
 {
 	new_name = ui->nameedit->text().toStdU32String();
 }

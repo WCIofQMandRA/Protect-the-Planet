@@ -45,5 +45,5 @@ public:
 	bool remove(const std::u32string &name,uint16_t difficulty);
 };
 
-extern save_load_class save_load;
+extern save_load_class *save_load;
 #endif //SAVE_LOAD_H

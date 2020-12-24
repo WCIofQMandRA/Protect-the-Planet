@@ -344,7 +344,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	comu_control::weapon_direct=0;
 	comu_control::change_dropped_item=0;
     //新建关卡
-	if(!save_load.load(name,difficulty,level,counter,score,player,planet))
+	if(!save_load->load(name,difficulty,level,counter,score,player,planet))
     {
 		std::cout<<"加载存档失败"<<std::endl;
         level=0;
@@ -424,12 +424,12 @@ void stop_game()
 	comu_paint::dropped_item.first=0xFFFFFFFF;
 	if(succeeded==1)
 	{
-		if(save_load.save(player.name,difficulty,level,counter,score,player,planet))
+		if(save_load->save(player.name,difficulty,level,counter,score,player,planet))
 			std::cout<<"保存成功"<<std::endl;
 	}
 	else if(succeeded==-1)
 	{
-		if(save_load.remove(player.name,difficulty))
+		if(save_load->remove(player.name,difficulty))
 			std::cout<<"保存成功"<<std::endl;
 	}
 }
@@ -1025,7 +1025,7 @@ void change_selected_item()
 						{
 							for(uint16_t j=0;j<5;++j)
 							{
-								if(player.effect.count(compress16(i,j))==0||player.effect[compress16(i,j)]==65535)
+								if(player.effect.count(compress16(i,j))==0)
 								{
 									player.effect[compress16(i,j)]=item.first>>16;
 									goto endfor;
