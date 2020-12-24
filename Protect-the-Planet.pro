@@ -39,6 +39,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000	# disables all the APIs depreca
 
 SOURCES += \
         dialog_difficulty.cpp \
+    dialog_help.cpp \
         dialog_load.cpp \
         dialog_newgame.cpp \
         dialog_pause.cpp \
@@ -61,6 +62,7 @@ QMAKE_CXXFLAGS += -Wno-deprecated-copy
 
 HEADERS += \
         dialog_difficulty.h \
+        dialog_help.h \
         dialog_load.h \
         dialog_newgame.h \
         dialog_pause.hpp \
@@ -77,6 +79,7 @@ HEADERS += \
 
 FORMS += \
         dialog_difficulty.ui \
+        dialog_help.ui \
         dialog_load.ui \
         dialog_newgame.ui \
         dialog_pause.ui \

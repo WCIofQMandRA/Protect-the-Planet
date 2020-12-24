@@ -24,7 +24,7 @@ public:
 private slots:
 	void on_nameedit_textEdited(const QString &arg1);
 	void on_but_sure_clicked();
-	void on_pushButton_clicked();
 	void on_but_back_clicked();
+	void on_but_help_clicked();
 };
 #endif // DIALOG_NEWGAME_H

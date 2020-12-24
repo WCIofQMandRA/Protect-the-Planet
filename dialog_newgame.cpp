@@ -2,6 +2,7 @@
 #include "ui_dialog_newgame.h"
 #include "save_load.hpp"
 #include "dialog_start.hpp"
+#include "dialog_help.h"
 #include <QPalette>
 dialog_newgame::dialog_newgame(QWidget *parent) :
 	QDialog(parent),
@@ -43,13 +44,15 @@ void dialog_newgame::on_but_sure_clicked()
 	done(0);
 }
 
-void dialog_newgame::on_pushButton_clicked()
-{
-	;//dialog_help.ui is on the todo list
-}
-
 void dialog_newgame::on_but_back_clicked()
 {
 	clicked_back=true;
 	done(0);
+}
+
+void dialog_newgame::on_but_help_clicked()
+{
+	dialog_help dia;
+	dia.show();
+	dia.exec();
 }
