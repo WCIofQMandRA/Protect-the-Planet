@@ -20,7 +20,7 @@
    <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">border-image: url(:/pictures/resources/background_star.png);</string>
   </property>
   <widget class="QPushButton" name="button_start">
    <property name="geometry">
@@ -39,7 +39,7 @@
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">border-image: url(:/pictures/resources/start_bk.png);</string>
+    <string notr="true">border-image: url(:/pictures/resources/new_start.png);</string>
    </property>
    <property name="text">
     <string/>
@@ -55,7 +55,7 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">border-image: url(:/pictures/resources/exit_bk.png);</string>
+    <string notr="true">border-image: url(:/pictures/resources/new_exit.png);</string>
    </property>
    <property name="text">
     <string/>
@@ -71,7 +71,7 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">border-image: url(:/pictures/resources/title_bk.png);</string>
+    <string notr="true">border-image: url(:/pictures/resources/new_title.png);</string>
    </property>
    <property name="text">
     <string/>
@@ -93,9 +93,9 @@
   <widget class="QLabel" name="label_lastname">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>220</y>
-     <width>251</width>
+     <x>210</x>
+     <y>210</y>
+     <width>321</width>
      <height>31</height>
     </rect>
    </property>
@@ -106,17 +106,17 @@
   <widget class="QPushButton" name="but_changeuser">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>220</y>
-     <width>101</width>
-     <height>31</height>
+     <x>590</x>
+     <y>180</y>
+     <width>111</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true"/>
+    <string notr="true">border-image: url(:/pictures/resources/new_change.png);</string>
    </property>
    <property name="text">
-    <string>切换用户</string>
+    <string/>
    </property>
   </widget>
   <zorder>label1</zorder>
