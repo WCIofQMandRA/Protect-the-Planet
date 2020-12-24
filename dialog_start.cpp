@@ -74,6 +74,7 @@ dialog_start::dialog_start(QWidget *parent) :
 	else
 	{
 		QFont ft=this->font();ft.setPointSize(15);ui->label_lastname->setFont(ft);
+		name=name_list[0];
 		ui->label_lastname->setText("用户  "+QString::fromStdU32String(name_list[0])+"  欢迎您！");
 		//ui->label_lastname->setAutoFillBackground(true);
 		ui->label_lastname->setPalette(pal_label);
@@ -92,7 +93,7 @@ void dialog_start::paintEvent(QPaintEvent *event)
 
 void dialog_start::on_button_start_clicked()
 {
-	name = save_load.get_userlist()[0];
+//	name = save_load.get_userlist()[0];
 	dialog_difficulty dia(save_load.get_last_diff(name));
 	dia.setWindowTitle("Difficulty");
 	dia.show();

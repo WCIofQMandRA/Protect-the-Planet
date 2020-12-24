@@ -92,7 +92,6 @@ void Dialog_load::on_but_1_clicked()
 	name = name_list[0+cur_down_num];
 }
 
-
 void Dialog_load::on_but_2_clicked()
 {
 	name = name_list[1+cur_down_num];
