@@ -68,7 +68,7 @@ dialog_start::dialog_start(QWidget *parent) :
 		//ui->label_lastname->setText(ui->label_static->text()+QString::fromStdU32String(name));
 		QFont ft=this->font();ft.setPointSize(15);ui->label_lastname->setFont(ft);
 		ui->label_lastname->setText("用户  "+QString::fromStdU32String(name)+"  欢迎您！");
-		//ui->label_lastname->setAutoFillBackground(true);
+		ui->label_lastname->setAlignment(Qt::AlignRight);
 		ui->label_lastname->setPalette(pal_label);
 	}
 	else
@@ -76,6 +76,7 @@ dialog_start::dialog_start(QWidget *parent) :
 		QFont ft=this->font();ft.setPointSize(15);ui->label_lastname->setFont(ft);
 		name=name_list[0];
 		ui->label_lastname->setText("用户  "+QString::fromStdU32String(name_list[0])+"  欢迎您！");
+		ui->label_lastname->setAlignment(Qt::AlignRight);
 		//ui->label_lastname->setAutoFillBackground(true);
 		ui->label_lastname->setPalette(pal_label);
 	}
@@ -118,5 +119,6 @@ void dialog_start::on_but_changeuser_clicked()
 	name = dia.name;
 	QFont ft=this->font();ft.setPointSize(15);ui->label_lastname->setFont(ft);
 	ui->label_lastname->setText("用户  "+QString::fromStdU32String(name)+"  欢迎您！");
+	ui->label_lastname->setAlignment(Qt::AlignRight);
 	ui->label_lastname->setPalette(pal_label);
 }
