@@ -70,7 +70,8 @@ volatile std::atomic<int16_t> move;//玩家移动，取1/-1/0
 //10：不使用
 //11：射击
 //12：丢弃当前武器
-//0~9：选择武器
+//1/2：通过按键选择武器
+//3/4：通过滚轮选择武器
 volatile std::atomic<int16_t> weapon;
 volatile std::atomic<double> weapon_direct;
 //触发的效果
@@ -843,20 +844,29 @@ void check_hit_planet()
 void change_weapon()
 {
 	static uint64_t last_change_clock=0;
-	if(uint16_t tmp=comu_control::weapon;(tmp==1||tmp==2)
+	if(uint16_t tmp=comu_control::weapon;tmp!=10
 			//||last_...非必要，因为无符号整数的自然溢出
 			&&(game_clock-last_change_clock>=attribute::minimum_keyboard_operating_skip/*||last_change_clock>game_clock*/))
 	{
 		last_change_clock=game_clock;
-		if(tmp==1)
+		switch(tmp)
 		{
+		case 3:
+			comu_control::weapon=10;
+			goto lb1;//只是为了消去 implicit-fallthrough 警告
+		case 1:
+		lb1:
 			if(player.chosen_weapon)
 				--player.chosen_weapon;
-		}
-		else
-		{
+			break;
+		case 4:
+			comu_control::weapon=10;
+			goto lb2;
+		case 2:
+		lb2:
 			if(player.chosen_weapon<9)
 				++player.chosen_weapon;
+			break;
 		}
 	}
 }
