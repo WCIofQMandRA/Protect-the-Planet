@@ -99,18 +99,24 @@ void mainwindow::mouseMoveEvent(QMouseEvent *event)
 	kernel::comu_control::weapon_direct=theta;
 }
 
-void mainwindow::mousePressEvent(QMouseEvent *)
+void mainwindow::mousePressEvent(QMouseEvent *event)
 {
 	if(is_choosing)return;
 	//QWidget::mousePressEvent(event);
-	kernel::comu_control::weapon=11;
+	if(event->button()==Qt::LeftButton)
+	{
+		kernel::comu_control::weapon=11;
+	}
 }
 
-void mainwindow::mouseReleaseEvent(QMouseEvent *)
+void mainwindow::mouseReleaseEvent(QMouseEvent *event)
 {
 	if(is_choosing)return;
 	//QWidget::mouseReleaseEvent(event);
-	kernel::comu_control::weapon=10;
+	if(event->button()==Qt::LeftButton)
+	{
+		kernel::comu_control::weapon=10;
+	}
 }
 
 void mainwindow::keyPressEvent(QKeyEvent *event)
@@ -230,5 +236,17 @@ void mainwindow::game_end()
 		autoupdate_timer->stop();
 		update();
 		stop_game();
+	}
+}
+
+void mainwindow::wheelEvent(QWheelEvent *event)
+{
+	if(event->delta()>0)
+	{
+		kernel::comu_control::weapon=3;
+	}
+	else
+	{
+		kernel::comu_control::weapon=4;
 	}
 }
