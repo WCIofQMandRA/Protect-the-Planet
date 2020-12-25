@@ -51,6 +51,8 @@ double player_height=8e6;
 
 uint64_t minimum_keyboard_operating_skip=10;
 uint64_t maximum_dropped_box_stay_time=750;
+uint64_t infinate_speed_pill_exsit_time=3;
+uint64_t hint_subtitle_exsit_time=75;
 }//namespace attribute
 
 namespace kernel
@@ -101,6 +103,8 @@ planet_t planet;
 player_t player;
 uint64_t game_clock,level,score;
 std::pair<uint32_t,uint64_t> dropped_item;
+std::vector<std::tuple<double,double,double,double>> infinate_speed_weapon_path_list;
+std::vector<std::u32string> hint_subtitle;
 }
 
 std::thread process_thread;
@@ -127,17 +131,23 @@ std::map<uint64_t,meteorite_t> meteorite_list;
 std::map<uint64_t,box_t> box_list;
 std::map<uint64_t,std::pair<boxd_t,uint64_t>> dropped_box_list;
 std::map<uint64_t,pill_t> pill_list;
+//子弹速度为无穷大的武器在使用时产生一条红线，持续时间为0.15s(3tk)
+//值得注意的是，map.first是使用武器的游戏刻，而非绝对编号
+std::map<uint64_t,std::tuple<double,double,double,double>> infinate_speed_weapon_path_list;
+//游戏状态提示，显示在行星下方，这是接近玩家视野中心的位置，同样map.first是提示字幕被触发的游戏刻
+//一条提示词显示1.5s
+std::map<uint64_t,std::u32string> hint_subtitle;
 planet_t planet;
 player_t player;
 uint64_t counter;//绝对编号
 uint64_t level;//玩家通过的关卡数
+uint64_t game_clock;//游戏时钟
 uint64_t score;
-uint16_t difficulty;//游戏难度
 uint64_t opened_dropped_box;
 int64_t selected_item_in_dropped_items_list;
 int32_t succeeded;
-//游戏时钟
-uint64_t game_clock;
+uint16_t difficulty;//游戏难度
+
 
 //meteorites[k]是第k关(编号从0开始)计划生成的所有陨石，get<0>是可能生成的最早时刻，get<1>是可能生成的最晚时刻，get<2>是计划生成的陨石
 std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> meteorites;
@@ -155,8 +165,11 @@ std::map<uint64_t,std::vector<uint16_t>> meteorites_thisround;
 std::map<uint64_t,std::vector<uint16_t>> boxes_thisround;
 //本关卡中，还未被毁灭的陨石和补给箱的数量
 uint64_t boxes_and_meteorites_left;
+uint64_t meteorites_left;
 //最后一个被毁灭的陨石或补给箱被毁灭的时刻
 uint64_t last_destroy_clock;
+//胜利/失败的时刻
+uint64_t win_clock,lose_clock;
 
 
 inline uint64_t urand_between(uint64_t s,uint64_t t)
@@ -383,11 +396,15 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	for(auto &i:player.weapon)
 		i.last_use_time=0;
 	boxes_and_meteorites_left=0;
+	meteorites_left=0;
+	win_clock=0;
+	lose_clock=0;
 	//生成这一关的陨石和补给箱的出现时刻
 	for(const auto &i:meteorites[trans_level[difficulty][level]])
 	{
 		meteorites_thisround[urand_between(i)].push_back(std::get<2>(i));
 		boxes_and_meteorites_left++;
+		meteorites_left++;
 	}
 	for(const auto &i:boxes[trans_level[difficulty][level]])
 	{
@@ -419,6 +436,8 @@ void stop_game()
 	pill_list.clear();
 	dropped_box_list.clear();
 	box_list.clear();
+	hint_subtitle.clear();
+	infinate_speed_weapon_path_list.clear();
 	comu_paint::box_list.clear();
 	comu_paint::meteorite_list.clear();
 	comu_paint::dropped_box_list.clear();
@@ -613,6 +632,8 @@ void prepare_data_for_painting()
 		comu_paint::box_list.resize(box_list.size());
 		comu_paint::pill_list.resize(pill_list.size());
 		comu_paint::dropped_box_list.resize(dropped_box_list.size());
+		comu_paint::hint_subtitle.resize(hint_subtitle.size());
+		comu_paint::infinate_speed_weapon_path_list.resize(infinate_speed_weapon_path_list.size());
 		size_t i=0;
 		for(auto it=meteorite_list.cbegin();it!=meteorite_list.cend();++it,++i)
 		{
@@ -632,6 +653,16 @@ void prepare_data_for_painting()
 		for(auto it=pill_list.cbegin();it!=pill_list.cend();++it,++i)
 		{
 			comu_paint::pill_list[i]=(it->second);
+		}
+		i=0;
+		for(auto it=hint_subtitle.begin();it!=hint_subtitle.end();++it,++i)
+		{
+			comu_paint::hint_subtitle[i]=it->second;
+		}
+		i=0;
+		for(auto it=infinate_speed_weapon_path_list.begin();it!=infinate_speed_weapon_path_list.end();++it,++i)
+		{
+			comu_paint::infinate_speed_weapon_path_list[i]=it->second;
 		}
 		if(~opened_dropped_box)
 			comu_paint::dropped_item=dropped_box_list[opened_dropped_box].first.contains[selected_item_in_dropped_items_list];
@@ -770,6 +801,7 @@ void check_shooted_by_pill()
 					score+=static_cast<uint64_t>((k->second.strength>64?64+log2(static_cast<floatmp_t>(k->second.strength-63)):k->second.strength));
 					meteorite_list.erase(k);
 					boxes_and_meteorites_left--;
+					meteorites_left--;
 					if(!boxes_and_meteorites_left)
 						last_destroy_clock=game_clock;
 				}
@@ -823,6 +855,7 @@ void check_hit_planet()
 			}
 			i=meteorite_list.erase(i);
 			--boxes_and_meteorites_left;
+			--meteorites_left;
 			if(!boxes_and_meteorites_left)
 				last_destroy_clock=game_clock;
 		}
@@ -1090,13 +1123,13 @@ void change_selected_item()
 void check_win_or_lose()
 {
 	//std::cout<<boxes_and_meteorites_left<<std::endl;
-	if(planet.health<=0)
+	if(lose_clock&&lose_clock+attribute::hint_subtitle_exsit_time<game_clock&&!succeeded)
 	{
 		succeeded=-1;
 		comu_menu::game_ended=true;
 	}
 	//警惕线程通信的延时！
-	else if(!boxes_and_meteorites_left&&last_destroy_clock+150<game_clock&&!succeeded)
+	else if(!boxes_and_meteorites_left&&last_destroy_clock+attribute::hint_subtitle_exsit_time<game_clock&&!succeeded)
 	{
 		succeeded=1;
 		level++;
@@ -1345,6 +1378,31 @@ void calc_combined_effect()
 	}
 }
 
+//删除、添加提示字幕，但注意，一些提示字幕会在其他函数中添加
+void update_hint_subtitles()
+{
+	//清除过时提示
+	for(auto it=hint_subtitle.begin();it!=hint_subtitle.end();)
+	{
+		if(it->first+attribute::hint_subtitle_exsit_time<game_clock)
+			it=hint_subtitle.erase(it);
+		else
+			++it;
+	}
+	//添加新提示
+	//失败/胜利提示
+	if(planet.health<=0&&!lose_clock)
+	{
+		lose_clock=game_clock;
+		hint_subtitle[game_clock]=U"行星被毁！";
+	}
+	else if(planet.health>0&&meteorites_left==0&&!win_clock)
+	{
+		win_clock=game_clock;
+		hint_subtitle[game_clock]=U"已清除所有陨石！";
+	}
+}
+
 void process_oneround()
 {
 	generate_mete_and_box();
@@ -1366,6 +1424,8 @@ void process_oneround()
 	calc_combined_effect();
 
 	check_win_or_lose();
+
+	update_hint_subtitles();
 	////////////////////////////////////
 	prepare_data_for_painting();
 }

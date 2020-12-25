@@ -332,6 +332,16 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			}
 		}
 	}
+	//绘制提示字幕
+	{
+		//至多显示8条字幕
+		int di=std::max(0,(int)hint_subtitle.size()-8);
+		painter.setPen(Qt::white);
+		for(int i=0,psize=trs(planet.size);i+di<int(hint_subtitle.size());++i)
+		{
+			drawText(painter,width/2,height/2+psize+10+i*20,Qt::AlignTop|Qt::AlignHCenter,QString::fromStdU32String(hint_subtitle[i]));
+		}
+	}
 }
 
 //在特定区域绘制游戏地图
