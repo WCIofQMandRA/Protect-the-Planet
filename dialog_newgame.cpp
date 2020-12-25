@@ -41,7 +41,8 @@ void dialog_newgame::on_nameedit_textEdited(const QString &)
 
 void dialog_newgame::on_but_sure_clicked()
 {
-	done(0);
+	if(ui->nameedit->text().isEmpty()) ;
+	else done(0);
 }
 
 void dialog_newgame::on_but_back_clicked()
@@ -55,4 +56,10 @@ void dialog_newgame::on_but_help_clicked()
 	dialog_help dia;
 	dia.show();
 	dia.exec();
+}
+
+void dialog_newgame::on_nameedit_textChanged(const QString &)
+{
+	if(ui->nameedit->text().isEmpty()==false) ui->but_sure->setText("确定");
+	else ui->but_sure->setText("用户名不能为空");
 }

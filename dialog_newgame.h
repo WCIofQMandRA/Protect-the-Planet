@@ -26,5 +26,6 @@ private slots:
 	void on_but_sure_clicked();
 	void on_but_back_clicked();
 	void on_but_help_clicked();
+	void on_nameedit_textChanged(const QString &arg1);
 };
 #endif // DIALOG_NEWGAME_H
