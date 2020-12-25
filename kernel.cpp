@@ -277,17 +277,17 @@ void init()
 								{
 									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(1380,1500),4,30,5e6,
+		ako_meteorite.push_back({std::make_pair(1380,1500),4,30,6.8e6,
 								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(1000*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(150,170),5,3,5e6,
+		ako_meteorite.push_back({std::make_pair(150,170),5,10,3e6,
 								[](intmp_t &health,const double &,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health-=static_cast<intmp_t>(30*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
 								}});
-		ako_meteorite.push_back({std::make_pair(2000,2130),6,1000,2.5e6,
+		ako_meteorite.push_back({std::make_pair(2000,2130),6,1000,9e6,
 								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
 								{
 									health=static_cast<intmp_t>(exp(log(static_cast<floatmp_t>(health))-log(static_cast<floatmp_t>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
@@ -295,7 +295,7 @@ void init()
 	}
 	//生成武器列表
 	{
-		ako_weapon.push_back({5,18,1,0,false,[](intmp_t &x,const double &power_rate_pill,const double &power_rate_meteorite/*or power_rate_box*/)
+		ako_weapon.push_back({5,18,1,0,false,[](intmp_t &x,const intmp_t &,double power_rate_pill,double power_rate_meteorite/*or power_rate_box*/)
 							  {
 								  x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);
 							  },2e6});
@@ -319,7 +319,7 @@ void init()
 		ako_box.push_back({std::make_pair(200,300),std::make_pair(0,0),
 						   {},
 						   {{compress16(CONTAIN_TYPE_PILL,0),30}},
-						  0,15,3.7e6});
+						  0,1,3.7e6});
 		ako_box.push_back({std::make_pair(500,550),std::make_pair(17,19),
 						   {compress16(CONTAIN_TYPE_FOOD,0),compress16(CONTAIN_TYPE_PILL,0)},
 						   {{compress16(CONTAIN_TYPE_EFFECT,0),1}},
@@ -763,7 +763,7 @@ void check_shooted_by_pill()
 				if(i->second.combined_effect.infinate_power||k->second.combined_effect.kill_after_shooted)
 					k->second.strength_left=0;
 				else
-					ako_weapon[i->second.type].use(k->second.strength_left,i->second.combined_effect.power_rate,k->second.combined_effect.power_rate);
+					ako_weapon[i->second.type].use(k->second.strength_left,k->second.strength,i->second.combined_effect.power_rate,k->second.combined_effect.power_rate);
 				if(k->second.strength_left<=0)
 				{
 					score+=static_cast<uint64_t>((k->second.strength>64?64+log2(static_cast<floatmp_t>(k->second.strength-63)):k->second.strength));
@@ -787,7 +787,7 @@ void check_shooted_by_pill()
 					if(i->second.combined_effect.infinate_power)
 						l->second.strength_left=0;
 					else
-						ako_weapon[i->second.type].use(l->second.strength_left,i->second.combined_effect.power_rate,l->second.combined_effect.power_rate);
+						ako_weapon[i->second.type].use(l->second.strength_left,l->second.strength,i->second.combined_effect.power_rate,l->second.combined_effect.power_rate);
 					if(l->second.strength_left<=0)
 					{
 						box_list.erase(l);
