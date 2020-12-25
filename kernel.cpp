@@ -1090,16 +1090,14 @@ void change_selected_item()
 void check_win_or_lose()
 {
 	//std::cout<<boxes_and_meteorites_left<<std::endl;
-	if(planet.health<0)
+	if(planet.health<=0)
 	{
-		//TODO:失败
 		succeeded=-1;
 		comu_menu::game_ended=true;
 	}
 	//警惕线程通信的延时！
 	else if(!boxes_and_meteorites_left&&last_destroy_clock+150<game_clock&&!succeeded)
 	{
-		//TODO:成功
 		succeeded=1;
 		level++;
 		comu_menu::game_ended=true;
@@ -1146,7 +1144,7 @@ void use_effect()
 						}
 						else
 						{
-							player.weapon[player.chosen_weapon].received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+							player.weapon[player.chosen_weapon].received_effect[ako_effect[it->second].type]=ako_effect[it->second].time;
 						}
 						active_success=true;
 					}
@@ -1171,7 +1169,7 @@ void use_effect()
 						{
 							if(player.weapon[i].type!=65535)
 							{
-								player.weapon[i].received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+								player.weapon[i].received_effect[ako_effect[it->second].type]=ako_effect[it->second].time;
 								active_success=true;
 							}
 						}
@@ -1186,7 +1184,7 @@ void use_effect()
 					}
 					else
 					{
-						player.received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+						player.received_effect[ako_effect[it->second].type]=ako_effect[it->second].time;
 					}
 					active_success=true;
 					break;
@@ -1205,7 +1203,7 @@ void use_effect()
 					{
 						for(auto &i:box_list)
 						{
-							i.second.received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+							i.second.received_effect[ako_effect[it->second].type]=ako_effect[it->second].time;
 							active_success=true;
 						}
 					}
@@ -1225,7 +1223,7 @@ void use_effect()
 					{
 						for(auto &i:meteorite_list)
 						{
-							i.second.received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+							i.second.received_effect[ako_effect[it->second].type]=ako_effect[it->second].time;
 							active_success=true;
 						}
 					}
@@ -1239,7 +1237,7 @@ void use_effect()
 					}
 					else
 					{
-						planet.received_effect.insert({ako_effect[it->second].detail,ako_effect[it->second].time});
+						planet.received_effect[ako_effect[it->second].type]=ako_effect[it->second].time;
 					}
 					active_success=true;
 				}
@@ -1311,7 +1309,7 @@ void calc_combined_effect()
 	player.combined_effect=received_effect_player_t();
 	for(auto &i:player.received_effect)
 	{
-		player.combined_effect+=ako_player_effect[i.first];
+		player.combined_effect+=ako_player_effect[ako_effect[i.first].detail];
 	}
 	for(auto &i:player.weapon)
 	{
@@ -1320,21 +1318,21 @@ void calc_combined_effect()
 			i.combined_effect=received_effect_weapon_t();
 			for(auto &j:i.received_effect)
 			{
-				i.combined_effect+=ako_weapon_effect[j.first];
+				i.combined_effect+=ako_weapon_effect[ako_effect[j.first].detail];
 			}
 		}
 	}
 	planet.combined_effect=received_effect_planet_t();
 	for(auto &i:planet.received_effect)
 	{
-		planet.combined_effect+=ako_planet_effect[i.first];
+		planet.combined_effect+=ako_planet_effect[ako_effect[i.first].detail];
 	}
 	for(auto &i:meteorite_list)
 	{
 		i.second.combined_effect=received_effect_meteorite_t();
 		for(auto &j:i.second.received_effect)
 		{
-			i.second.combined_effect+=ako_meteorite_effect[j.first];
+			i.second.combined_effect+=ako_meteorite_effect[ako_effect[j.first].detail];
 		}
 	}
 	for(auto &i:box_list)
@@ -1342,7 +1340,7 @@ void calc_combined_effect()
 		i.second.combined_effect=received_effect_box_t();
 		for(auto &j:i.second.received_effect)
 		{
-			i.second.combined_effect+=ako_box_effect[j.first];
+			i.second.combined_effect+=ako_box_effect[ako_effect[j.first].detail];
 		}
 	}
 }

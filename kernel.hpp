@@ -124,6 +124,8 @@ extern planet_t planet;
 extern player_t player;
 extern uint64_t game_clock,level,score;
 extern std::pair<uint32_t,uint64_t> dropped_item;
+extern std::tuple<double,double,double,double> infinate_speed_weapon_path_list;
+extern std::u32string hint_line;
 }
 
 //内核开始执行时会创建一个线程，该线程储存在process_thread中

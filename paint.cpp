@@ -96,6 +96,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	font.setFamily("Microsoft Yahei");
 	painter.setFont(font);
 #endif
+	int icon_size=std::min(64,trs(1.5e7));
 	int width=pix->width(),height=pix->height();
 	////////////////////////////////////
 	//绘制行星
@@ -152,7 +153,6 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	{
 		painter.setPen(QColor(88,88,88));
 		painter.setBrush(QColor(127,127,127));
-		int icon_size=std::min(64,trs(1.5e7));
 		painter.drawRect(ptmp.x()-icon_size/2,ptmp.y()-icon_size/2,icon_size,icon_size);
 		QString name;
 		auto &item=dropped_item;
@@ -205,7 +205,6 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	drawText(painter,width-10,10,Qt::AlignRight|Qt::AlignTop,QString::fromStdU32String(player.name));
 	//绘制物品栏
 	{
-		int icon_size=std::min(64,trs(1.5e7));
 		//效果
 		{
 			painter.setPen(QColor(88,88,88));
@@ -247,10 +246,10 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			painter.setBrush(QColor(127,127,127));
 			for(int i=0;i<5;++i)
 			{
-				painter.drawRect(width-(10+icon_size)*2,height-(10+icon_size)*(5-i),icon_size,icon_size);
+				painter.drawRect(int(width*0.6)+5-(10+icon_size)*(5-i),height-10-icon_size,icon_size,icon_size);
 				if(uint16_t wtype=player.weapon[i].type;wtype!=65535)
 				{
-					painter.drawPixmap(width-(10+icon_size)*2,height-(10+icon_size)*(5-i),weapon_resources[wtype].scaled(icon_size,icon_size));
+					painter.drawPixmap(int(width*0.6)+5-(10+icon_size)*(5-i),height-10-icon_size,weapon_resources[wtype].scaled(icon_size,icon_size));
 				}
 				if(i==player.chosen_weapon)
 				{
@@ -259,7 +258,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 					pen.setColor(QColor(0,190,0));
 					pen.setWidth(4);
 					painter.setPen(pen);
-					int x0=width-(10+icon_size)*2,y0=height-(10+icon_size)*(5-i);
+					int x0=int(width*0.6)+5-(10+icon_size)*(5-i),y0=height-10-icon_size;
 					painter.drawLine(x0,y0,x0+icon_size,y0);
 					painter.drawLine(x0+icon_size,y0,x0+icon_size,y0+icon_size);
 					painter.drawLine(x0+icon_size,y0+icon_size,x0,y0+icon_size);
@@ -269,10 +268,10 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			}
 			for(int i=5;i<10;++i)
 			{
-				painter.drawRect(width-(10+icon_size),height-(10+icon_size)*(10-i),icon_size,icon_size);
+				painter.drawRect(int(width*0.6)+5+(10+icon_size)*(i-5),height-10-icon_size,icon_size,icon_size);
 				if(uint16_t wtype=player.weapon[i].type;wtype!=65535)
 				{
-					painter.drawPixmap(width-(10+icon_size),height-(10+icon_size)*(10-i),weapon_resources[wtype].scaled(icon_size,icon_size));
+					painter.drawPixmap(int(width*0.6)+5+(10+icon_size)*(i-5),height-10-icon_size,weapon_resources[wtype].scaled(icon_size,icon_size));
 				}
 				if(i==player.chosen_weapon)
 				{
@@ -281,7 +280,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 					pen.setColor(QColor(0,190,0));
 					pen.setWidth(4);
 					painter.setPen(pen);
-					int x0=width-(10+icon_size),y0=height-(10+icon_size)*(10-i);
+					int x0=int(width*0.6)+5+(10+icon_size)*(i-5),y0=height-10-icon_size;
 					painter.drawLine(x0,y0,x0+icon_size,y0);
 					painter.drawLine(x0+icon_size,y0,x0+icon_size,y0+icon_size);
 					painter.drawLine(x0+icon_size,y0+icon_size,x0,y0+icon_size);
@@ -292,8 +291,44 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			if(auto weapon_id=player.weapon[player.chosen_weapon].type;weapon_id!=65535)
 			{
 				painter.setPen(Qt::white);
-				drawText(painter,width-icon_size-5,height-5*(icon_size+10)-2,Qt::AlignBottom|Qt::AlignHCenter,
+				drawText(painter,int(width*0.65),height-12-icon_size,Qt::AlignBottom|Qt::AlignHCenter,
 						 QString::fromStdU32String(weapon_namelist[weapon_id]));
+			}
+		}
+	}
+	//绘制正在生效的效果
+	{
+		painter.setPen(QColor(88,88,88));
+		painter.setBrush(QColor(127,127,127));
+		int i=0;
+		for(auto it=player.received_effect.begin();it!=player.received_effect.end();++it,++i)
+		{
+			painter.drawRect(width-10-icon_size,80+i*(icon_size+10),icon_size,icon_size);
+			painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),effect_resources[effect_view[it->first]].scaled(icon_size,icon_size));
+			painter.setPen(Qt::white);
+			drawText(painter,width-12-icon_size,80+i*(icon_size+10)+icon_size/2,Qt::AlignRight|Qt::AlignVCenter,
+					 (QString::fromStdU32String(effect_namelist[it->first])+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
+			painter.setPen(QColor(88,88,88));
+		}
+		for(auto it=planet.received_effect.begin();it!=planet.received_effect.end();++it,++i)
+		{
+			painter.drawRect(width-10-icon_size,80+i*(icon_size+10),icon_size,icon_size);
+			painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),effect_resources[effect_view[it->first]].scaled(icon_size,icon_size));
+			painter.setPen(Qt::white);
+			drawText(painter,width-12-icon_size,80+i*(icon_size+10)+icon_size/2,Qt::AlignRight|Qt::AlignVCenter,
+					 (QString::fromStdU32String(effect_namelist[it->first])+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
+			painter.setPen(QColor(88,88,88));
+		}
+		if(player.weapon[player.chosen_weapon].type!=65535)
+		{
+			for(auto it=player.weapon[player.chosen_weapon].received_effect.begin();it!=player.weapon[player.chosen_weapon].received_effect.end();++it,++i)
+			{
+				painter.drawRect(width-10-icon_size,80+i*(icon_size+10),icon_size,icon_size);
+				painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),effect_resources[effect_view[it->first]].scaled(icon_size,icon_size));
+				painter.setPen(Qt::white);
+				drawText(painter,width-12-icon_size,80+i*(icon_size+10)+icon_size/2,Qt::AlignRight|Qt::AlignVCenter,
+						 (QString::fromStdU32String(effect_namelist[it->first])+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
+				painter.setPen(QColor(88,88,88));
 			}
 		}
 	}
