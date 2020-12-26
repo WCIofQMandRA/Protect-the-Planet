@@ -133,10 +133,10 @@ std::map<uint64_t,std::pair<boxd_t,uint64_t>> dropped_box_list;
 std::map<uint64_t,pill_t> pill_list;
 //子弹速度为无穷大的武器在使用时产生一条红线，持续时间为0.15s(3tk)
 //值得注意的是，map.first是使用武器的游戏刻，而非绝对编号
-std::map<uint64_t,std::tuple<double,double,double,double>> infinate_speed_weapon_path_list;
+std::multimap<uint64_t,std::tuple<double,double,double,double>> infinate_speed_weapon_path_list;
 //游戏状态提示，显示在行星下方，这是接近玩家视野中心的位置，同样map.first是提示字幕被触发的游戏刻
 //一条提示词显示1.5s
-std::map<uint64_t,std::u32string> hint_subtitle;
+std::multimap<uint64_t,std::u32string> hint_subtitle;
 planet_t planet;
 player_t player;
 uint64_t counter;//绝对编号
@@ -385,6 +385,8 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		planet.health=attribute::planet_init_health[difficulty];
 		planet.received_effect.clear();
 		planet.combined_effect=received_effect_planet_t();
+		///////
+		hint_subtitle.insert({0,U"按 F11 退出全屏"});
 	}
 	if(level>=trans_level[difficulty].size())
 	{
@@ -1393,12 +1395,12 @@ void update_hint_subtitles()
 	if(planet.health<=0&&!lose_clock)
 	{
 		lose_clock=game_clock;
-		hint_subtitle[game_clock]=U"行星被毁！";
+		hint_subtitle.insert({game_clock,U"行星被毁！"});
 	}
 	else if(planet.health>0&&meteorites_left==0&&!win_clock)
 	{
 		win_clock=game_clock;
-		hint_subtitle[game_clock]=U"已清除所有陨石！";
+		hint_subtitle.insert({game_clock,U"已清除所有陨石！"});
 	}
 }
 
