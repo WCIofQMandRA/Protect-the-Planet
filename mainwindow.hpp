@@ -50,6 +50,7 @@ protected:
 	void keyPressEvent(QKeyEvent *event) override;
 	void keyReleaseEvent(QKeyEvent *event) override;
 	void wheelEvent(QWheelEvent *event) override;
+	void focusOutEvent(QFocusEvent *event) override;
 
 private slots:
 	void auto_repaint();

@@ -251,3 +251,10 @@ void mainwindow::wheelEvent(QWheelEvent *event)
 		kernel::comu_control::weapon=4;
 	}
 }
+
+void mainwindow::focusOutEvent(QFocusEvent *event)
+{
+	QWidget::focusOutEvent(event);
+	QKeyEvent keyevent(QEvent::KeyPress,Qt::Key::Key_Escape,Qt::NoModifier);
+	this->keyPressEvent(&keyevent);
+}
