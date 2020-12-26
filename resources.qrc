@@ -47,5 +47,9 @@
         <file>resources/meteorite8.png</file>
         <file>resources/pill_item0.png</file>
         <file>resources/pill_item1.png</file>
+        <file>resources/planet0.png</file>
+        <file>resources/planet1.png</file>
+        <file>resources/planet2.png</file>
+        <file>resources/ranklist.png</file>
     </qresource>
 </RCC>
