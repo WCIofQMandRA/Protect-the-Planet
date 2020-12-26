@@ -40,5 +40,12 @@
         <file>resources/weapon9.png</file>
         <file>resources/weapon10.png</file>
         <file>resources/weapon11.png</file>
+        <file>resources/box1.png</file>
+        <file>resources/effect8.png</file>
+        <file>resources/effect9.png</file>
+        <file>resources/effect10.png</file>
+        <file>resources/meteorite8.png</file>
+        <file>resources/pill_item0.png</file>
+        <file>resources/pill_item1.png</file>
     </qresource>
 </RCC>
