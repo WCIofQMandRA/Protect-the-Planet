@@ -42,6 +42,8 @@ private slots:
 	void on_button_exit_clicked();
 	void on_but_changeuser_clicked();
 
+	void on_but_ranklist_clicked();
+
 protected:
 	void paintEvent(QPaintEvent *event) override;
 

@@ -29,6 +29,7 @@
 #include "dialog_difficulty.h"
 #include "dialog_load.h"
 #include "QPalette"
+#include "dialog_ranklist.h"
 dialog_start::dialog_start(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::dialog_start)
@@ -121,4 +122,12 @@ void dialog_start::on_but_changeuser_clicked()
 	ui->label_lastname->setText("用户  "+QString::fromStdU32String(name)+"  欢迎您！");
 	ui->label_lastname->setAlignment(Qt::AlignRight);
 	ui->label_lastname->setPalette(pal_label);
+}
+
+void dialog_start::on_but_ranklist_clicked()
+{
+	dialog_ranklist dia;
+	dia.show();
+	dia.exec();
+	dia.done(0);  // A special feature has been found but not fixed yet
 }

@@ -43,6 +43,7 @@ SOURCES += \
         dialog_load.cpp \
         dialog_newgame.cpp \
         dialog_pause.cpp \
+    dialog_ranklist.cpp \
         dialog_start.cpp \
         file.cpp \
         menu.cpp \
@@ -66,6 +67,7 @@ HEADERS += \
         dialog_load.h \
         dialog_newgame.h \
         dialog_pause.hpp \
+        dialog_ranklist.h \
         dialog_start.hpp \
         file.hpp \
         kernel.hpp \
@@ -83,6 +85,7 @@ FORMS += \
         dialog_load.ui \
         dialog_newgame.ui \
         dialog_pause.ui \
+        dialog_ranklist.ui \
         dialog_start.ui \
         mainwindow.ui
 
