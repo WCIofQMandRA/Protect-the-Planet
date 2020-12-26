@@ -339,7 +339,6 @@ void init()
 						   {{compress16(CONTAIN_TYPE_EFFECT,0),1}},
 						   1,15,2.3e6});
 	}
-
 	//初始化随机数引擎
 	rand64.seed(time(nullptr));
 }
@@ -449,7 +448,7 @@ void stop_game()
 	}
 	else if(succeeded==-1)
 	{
-		if(save_load->remove(player.name,difficulty))
+		if(save_load->remove(player.name,difficulty,level,score))
 			std::cout<<"保存成功"<<std::endl;
 	}
 }

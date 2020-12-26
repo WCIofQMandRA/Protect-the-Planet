@@ -28,8 +28,14 @@ class save_load_class
 private:
 	//用户名，编号，上一次游戏时的难度
 	std::map<std::u32string,std::pair<uint64_t,uint16_t>> user_list;
+	//排行榜信息
+	//[{通过关卡数,得分}]玩家名
+	std::array<std::multimap<std::pair<uint64_t,uint64_t>,std::u32string,std::greater<std::pair<uint64_t,uint64_t>>>,3> ranking_list;
 	uint64_t last_play_user;
+	void load_user_list();
+	void load_ranking_list();
 	void save_user_list();
+	void save_ranking_list();
 public:
 	save_load_class();
 	~save_load_class();
@@ -42,7 +48,9 @@ public:
 	bool delete_user(const std::u32string &name);
 	bool load(const std::u32string &name,uint16_t difficulty,uint64_t &level,uint64_t &counter,uint64_t &score,player_t&,planet_t&);
 	bool save(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t counter,uint64_t score,const player_t&,const planet_t&);
-	bool remove(const std::u32string &name,uint16_t difficulty);
+	bool remove(const std::u32string &name,uint16_t difficulty,uint64_t level,uint64_t score);
+	//用户名、通过关卡数、最高得分
+	std::vector<std::tuple<std::u32string,uint64_t,uint64_t>> get_ranking(uint16_t difficulty,uint64_t max_count);
 };
 
 extern save_load_class *save_load;

@@ -29,7 +29,7 @@ namespace fs=std::filesystem;
 //故不能定义save_load_class的全局变量
 save_load_class *save_load;
 
-save_load_class::save_load_class()
+void save_load_class::load_user_list()
 {
 	using namespace std;
 	auto filename=trpath("[storage]/userlist");
@@ -122,9 +122,109 @@ void save_load_class::save_user_list()
 	}
 }
 
+void save_load_class::load_ranking_list()
+{
+	using namespace std;
+	auto filename=trpath("[storage]/ranking");
+	if(fs::is_regular_file(filename+".bak"))
+	{
+		std::cout<<"检测到上次保存排行榜时出现错误，并且很可能引起了程序崩溃"<<std::endl;
+		fs::remove(filename);
+		fs::rename(filename+".bak",filename);
+	}
+	ifstream fin(filename,ios_base::binary);
+	if(!fin)
+	{
+		fin.close();
+		ofstream fout(filename,ios_base::binary);
+		if(!fout)
+		{
+			cerr<<"无法创建排行榜文件，因为"<<trpath("[storage]/")<<"目录不可写。"<<endl;
+			fout.close();
+			abort();
+		}
+		cout<<"无法读取排行榜信息，已创建新排行榜"<<filename<<"。"<<endl;
+		uint64_t a=0;
+		fout.write(reinterpret_cast<char*>(&a),8);
+		fout.write(reinterpret_cast<char*>(&a),8);
+		fout.write(reinterpret_cast<char*>(&a),8);
+		fout.close();
+		return;
+	}
+	for(int i=0;i<3;++i)
+	{
+		uint64_t size;
+		fin.read(reinterpret_cast<char*>(&size),8);
+		for(uint64_t j=0;j<size;++j)
+		{
+			uint64_t a,b,c;
+			std::u32string d;
+			fin.read(reinterpret_cast<char*>(&a),8);
+			fin.read(reinterpret_cast<char*>(&b),8);
+			fin.read(reinterpret_cast<char*>(&c),8);
+			d.resize(c);
+			fin.read(reinterpret_cast<char*>(d.data()),c*4);
+			ranking_list[i].insert({{a,b},d});
+		}
+	}
+	fin.close();
+}
+
+void save_load_class::save_ranking_list()
+{
+	using namespace std;
+	auto filename=trpath("[storage]/ranking");
+	if(fs::is_regular_file(filename))
+	{
+		if(fs::is_regular_file(filename+".bak"))
+			fs::remove(filename+".bak");
+		fs::rename(filename,filename+".bak");
+	}
+	ofstream fout(filename);
+	if(!fout)
+	{
+		cerr<<"无法保存排行榜"<<endl;
+		fout.close();
+		return;
+	}
+	for(int i=0;i<3;++i)
+	{
+		uint64_t size;
+		size=ranking_list[i].size();
+		fout.write(reinterpret_cast<char*>(&size),8);
+		for(auto &j:ranking_list[i])
+		{
+			uint64_t s=j.second.size();
+			fout.write(reinterpret_cast<const char*>(&j.first.first),8);
+			fout.write(reinterpret_cast<const char*>(&j.first.second),8);
+			fout.write(reinterpret_cast<const char*>(&s),8);
+			fout.write(reinterpret_cast<const char*>(j.second.data()),s*4);
+		}
+	}
+	if(fout)
+	{
+		fout.close();
+		fs::remove(filename+".bak");
+	}
+	else
+	{
+		cerr<<"保存排行榜失败"<<endl;
+		fout.close();
+		fs::remove(filename);
+		fs::rename(filename+".bak",filename);
+	}
+}
+
+save_load_class::save_load_class()
+{
+	load_user_list();
+	load_ranking_list();
+}
+
 save_load_class::~save_load_class()
 {
 	save_user_list();
+	save_ranking_list();
 }
 
 std::vector<std::u32string> save_load_class::get_userlist()
@@ -396,7 +496,7 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 	}
 }
 
-bool save_load_class::remove(const std::u32string &name, uint16_t difficulty)
+bool save_load_class::remove(const std::u32string &name, uint16_t difficulty,uint64_t level,uint64_t score)
 {
 	if(auto tmp=user_list.find(name);tmp==user_list.end())
 	{
@@ -405,11 +505,26 @@ bool save_load_class::remove(const std::u32string &name, uint16_t difficulty)
 	else
 	{
 		using namespace std;
+		ranking_list[difficulty].insert({{level,score},name});
 		auto filename=trpath("[storage]/user.")+to_string(tmp->second.first)+"-"+to_string(difficulty);
 		if(fs::is_regular_file(filename))
 			fs::remove(filename);
 		if(fs::is_regular_file(filename+".bak"))
 			fs::remove(filename+".bak");
+		save_ranking_list();
 		return true;
 	}
+}
+
+std::vector<std::tuple<std::u32string,uint64_t,uint64_t>> save_load_class::get_ranking(uint16_t difficulty,uint64_t max_count)
+{
+	std::vector<std::tuple<std::u32string,uint64_t,uint64_t>> result;
+	uint64_t i=0;
+	for(auto &it:ranking_list[difficulty])
+	{
+		if(i++<max_count)
+			result.push_back({it.second,it.first.first,it.first.second});
+		else break;
+	}
+	return result;
 }
