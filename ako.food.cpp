@@ -27,5 +27,8 @@ std::vector<food_t> ako_food;
 void get_ako_food()
 {
 	ako_food.push_back({4000,3,0});
+	ako_food.push_back({8000,4,1});
+	ako_food.push_back({15000,6,2});
+	ako_food.push_back({2147483647,30,3});
 }
 }

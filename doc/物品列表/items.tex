@@ -67,10 +67,10 @@ ItalicFont=*bto,BoldFont=*tb,BoldItalicFont=*tx]
 7&衰变之枪&75&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(1.2))*power_rate_pill*power_rate_meteorite));|\\\hline
 8&强化的衰变之枪&95&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(1.7))*power_rate_pill*power_rate_meteorite));|\\\hline
 9&二分之枪&120&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(2))*power_rate_pill*power_rate_meteorite));|\\\hline
-10&开方之枪&200&100&$3\times10^6$&2&\lstinline|x=static_cast<intmp_t>(sqrt(floatmp_t(x)));|\\\hline
+10&开方之枪&200&100&$3\times10^6$&2&\lstinline|x=static_cast<intmp_t>(pow(floatmp_t(x),1/(2*power_rate_pill*power_rate_meteorite)));|\\\hline
 11&对数之枪&400&300&$5\times10^5$&10&\lstinline|x=static_cast<intmp_t>(log(floatmp_t(x))/(log(floatmp_t(2))*power_rate_pill*power_rate_meteorite))|\\\hline
 12&反向调分之枪&100&10&$2\times10^6$&1&\lstinline|x=x*x/y;|\\\hline
-13&随机打乱之枪&20&5&$1\times10^7$&1&\lstinline|auto tmp=x.str();std::shuffle(tmp.begin(),tmp.end(),rand64);x=intmp_t(tmp.substr(1));|\\\hline
+13&随机打乱之枪&20&5&$1\times10^7$&1&\lstinline|auto tmp=x.str();std::shuffle(tmp.begin(),tmp.end(),rand64);x=intmp_t(tmp.substr(rand64()%10?0:1));|\\\hline
 \end{longtable}
 \end{center}
 \section{效果}
@@ -87,7 +87,7 @@ ItalicFont=*bto,BoldFont=*tb,BoldItalicFont=*tx]
 0&快速射击I&10&1500&当前武器&0&射击速度×0.7&0\\\hline
 1&快速射击II&15&1500&当前武器&1&射击速度×0.5&0\\\hline
 2&快速射击III&20&1500&当前武器&2&射击速度×0.2&0\\\hline
-3&快速射击IV&40&1500&所有武器&1&射击速度×0.5&0\\\hline
+3&快速射击IV&20&1500&所有武器&1&射击速度×0.5&0\\\hline
 4&快速射击V&40&1500&所有武器&2&射击速度×0.2&0\\\hline
 5&保护盾I&25&500&行星&0&行星被击中时，完整度不下降&1\\\hline
 6&保护盾II&60&1500&行星&0&行星被击中时，完整度不下降&1\\\hline
@@ -99,26 +99,27 @@ ItalicFont=*bto,BoldFont=*tb,BoldItalicFont=*tx]
 12&修补V&80&1&行星&5&\lstinline|health_mul=5|&4\\\hline
 13&冻结I&17&250&陨石&0&陨石速度×0.5&5\\\hline
 14&冻结II&31&250&陨石&1&陨石速度×0.1&5\\\hline
-15&冻结III&60&250&陨石&2&陨石速度×0&5\\\hline
+15&冻结III&50&250&陨石&2&陨石速度×0&5\\\hline
 16&冻结IV&60&500&陨石&2&陨石速度×0&5\\\hline
 17&速捷I&10&1500&玩家&0&移动速度×1.5&9\\\hline
 18&速捷II&15&1500&玩家&1&移动速度×2&9\\\hline
 19&饱和&20&1500&玩家&2&饥饿值停止下降&6\\\hline
 20&坚硬I&19&1500&补给箱&0&\lstinline|power_rate=0.5|&8\\\hline
-21&坚硬II&19&1500&补给箱&1&\lstinline|power_rate=0.1|&8\\\hline
-22&坚硬III&19&1500&补给箱&1&\lstinline|hurt_by_weapon=false|&8\\\hline
+21&坚硬II&26&1500&补给箱&1&\lstinline|power_rate=0.1|&8\\\hline
+22&坚硬III&38&1500&补给箱&2&\lstinline|hurt_by_weapon=false|&8\\\hline
 23&生命恢复I&18&250&行星&6&\lstinline|health_add=1|&2\\\hline
 24&生命恢复II&24&250&行星&7&\lstinline|health_add=3|&2\\\hline
 25&生命恢复III&36&250&行星&8&\lstinline|health_add=6|&2\\\hline
 26&生命恢复IV&68&250&行星&9&\lstinline|health_mul=1.004|&2\\\hline
 27&生命恢复V&89&250&行星&10&\lstinline|health_mul=1.009|&2\\\hline
-28&清理I&40&500&陨石&3&\lstinline|power_rate=5|&7\\\hline
-29&清理II&47&500&陨石&4&\lstinline|kill_after_shooted=true|&7\\\hline
-30&清理III&72&瞬时&陨石&5&\lstinline|box_and_mete_left-=meteorites_list.size();meteorites_list.clear();|&7\\\hline
+28&清理I&40&500&陨石&3&\lstinline|power_rate=5,speed_rate=0.8|&7\\\hline
+29&清理II&47&500&陨石&4&\lstinline|kill_after_shooted=true,speed_rate=0.8|&7\\\hline
+30&清理III&64&50&陨石&5&\lstinline|health_mul=0.9,health_add=-1|&7\\\hline
 31&无限I&20&1500&当前武器&3&射击后子弹不减少&10\\\hline
 32&无限II&60&1500&所有武器&3&射击后子弹不减少&10\\\hline
 33&穿透I&13&1500&当前武器&4&\lstinline|infinate_hurt_count=true|&3\\\hline
-33&穿透II&32&1500&所有武器&4&\lstinline|infinate_hurt_count=true|&3\\\hline
+34&穿透II&32&1500&所有武器&4&\lstinline|infinate_hurt_count=true|&3\\\hline
+35&清理IV&72&瞬时&陨石&-&\lstinline|box_and_mete_left-=meteorites_list.size();meteorites_list.clear();|&7\\\hline
 \end{longtable}
 \end{center}
 \section{食物}
@@ -133,7 +134,7 @@ ItalicFont=*bto,BoldFont=*tb,BoldItalicFont=*tx]
 编号&名称&价值&恢复的饥饿值&编号&名称&价值&恢复的饥饿值&编号&名称&价值&恢复的饥饿值\\
 \lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|&\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|&\lstinline|type|&\lstinline|name|&\lstinline|value|&\lstinline|add_hunger|\\\hline
 \endhead
-0&糖果&3&4000&1&面包&4&8000&2&牛肉&6&15000\\\hline
+0&糖果&3&4000&1&面包&4&8000&2&牛排&6&15000\\\hline
 3&数学分析教程&30&2147483647&\multicolumn{8}{c}{}\\\cline{1-4}
 \end{longtable}
 \end{center}
