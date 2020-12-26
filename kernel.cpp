@@ -21,6 +21,7 @@
 
 #include "kernel.hpp"
 #include "save_load.hpp"
+#include "kernel.init.hpp"
 #include "file.hpp"
 #include <fstream>
 #include <random>
@@ -115,16 +116,16 @@ std::thread process_thread;
 std::mt19937_64 rand64;
 
 //ako: all kinds of，所有可能出现的陨石的列表
-std::vector<meteorite0_t> ako_meteorite;
-std::vector<box0_t> ako_box;
-std::vector<weapon0_t> ako_weapon;
-std::vector<effect_t> ako_effect;
-std::vector<food_t> ako_food;
-std::vector<received_effect_box_t> ako_box_effect;
-std::vector<received_effect_meteorite_t> ako_meteorite_effect;
-std::vector<received_effect_planet_t> ako_planet_effect;
-std::vector<received_effect_weapon_t> ako_weapon_effect;
-std::vector<received_effect_player_t> ako_player_effect;
+extern std::vector<meteorite0_t> ako_meteorite;
+extern std::vector<box0_t> ako_box;
+extern std::vector<weapon0_t> ako_weapon;
+extern std::vector<effect_t> ako_effect;
+extern std::vector<food_t> ako_food;
+extern std::vector<received_effect_box_t> ako_box_effect;
+extern std::vector<received_effect_meteorite_t> ako_meteorite_effect;
+extern std::vector<received_effect_planet_t> ako_planet_effect;
+extern std::vector<received_effect_weapon_t> ako_weapon_effect;
+extern std::vector<received_effect_player_t> ako_player_effect;
 
 //uint64_t是绝对编号，从游戏开始运行时记
 std::map<uint64_t,meteorite_t> meteorite_list;
@@ -269,76 +270,11 @@ void init()
 		}
 		configin.close();
 	}
-	//生成陨石种类列表
-	{
-		ako_meteorite.push_back({std::make_pair(400,500),0,5,5e6,
-								[](intmp_t &health,const double &,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
-								{
-									 health-=static_cast<intmp_t>(100*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
-								}});
-		ako_meteorite.push_back({std::make_pair(400,500),1,10,5e6,
-								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
-								{
-									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
-								}});
-		ako_meteorite.push_back({std::make_pair(200,250),2,8,4e6,
-								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
-								{
-									health-=static_cast<intmp_t>(80*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
-								}});
-		ako_meteorite.push_back({std::make_pair(200,250),3,3,5e6,
-								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
-								{
-									health-=static_cast<intmp_t>(150*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
-								}});
-		ako_meteorite.push_back({std::make_pair(1380,1500),4,30,6.8e6,
-								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
-								{
-									health-=static_cast<intmp_t>(1000*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
-								}});
-		ako_meteorite.push_back({std::make_pair(150,170),5,10,3e6,
-								[](intmp_t &health,const double &,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
-								{
-									health-=static_cast<intmp_t>(30*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);
-								}});
-		ako_meteorite.push_back({std::make_pair(2000,2130),6,1000,9e6,
-								[](intmp_t &health,const double &complete_rate,bool is_neg,const double &hurt_rate_planet,const double &hurt_rate_meteorite)
-								{
-									health=static_cast<intmp_t>(exp(log(static_cast<floatmp_t>(health))-log(static_cast<floatmp_t>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));
-								}});
-	}
-	//生成武器列表
-	{
-		ako_weapon.push_back({5,18,1,0,false,[](intmp_t &x,const intmp_t &,double power_rate_pill,double power_rate_meteorite/*or power_rate_box*/)
-							  {
-								  x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);
-							  },2e6});
-	}
-	//生成食物列表
-	{
-		ako_food.push_back({4000,3,0});
-	}
-	//生成武器收到的效果的列表
-	{
-		ako_weapon_effect.push_back({false,false,false,true,false,0.7,1,1});
-	}
-
-	//生成效果列表
-	{
-		ako_effect.push_back({1500,10,EFFECT_RECIVER_CURRENT_WEAPON,0,0,false,
-							  std::function<void(void*)>()});
-	}
-	//生成补给箱列表
-	{
-		ako_box.push_back({std::make_pair(200,300),std::make_pair(0,0),
-						   {},
-						   {{compress16(CONTAIN_TYPE_PILL,0),30}},
-						  0,1,3.7e6});
-		ako_box.push_back({std::make_pair(500,550),std::make_pair(17,19),
-						   {compress16(CONTAIN_TYPE_FOOD,0),compress16(CONTAIN_TYPE_PILL,0)},
-						   {{compress16(CONTAIN_TYPE_EFFECT,0),1}},
-						   1,15,2.3e6});
-	}
+	get_ako_memeorite();
+	get_ako_weapon();
+	get_ako_food();
+	get_ako_effect();
+	get_ako_box();
 	//初始化随机数引擎
 	rand64.seed(time(nullptr));
 }

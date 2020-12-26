@@ -268,7 +268,8 @@ bool save_load_class::add_user(const std::u32string &name)
 {
 	if(user_list.count(name))
 		return false;
-	user_list[name]={user_list.size(),0};
+	//默认难度：普通
+	user_list[name]={user_list.size(),1};
 	last_play_user=user_list[name].first;
 	save_user_list();
 	return true;
