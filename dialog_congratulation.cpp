@@ -1,4 +1,4 @@
-//dialog_ranklist.hpp: 类dialog_ranklist的声明
+//dialog_congratulation: 类dialog_congratulation的实现
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
@@ -18,37 +18,17 @@
 //	You should have received copies of the GNU Lesser General Public License
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
-#ifndef DIALOG_RANKLIST_H
-#define DIALOG_RANKLIST_H
+#include "dialog_congratulation.hpp"
+#include "ui_dialog_congratulation.h"
 
-#include <QDialog>
-
-namespace Ui {
-class dialog_ranklist;
+dialog_congratulation::dialog_congratulation(QWidget *parent) :
+	QDialog(parent),
+	ui(new Ui::dialog_congratulation)
+{
+	ui->setupUi(this);
 }
 
-class dialog_ranklist : public QDialog
+dialog_congratulation::~dialog_congratulation()
 {
-	Q_OBJECT
-
-public:
-	explicit dialog_ranklist(QWidget *parent = nullptr);
-	~dialog_ranklist();
-
-private slots:
-	void on_but_back_clicked();
-
-	void on_but_easy_clicked();
-
-	void on_but_normal_clicked();
-
-	void on_but_hard_clicked();
-
-private:
-	Ui::dialog_ranklist *ui;
-
-public:
-	std::vector<std::tuple<std::u32string,uint64_t,uint64_t>> ranklist;
-};
-
-#endif // DIALOG_RANKLIST_H
+	delete ui;
+}

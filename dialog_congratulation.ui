@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dialog_congratulation</class>
+ <widget class="QDialog" name="dialog_congratulation">
+  <property name="geometry">
+   <rect>
+	<x>0</x>
+	<y>0</y>
+	<width>400</width>
+	<height>229</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+	<horstretch>0</horstretch>
+	<verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QLabel" name="label_head">
+   <property name="geometry">
+	<rect>
+	 <x>31</x>
+	 <y>30</y>
+	 <width>341</width>
+	 <height>30</height>
+	</rect>
+   </property>
+   <property name="sizePolicy">
+	<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+	 <horstretch>0</horstretch>
+	 <verstretch>0</verstretch>
+	</sizepolicy>
+   </property>
+   <property name="text">
+	<string>请选择奖励</string>
+   </property>
+   <property name="alignment">
+	<set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_c0">
+   <property name="geometry">
+	<rect>
+	 <x>60</x>
+	 <y>90</y>
+	 <width>64</width>
+	 <height>64</height>
+	</rect>
+   </property>
+   <property name="text">
+	<string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_c1">
+   <property name="geometry">
+	<rect>
+	 <x>170</x>
+	 <y>90</y>
+	 <width>64</width>
+	 <height>64</height>
+	</rect>
+   </property>
+   <property name="text">
+	<string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_c2">
+   <property name="geometry">
+	<rect>
+	 <x>290</x>
+	 <y>90</y>
+	 <width>64</width>
+	 <height>64</height>
+	</rect>
+   </property>
+   <property name="text">
+	<string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_next">
+   <property name="geometry">
+	<rect>
+	 <x>230</x>
+	 <y>180</y>
+	 <width>93</width>
+	 <height>28</height>
+	</rect>
+   </property>
+   <property name="text">
+	<string>下一关</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_exit">
+   <property name="geometry">
+	<rect>
+	 <x>90</x>
+	 <y>180</y>
+	 <width>93</width>
+	 <height>28</height>
+	</rect>
+   </property>
+   <property name="text">
+	<string>退出</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

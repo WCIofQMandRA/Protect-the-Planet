@@ -20,8 +20,8 @@
 //	If not, see https://www.gnu.org/licenses/.
 #ifndef MENU_H
 #define MENU_H
-#include "kernel.hpp"
-#include <QWidget>
+#include "include.hpp"
+
 namespace menu
 {
 //绘制开始界面，若选择退出游戏则返回{"",65535}
@@ -30,5 +30,9 @@ std::tuple<std::u32string,uint16_t> show_welcome();
 //终止游戏：true
 //继续游戏：false
 bool show_pause();
+
+//绘制选择奖励界面
+//返回玩家选择的奖励、是否直接进入下一关
+std::pair<uint32_t,bool> show_congrat(uint64_t level);
 }
 #endif // MENU_H

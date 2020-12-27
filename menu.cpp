@@ -19,6 +19,7 @@
 //	and the GNU Gerneral Public License along with 保卫行星 .
 //	If not, see https://www.gnu.org/licenses/.
 #include "menu.hpp"
+#include "kernel.hpp"
 #include "dialog_pause.hpp"
 #include "dialog_start.hpp"
 

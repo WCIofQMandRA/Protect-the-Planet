@@ -1,3 +1,23 @@
+//dialog_load: 类dialog_load的实现
+
+//	-* mode: C++		encoding:UTF-8 *-
+//	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)
+//
+//	This file is part of the game 保卫行星
+//
+//	This game is free software; you can redistribute it and/or modify it
+//	under the terms of the GNU Lesser General Public License as published by
+//	the Free Software Foundation; either version 3, or (at your option) any
+//	later version.
+//
+//	This game is distributed in the hope that it will be useful, but
+//	WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+//	or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+//	License for more details.
+//
+//	You should have received copies of the GNU Lesser General Public License
+//	and the GNU Gerneral Public License along with 保卫行星 .
+//	If not, see https://www.gnu.org/licenses/.
 #include "dialog_load.h"
 #include "ui_dialog_load.h"
 #include "save_load.hpp"
@@ -46,7 +66,7 @@ Dialog_load::Dialog_load(QWidget *parent) :
 	prename=name;
 	max_down_num = tot_user_num - 6;   //最多可向下移动的次数
 	if(max_down_num<0) max_down_num=0;
-	cur_down_num = 0;         //当前向下移动的次数
+	cur_down_num = 0;		 //当前向下移动的次数
 	ui->but_up->setEnabled(false);
 	if(!max_down_num) ui->but_down->setEnabled(false);
 }

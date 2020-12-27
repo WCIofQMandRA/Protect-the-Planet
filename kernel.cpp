@@ -292,12 +292,12 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 	comu_control::active_effect=0;
 	comu_control::weapon_direct=0;
 	comu_control::change_dropped_item=0;
-    //新建关卡
+	//新建关卡
 	if(!save_load->load(name,difficulty,level,counter,score,player,planet))
-    {
+	{
 		std::cout<<"加载存档失败"<<std::endl;
-        level=0;
-        counter=0;
+		level=0;
+		counter=0;
 		score=0;
 		player.pills=attribute::player_init_pills[difficulty];
 		player.hunger=attribute::player_init_hunger[difficulty];

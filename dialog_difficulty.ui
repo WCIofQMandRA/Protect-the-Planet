@@ -4,10 +4,10 @@
  <widget class="QDialog" name="dialog_difficulty">
   <property name="geometry">
    <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
+	<x>0</x>
+	<y>0</y>
+	<width>400</width>
+	<height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,80 +15,80 @@
   </property>
   <widget class="QLabel" name="label_static">
    <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>50</y>
-     <width>131</width>
-     <height>20</height>
-    </rect>
+	<rect>
+	 <x>110</x>
+	 <y>50</y>
+	 <width>131</width>
+	 <height>20</height>
+	</rect>
    </property>
    <property name="text">
-    <string>请选择游戏难度！</string>
+	<string>请选择游戏难度！</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="but_dif0">
    <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>100</y>
-     <width>115</width>
-     <height>19</height>
-    </rect>
+	<rect>
+	 <x>130</x>
+	 <y>100</y>
+	 <width>115</width>
+	 <height>19</height>
+	</rect>
    </property>
    <property name="text">
-    <string>简单</string>
+	<string>简单</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="but_dif1">
    <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>140</y>
-     <width>115</width>
-     <height>19</height>
-    </rect>
+	<rect>
+	 <x>130</x>
+	 <y>140</y>
+	 <width>115</width>
+	 <height>19</height>
+	</rect>
    </property>
    <property name="text">
-    <string>普通</string>
+	<string>普通</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="but_dif2">
    <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>180</y>
-     <width>115</width>
-     <height>19</height>
-    </rect>
+	<rect>
+	 <x>130</x>
+	 <y>180</y>
+	 <width>115</width>
+	 <height>19</height>
+	</rect>
    </property>
    <property name="text">
-    <string>困难</string>
+	<string>困难</string>
    </property>
   </widget>
   <widget class="QPushButton" name="but_start">
    <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>220</y>
-     <width>93</width>
-     <height>28</height>
-    </rect>
+	<rect>
+	 <x>120</x>
+	 <y>220</y>
+	 <width>93</width>
+	 <height>28</height>
+	</rect>
    </property>
    <property name="text">
-    <string>开始游戏</string>
+	<string>开始游戏</string>
    </property>
   </widget>
   <widget class="QPushButton" name="but_back">
    <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>260</y>
-     <width>93</width>
-     <height>28</height>
-    </rect>
+	<rect>
+	 <x>120</x>
+	 <y>260</y>
+	 <width>93</width>
+	 <height>28</height>
+	</rect>
    </property>
    <property name="text">
-    <string>返回</string>
+	<string>返回</string>
    </property>
   </widget>
  </widget>

@@ -1,4 +1,4 @@
-//dialog_pause.hpp: 类dialog_pause的声明和控制模块
+//dialog_pause.hpp: 类dialog_pause的声明
 
 //	-* mode: C++		encoding:UTF-8 *-
 //	Copyright 2020 张子辰 & 吕航 (GitHub: WCIofQMandRA & LesterLv)

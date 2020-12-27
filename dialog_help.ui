@@ -4,10 +4,10 @@
  <widget class="QDialog" name="dialog_help">
   <property name="geometry">
    <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
+	<x>0</x>
+	<y>0</y>
+	<width>400</width>
+	<height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,75 +15,75 @@
   </property>
   <widget class="QPushButton" name="but_sure">
    <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>260</y>
-     <width>101</width>
-     <height>28</height>
-    </rect>
+	<rect>
+	 <x>150</x>
+	 <y>260</y>
+	 <width>101</width>
+	 <height>28</height>
+	</rect>
    </property>
    <property name="text">
-    <string>我准备好了！</string>
+	<string>我准备好了！</string>
    </property>
   </widget>
   <widget class="QListWidget" name="listWidget">
    <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>10</y>
-     <width>341</width>
-     <height>241</height>
-    </rect>
+	<rect>
+	 <x>30</x>
+	 <y>10</y>
+	 <width>341</width>
+	 <height>241</height>
+	</rect>
    </property>
    <item>
-    <property name="text">
-     <string>欢迎来到保卫行星！</string>
-    </property>
+	<property name="text">
+	 <string>欢迎来到保卫行星！</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>以下是本游戏中您可能用到的一些操作</string>
-    </property>
+	<property name="text">
+	 <string>以下是本游戏中您可能用到的一些操作</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>单击或按住鼠标左键：射击</string>
-    </property>
+	<property name="text">
+	 <string>单击或按住鼠标左键：射击</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>移动鼠标位置：改变武器朝向</string>
-    </property>
+	<property name="text">
+	 <string>移动鼠标位置：改变武器朝向</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>鼠标滚轮或数字键1/2：切换武器</string>
-    </property>
+	<property name="text">
+	 <string>鼠标滚轮或数字键1/2：切换武器</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>A D：控制玩家移动</string>
-    </property>
+	<property name="text">
+	 <string>A D：控制玩家移动</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>Z C：切换查看掉在行星上的补给箱内的物品</string>
-    </property>
+	<property name="text">
+	 <string>Z C：切换查看掉在行星上的补给箱内的物品</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>   X：拾起正在查看的补给箱内的物品</string>
-    </property>
+	<property name="text">
+	 <string>   X：拾起正在查看的补给箱内的物品</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>W S：切换选中的效果</string>
-    </property>
+	<property name="text">
+	 <string>W S：切换选中的效果</string>
+	</property>
    </item>
    <item>
-    <property name="text">
-     <string>    F：触发选中的效果</string>
-    </property>
+	<property name="text">
+	 <string>	F：触发选中的效果</string>
+	</property>
    </item>
   </widget>
  </widget>
