@@ -32,12 +32,12 @@ dialog_ranklist::dialog_ranklist(QWidget *parent) :
 	pal.setColor(QPalette::ButtonText,Qt::white);
 	ui->but_back->setPalette(pal);
 	ui->but_back->setStyleSheet("background-color:black");
-#ifdef _WIN32
 	QFont font;
+#ifdef _WIN32
 	font.setFamily("Microsoft Yahei");
+#endif
 	font.setBold(true);
 	setFont(font);
-#endif
 	ui->but_normal->setChecked(true);
 	ranklist =save_load->get_ranking(1,6);
 	//std::cout<<"ppppppppp";

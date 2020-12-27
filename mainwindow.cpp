@@ -22,6 +22,7 @@
 #include "ui_mainwindow.h"
 #include "dialog_start.hpp"
 #include "dialog_pause.hpp"
+#include "kernel.hpp"
 #include "paint.hpp"
 #include "menu.hpp"
 #include <QMouseEvent>

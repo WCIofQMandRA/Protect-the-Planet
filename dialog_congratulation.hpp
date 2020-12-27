@@ -32,11 +32,19 @@ class dialog_congratulation : public QDialog
 	Q_OBJECT
 
 public:
-	explicit dialog_congratulation(QWidget *parent = nullptr);
+	explicit dialog_congratulation(const std::array<std::pair<uint32_t,uint64_t>,3> &,QWidget *parent = nullptr);
 	~dialog_congratulation();
 
 private:
 	Ui::dialog_congratulation *ui;
+	const std::array<std::pair<uint32_t,uint64_t>,3> &choices;
+	int selected=-1;
+
+protected:
+	bool eventFilter(QObject *, QEvent *) override;
+private slots:
+	void on_button_exit_clicked();
+	void on_button_next_clicked();
 };
 
 #endif // DIALOG_CONGRATULATION_HPP

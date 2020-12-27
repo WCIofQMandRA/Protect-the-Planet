@@ -27,9 +27,11 @@ dialog_help::dialog_help(QWidget *parent) :
 {
 	ui->setupUi(this);
 	setFixedSize(width(),height());
-#ifdef _WIN32
+
 	QFont font;
+#ifdef _WIN32
 	font.setFamily("Microsoft Yahei");
+#endif
 	font.setBold(true);
 	setFont(font);
 	QPalette pal_label,pal_but;
@@ -37,7 +39,7 @@ dialog_help::dialog_help(QWidget *parent) :
 	ui->but_sure->setPalette(pal_but);
 	ui->but_sure->setStyleSheet("background-color:black");
 	//ui->listWidget->setStyleSheet("background-color:black");
-#endif
+
 }
 
 dialog_help::~dialog_help()

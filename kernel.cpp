@@ -23,6 +23,7 @@
 #include "save_load.hpp"
 #include "kernel.init.hpp"
 #include "file.hpp"
+#include "menu.hpp"
 #include <fstream>
 #include <random>
 #include <ctime>
@@ -261,6 +262,7 @@ void init()
 				configin.read(reinterpret_cast<char*>(&c),2);
 				boxes[i][j]=std::make_tuple(a,b,c);
 			}
+			///////////////////
 		}
 		for(size_t i=0;i<3;++i)
 		{
@@ -382,6 +384,10 @@ void stop_game()
 	comu_paint::dropped_item.first=0xFFFFFFFF;
 	if(succeeded==1)
 	{
+		//仅测试
+		auto [choice,is_continue]=menu::show_congrat({std::make_pair(compress16(CONTAIN_TYPE_WEAPON,1),1),
+					std::make_pair(compress16(CONTAIN_TYPE_WEAPON,2),1),std::make_pair(compress16(CONTAIN_TYPE_WEAPON,3),1)});
+		std::cout<<choice<<" "<<is_continue<<std::endl;
 		if(save_load->save(player.name,difficulty,level,counter,score,player,planet))
 			std::cout<<"保存成功"<<std::endl;
 	}

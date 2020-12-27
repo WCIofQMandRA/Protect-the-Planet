@@ -29,12 +29,13 @@ dialog_difficulty::dialog_difficulty(uint16_t dif_,QWidget *parent) :
 {
 	ui->setupUi(this);
 	setFixedSize(width(),height());
-#ifdef _WIN32
 	QFont font;
+#ifdef _WIN32
 	font.setFamily("Microsoft Yahei");
+#endif
 	font.setBold(true);
 	setFont(font);
-#endif
+
 	QPalette pal;
 	pal.setColor(QPalette::ButtonText,Qt::white);
 	ui->but_back->setPalette(pal);

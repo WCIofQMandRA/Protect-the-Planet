@@ -33,6 +33,6 @@ bool show_pause();
 
 //绘制选择奖励界面
 //返回玩家选择的奖励、是否直接进入下一关
-std::pair<uint32_t,bool> show_congrat(uint64_t level);
+std::pair<int,bool> show_congrat(const std::array<std::pair<uint32_t,uint64_t>,3>&);
 }
 #endif // MENU_H

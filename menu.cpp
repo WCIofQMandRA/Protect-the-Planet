@@ -22,6 +22,7 @@
 #include "kernel.hpp"
 #include "dialog_pause.hpp"
 #include "dialog_start.hpp"
+#include "dialog_congratulation.hpp"
 
 namespace menu
 {
@@ -46,5 +47,14 @@ bool show_pause()
 	kernel::comu_menu::should_pause=true;
 	dia.show();
 	return dia.exec();
+}
+
+//绘制恭贺界面
+std::pair<int,bool> show_congrat(const std::array<std::pair<uint32_t,uint64_t>,3> &item_list)
+{
+	dialog_congratulation dia(item_list);
+	dia.show();
+	int tmp=dia.exec();
+	return {tmp>>1,tmp&1};
 }
 }

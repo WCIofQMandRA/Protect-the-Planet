@@ -30,12 +30,12 @@ dialog_newgame::dialog_newgame(QWidget *parent) :
 {
 	ui->setupUi(this);
 	setFixedSize(width(),height());
-#ifdef _WIN32
 	QFont font;
+#ifdef _WIN32
 	font.setFamily("Microsoft Yahei");
+#endif
 	font.setBold(true);
 	setFont(font);
-#endif
 	if(save_load->get_userlist().empty()) ui->but_back->setDisabled(true);
 	else ui->but_back->setEnabled(true);
 	clicked_back=false;

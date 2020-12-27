@@ -20,13 +20,18 @@
 //	If not, see https://www.gnu.org/licenses/.
 #ifndef PAINT_H
 #define PAINT_H
-#include "kernel.hpp"
 #include <QWidget>
 
 namespace paint
 {
 //在特定区域绘制游戏地图
-void draw_map(QWidget *place,uint16_t state=STATE_PLAYING);
+void draw_map(QWidget *place,uint16_t state);
+
+//获得指定物品的图像资源
+const QPixmap& get_image_resource(uint32_t);
+
+//返回指定物品的名称
+const std::u32string& get_name(uint32_t);
 }
 
 #endif // PAINT_H

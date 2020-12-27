@@ -20,6 +20,7 @@
 //	If not, see https://www.gnu.org/licenses/.
 
 #include "paint.hpp"
+#include "kernel.hpp"
 #include <QPainter>
 #include <cmath>
 
@@ -41,6 +42,7 @@ std::vector<QPixmap> pill_resources;
 std::vector<QPixmap> box_resources;
 std::vector<QPixmap> dropped_box_resources;
 std::vector<QPixmap> planet_resources;
+std::unique_ptr<QPixmap> null_image;
 std::vector<size_t> meteorite_view={0,0,0,3,2,4,5};
 std::vector<size_t> effect_view={0,0,0,0,0,1,1,1,4,4,4,4,4,5,5,5,5,9,9,6,8,8,8,2,2,2,2,2,7,7,7,10,10,3,3,7};
 std::map<size_t,size_t> box_view={{0,1}};
@@ -55,7 +57,6 @@ std::vector<std::u32string> effect_namelist={U"快速射击I",U"快速射击II",
 											 U"生命恢复III",U"生命恢复IV",U"生命恢复V",U"清理I",U"清理II",U"清理III",U"无限I",
 											 U"无限II",U"穿透I",U"穿透II",U"清理IV"};
 uint64_t animate;
-bool inited=false;
 
 void drawText(QPainter &painter,qreal x,qreal y,Qt::Alignment flags,const QString &text,QRectF *boundingRect=0)
 {
@@ -87,6 +88,43 @@ void init()
 	load_resources(2,pill_resources,"pill_item");
 	load_resources(2,box_resources,"box");
 	load_resources(2,dropped_box_resources,"dbox");
+	null_image=std::make_unique<QPixmap>(QPixmap());
+}
+
+const QPixmap& get_image_resource(uint32_t item)
+{
+	switch(item&0xFFFF)
+	{
+	case CONTAIN_TYPE_FOOD:
+		return *null_image;
+	case CONTAIN_TYPE_PILL:
+		return pill_resources[0];
+	case CONTAIN_TYPE_EFFECT:
+		return effect_resources[effect_view[item>>16]];
+	case CONTAIN_TYPE_WEAPON:
+		return weapon_resources[item>>16];
+	default:
+		return *null_image;
+	}
+}
+
+const std::u32string& get_name(uint32_t item)
+{
+	static std::u32string pillname=U"子弹";
+	static std::u32string nullstr;
+	switch(item&0xFFFF)
+	{
+	case CONTAIN_TYPE_FOOD:
+		return food_namelist[item>>16];
+	case CONTAIN_TYPE_PILL:
+		return pillname;
+	case CONTAIN_TYPE_EFFECT:
+		return effect_namelist[item>>16];
+	case CONTAIN_TYPE_WEAPON:
+		return weapon_namelist[item>>16];
+	default:
+		return nullstr;
+	}
 }
 
 void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
@@ -183,35 +221,8 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		painter.setPen(QColor(88,88,88));
 		painter.setBrush(QColor(127,127,127));
 		painter.drawRect(width/2-icon_size/2,height/2-icon_size/2,icon_size,icon_size);
-		QString name;
-		auto &item=dropped_item;
-		switch(item.first&0xFFFF)
-		{
-		case CONTAIN_TYPE_FOOD:
-		{
-			//TODO：绘制图标
-			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(food_namelist[item.first>>16])).arg(item.second);
-			break;
-		}
-		case CONTAIN_TYPE_PILL:
-		{
-			painter.drawPixmap(width/2-icon_size/2,height/2-icon_size/2,pill_resources[0].scaled(icon_size,icon_size));
-			name=QString::fromUtf8("子弹 ×%1").arg(item.second);
-			break;
-		}
-		case CONTAIN_TYPE_WEAPON:
-		{
-			painter.drawPixmap(width/2-icon_size/2,height/2-icon_size/2,weapon_resources[item.first>>16].scaled(icon_size,icon_size));
-			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(weapon_namelist[item.first>>16])).arg(item.second);
-			break;
-		}
-		case CONTAIN_TYPE_EFFECT:
-		{
-			painter.drawPixmap(width/2-icon_size/2,height/2-icon_size/2,effect_resources[effect_view[item.first>>16]].scaled(icon_size,icon_size));
-			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(effect_namelist[item.first>>16])).arg(item.second);
-			break;
-		}
-		}
+		QString name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(get_name(dropped_item.first))).arg(dropped_item.second);
+		painter.drawPixmap(width/2-icon_size/2,height/2-icon_size/2,get_image_resource(dropped_item.first).scaled(icon_size,icon_size));
 		painter.setPen(Qt::white);
 		font.setBold(true);
 		painter.setFont(font);
@@ -244,11 +255,11 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 				painter.drawRect(10,10+j*(icon_size+10),icon_size,icon_size);
 				if(auto it=player.effect.find(compress16(i,j));it!=player.effect.end())
 				{
-					painter.drawPixmap(10,10+j*(icon_size+10),effect_resources[effect_view[it->second]].scaled(icon_size,icon_size));
+					painter.drawPixmap(10,10+j*(icon_size+10),get_image_resource(compress16(CONTAIN_TYPE_EFFECT,it->second)).scaled(icon_size,icon_size));
 					auto old_pen=painter.pen();
 					painter.setPen(Qt::white);
 					drawText(painter,12+icon_size,10+j*(icon_size+10)+icon_size/2,Qt::AlignLeft|Qt::AlignVCenter,
-							 QString::fromStdU32String(effect_namelist[it->second]));
+							 QString::fromStdU32String(get_name(compress16(CONTAIN_TYPE_EFFECT,it->second))));
 					painter.setPen(old_pen);
 				}
 				if(j==static_cast<int>(player.chosen_effect>>16))
@@ -278,7 +289,8 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 				painter.drawRect(int(width*0.6)+5-(10+icon_size)*(5-i),height-10-icon_size,icon_size,icon_size);
 				if(uint16_t wtype=player.weapon[i].type;wtype!=65535)
 				{
-					painter.drawPixmap(int(width*0.6)+5-(10+icon_size)*(5-i),height-10-icon_size,weapon_resources[wtype].scaled(icon_size,icon_size));
+					painter.drawPixmap(int(width*0.6)+5-(10+icon_size)*(5-i),height-10-icon_size,
+									   get_image_resource(compress16(CONTAIN_TYPE_WEAPON,wtype)).scaled(icon_size,icon_size));
 				}
 				if(i==player.chosen_weapon)
 				{
@@ -300,7 +312,8 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 				painter.drawRect(int(width*0.6)+5+(10+icon_size)*(i-5),height-10-icon_size,icon_size,icon_size);
 				if(uint16_t wtype=player.weapon[i].type;wtype!=65535)
 				{
-					painter.drawPixmap(int(width*0.6)+5+(10+icon_size)*(i-5),height-10-icon_size,weapon_resources[wtype].scaled(icon_size,icon_size));
+					painter.drawPixmap(int(width*0.6)+5+(10+icon_size)*(i-5),height-10-icon_size,
+									   get_image_resource(compress16(CONTAIN_TYPE_WEAPON,wtype)).scaled(icon_size,icon_size));
 				}
 				if(i==player.chosen_weapon)
 				{
@@ -321,7 +334,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			{
 				painter.setPen(Qt::white);
 				drawText(painter,int(width*0.65),height-12-icon_size,Qt::AlignBottom|Qt::AlignHCenter,
-						 QString::fromStdU32String(weapon_namelist[weapon_id]));
+						 QString::fromStdU32String(get_name(compress16(CONTAIN_TYPE_WEAPON,weapon_id))));
 			}
 		}
 	}
@@ -333,19 +346,19 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		for(auto it=player.received_effect.begin();it!=player.received_effect.end();++it,++i)
 		{
 			painter.drawRect(width-10-icon_size,80+i*(icon_size+10),icon_size,icon_size);
-			painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),effect_resources[effect_view[it->first]].scaled(icon_size,icon_size));
+			painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),get_image_resource(compress16(CONTAIN_TYPE_EFFECT,it->first)).scaled(icon_size,icon_size));
 			painter.setPen(Qt::white);
 			drawText(painter,width-12-icon_size,80+i*(icon_size+10)+icon_size/2,Qt::AlignRight|Qt::AlignVCenter,
-					 (QString::fromStdU32String(effect_namelist[it->first])+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
+					 (QString::fromStdU32String(get_name(compress16(CONTAIN_TYPE_EFFECT,it->first)))+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
 			painter.setPen(QColor(88,88,88));
 		}
 		for(auto it=planet.received_effect.begin();it!=planet.received_effect.end();++it,++i)
 		{
 			painter.drawRect(width-10-icon_size,80+i*(icon_size+10),icon_size,icon_size);
-			painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),effect_resources[effect_view[it->first]].scaled(icon_size,icon_size));
+			painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),get_image_resource(compress16(CONTAIN_TYPE_EFFECT,it->first)).scaled(icon_size,icon_size));
 			painter.setPen(Qt::white);
 			drawText(painter,width-12-icon_size,80+i*(icon_size+10)+icon_size/2,Qt::AlignRight|Qt::AlignVCenter,
-					 (QString::fromStdU32String(effect_namelist[it->first])+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
+					 (QString::fromStdU32String(get_name(compress16(CONTAIN_TYPE_EFFECT,it->first)))+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
 			painter.setPen(QColor(88,88,88));
 		}
 		if(player.weapon[player.chosen_weapon].type!=65535)
@@ -353,10 +366,10 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			for(auto it=player.weapon[player.chosen_weapon].received_effect.begin();it!=player.weapon[player.chosen_weapon].received_effect.end();++it,++i)
 			{
 				painter.drawRect(width-10-icon_size,80+i*(icon_size+10),icon_size,icon_size);
-				painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),effect_resources[effect_view[it->first]].scaled(icon_size,icon_size));
+				painter.drawPixmap(width-10-icon_size,80+i*(10+icon_size),get_image_resource(compress16(CONTAIN_TYPE_EFFECT,it->first)).scaled(icon_size,icon_size));
 				painter.setPen(Qt::white);
 				drawText(painter,width-12-icon_size,80+i*(icon_size+10)+icon_size/2,Qt::AlignRight|Qt::AlignVCenter,
-						 (QString::fromStdU32String(effect_namelist[it->first])+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
+						 (QString::fromStdU32String(get_name(compress16(CONTAIN_TYPE_EFFECT,it->first)))+" (%1.%2s)").arg(it->second/50).arg(it->second*2%100));
 				painter.setPen(QColor(88,88,88));
 			}
 		}
@@ -386,23 +399,44 @@ void draw_map(QWidget *place,uint16_t state)
 	{
 	case STATE_PLAYING:
 	{
+		if(kernel::comu_paint::ready)
+		{
+			if(width>height)
+			{
+				draw_pixmap(&pix,height,(width-height)/2,0);
+			}
+			else if(width<height)
+			{
+				draw_pixmap(&pix,width,0,(height-width)/2);
+			}
+			else
+			{
+				draw_pixmap(&pix,height,0,0);
+			}
 		kernel::comu_paint::ready=false;
-		if(width>height)
-		{
-			draw_pixmap(&pix,height,(width-height)/2,0);
-		}
-		else if(width<height)
-		{
-			draw_pixmap(&pix,width,0,(height-width)/2);
-		}
-		else
-		{
-			draw_pixmap(&pix,height,0,0);
 		}
 		painter.drawPixmap(0,0,pix);
 		break;
 	}
 	case STATE_STOP:
+		if(!place->isHidden())
+		{
+			if(!kernel::comu_paint::ready)
+				kernel::prepare_data_for_painting();
+			if(width>height)
+			{
+				draw_pixmap(&pix,height,(width-height)/2,0);
+			}
+			else if(width<height)
+			{
+				draw_pixmap(&pix,width,0,(height-width)/2);
+			}
+			else
+			{
+				draw_pixmap(&pix,height,0,0);
+			}
+			painter.drawPixmap(0,0,pix);
+		}
 		//painter.drawText(100,100,QString::fromUtf8("终止游戏"));
 		break;
 	case STATE_PAUSE:

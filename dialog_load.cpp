@@ -30,12 +30,13 @@ Dialog_load::Dialog_load(QWidget *parent) :
 {
 	ui->setupUi(this);
 	setFixedSize(width(),height());
-#ifdef _WIN32
 	QFont font;
+#ifdef _WIN32
 	font.setFamily("Microsoft Yahei");
+#endif
 	font.setBold(true);
 	setFont(font);
-#endif
+
 	pal_but.setColor(QPalette::ButtonText,Qt::white);
 	/*ui->but_1->setPalette(pal_but);
 	ui->but_2->setPalette(pal_but);

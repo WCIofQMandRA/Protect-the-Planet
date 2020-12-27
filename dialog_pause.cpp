@@ -28,11 +28,12 @@ dialog_pause::dialog_pause(QWidget *parent) :
 	ui(new Ui::dialog_pause)
 {
 	ui->setupUi(this);
-#ifdef _WIN32
 	QFont font;
+#ifdef _WIN32
 	font.setFamily("Microsoft Yahei");
-	setFont(font);
 #endif
+	font.setBold(true);
+	setFont(font);
 	QPalette pal;
 	pal.setColor(QPalette::ButtonText,Qt::white);
 	ui->button_stop->setPalette(pal);

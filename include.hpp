@@ -43,18 +43,18 @@ typedef mpz_int intmp_t;
 typedef number<mpfr_float_backend<50,allocate_stack>,et_on> floatmp_t;
 const double EPS64=1e-10;
 
-inline uint32_t compress16(uint16_t a,uint16_t b)
+constexpr inline uint32_t compress16(uint16_t a,uint16_t b)
 {
 	return static_cast<uint32_t>(a)|(static_cast<uint32_t>(b)<<16);
 }
 
-inline uint64_t compress16(uint16_t a,uint16_t b,uint16_t c,uint16_t d)
+constexpr inline uint64_t compress16(uint16_t a,uint16_t b,uint16_t c,uint16_t d)
 {
 	return static_cast<uint64_t>(a)|(static_cast<uint64_t>(b)<<16)
 			|(static_cast<uint64_t>(c)<<32|(static_cast<uint64_t>(d)<<48));
 }
 
-inline uint64_t compress32(uint32_t a,uint32_t b)
+constexpr inline uint64_t compress32(uint32_t a,uint32_t b)
 {
 	return static_cast<uint64_t>(a)|(static_cast<uint64_t>(b)<<32);
 }
