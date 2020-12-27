@@ -88,7 +88,8 @@ void init()
 	load_resources(2,pill_resources,"pill_item");
 	load_resources(2,box_resources,"box");
 	load_resources(2,dropped_box_resources,"dbox");
-	null_image=std::make_unique<QPixmap>(QPixmap());
+	null_image=std::make_unique<QPixmap>();
+	null_image->load(":/pictures/resources/null_image.png");
 }
 
 const QPixmap& get_image_resource(uint32_t item)
