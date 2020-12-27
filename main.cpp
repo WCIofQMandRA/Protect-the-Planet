@@ -24,10 +24,16 @@
 #include "save_load.hpp"
 #include "kernel.hpp"
 
+namespace paint
+{
+void init();
+}
+
 static void init_program()
 {
 	save_load=new save_load_class;
 	kernel::init();
+	paint::init();
 }
 
 static void exit_program(int returnval)

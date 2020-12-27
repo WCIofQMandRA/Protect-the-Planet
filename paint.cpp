@@ -84,13 +84,11 @@ void init()
 	load_resources(3,planet_resources,"planet");
 	load_resources(2,pill_resources,"pill_item");
 	load_resources(2,box_resources,"box");
-	inited=true;//之前忘了加这行，导致每一次绘图都init，非常影响速度
 }
 
 void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 {
 	using namespace kernel::comu_paint;
-	if(!inited)init();
 	double msize=attribute::map_size;
 	auto trp=[maxsize,msize,deltax,deltay](double x,double y)->QPoint
 	{
@@ -145,13 +143,24 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	}
 	//////////////////////
 	//绘制玩家
-	painter.setPen(QPen(Qt::black));
-	painter.setBrush(Qt::black);
-	QPoint ptmp=trp(0,0);
-	int which=(animate++)%9/3;
-	int ysize=trs(attribute::player_height)*3/2;
-	int xsize=player_resources[which].size().width()*ysize/player_resources[which].size().height();
-	painter.drawPixmap(ptmp.x()-xsize/2,ptmp.y()-trs(planet.size)-trs(attribute::player_height),player_resources[which].scaled(xsize,ysize));
+	{
+		int which=(animate++)%9/3;
+		int ysize=trs(attribute::player_height)*3/2;
+		int xsize=player_resources[which].size().width()*ysize/player_resources[which].size().height();
+		int y_=height/2-trs(planet.size)-trs(attribute::player_height);
+		painter.drawPixmap(width/2-xsize/2,y_,player_resources[which].scaled(xsize,ysize));
+		//绘制武器方向
+		QPen pen;
+		pen.setColor(QColor(255,127,0));
+		pen.setWidth(2);
+		pen.setJoinStyle(Qt::RoundJoin);
+		pen.setCapStyle(Qt::RoundCap);
+		painter.setPen(pen);
+		int x1=int(width/2-15*sin(player.weapon_direct)),y1=int(y_-15*cos(player.weapon_direct));
+		painter.drawLine(width/2,y_,x1,y1);
+		painter.drawLine(x1,y1,x1-5*sin(player.weapon_direct+5*M_PI/6),y1-5*cos(player.weapon_direct+5*M_PI/6));
+		painter.drawLine(x1,y1,x1-5*sin(player.weapon_direct-5*M_PI/6),y1-5*cos(player.weapon_direct-5*M_PI/6));
+	}
 	////////////////////
 	//绘制子弹
 	painter.setPen(QPen(Qt::red,trs(1e6)*0.6));
@@ -166,7 +175,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	{
 		painter.setPen(QColor(88,88,88));
 		painter.setBrush(QColor(127,127,127));
-		painter.drawRect(ptmp.x()-icon_size/2,ptmp.y()-icon_size/2,icon_size,icon_size);
+		painter.drawRect(width/2-icon_size/2,height/2-icon_size/2,icon_size,icon_size);
 		QString name;
 		auto &item=dropped_item;
 		switch(item.first&0xFFFF)
@@ -185,13 +194,13 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		}
 		case CONTAIN_TYPE_WEAPON:
 		{
-			painter.drawPixmap(ptmp.x()-icon_size/2,ptmp.y()-icon_size/2,weapon_resources[item.first>>16].scaled(icon_size,icon_size));
+			painter.drawPixmap(width/2-icon_size/2,height/2-icon_size/2,weapon_resources[item.first>>16].scaled(icon_size,icon_size));
 			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(weapon_namelist[item.first>>16])).arg(item.second);
 			break;
 		}
 		case CONTAIN_TYPE_EFFECT:
 		{
-			painter.drawPixmap(ptmp.x()-icon_size/2,ptmp.y()-icon_size/2,effect_resources[effect_view[item.first>>16]].scaled(icon_size,icon_size));
+			painter.drawPixmap(width/2-icon_size/2,height/2-icon_size/2,effect_resources[effect_view[item.first>>16]].scaled(icon_size,icon_size));
 			name=QString::fromUtf8("%1 ×%2").arg(QString::fromStdU32String(effect_namelist[item.first>>16])).arg(item.second);
 			break;
 		}
@@ -199,7 +208,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		painter.setPen(Qt::white);
 		font.setBold(true);
 		painter.setFont(font);
-		drawText(painter,ptmp.x(),ptmp.y()+66,Qt::AlignTop|Qt::AlignHCenter,name);
+		drawText(painter,width/2,height/2+66,Qt::AlignTop|Qt::AlignHCenter,name);
 	}
 	///////////////
 	//绘制状态栏

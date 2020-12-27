@@ -41,6 +41,7 @@ private:
 	uint16_t state;
 	bool is_choosing;
 	bool should_close;
+	bool full=true;
 
 protected:
 	void paintEvent(QPaintEvent *event) override;

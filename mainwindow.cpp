@@ -161,7 +161,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 	case Qt::Key::Key_Q:kernel::comu_control::active_effect=1;break;
 	case Qt::Key::Key_E:kernel::comu_control::active_effect=2;break;
 	case Qt::Key::Key_F:kernel::comu_control::active_effect=5;break;
-	case Qt::Key::Key_F11:if(isFullScreen())showNormal();else showFullScreen();break;
+	case Qt::Key::Key_F11:if(full)showNormal(),full=false;else showFullScreen(),full=true;break;
 	}
 }
 
@@ -215,7 +215,8 @@ void mainwindow::stop_game()
 	if(difficulty!=65535)
 	{
 		state=STATE_PLAYING;
-		show();
+		if(full)showFullScreen();
+		else showNormal();
 		//paint::draw_map(this,STATE_PLAYING);
 		setMouseTracking(true);
 		kernel::comu_menu::game_ended=false;
