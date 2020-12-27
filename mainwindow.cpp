@@ -161,6 +161,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 	case Qt::Key::Key_Q:kernel::comu_control::active_effect=1;break;
 	case Qt::Key::Key_E:kernel::comu_control::active_effect=2;break;
 	case Qt::Key::Key_F:kernel::comu_control::active_effect=5;break;
+	case Qt::Key::Key_F11:if(isFullScreen())showNormal();else showFullScreen();break;
 	}
 }
 
@@ -249,4 +250,11 @@ void mainwindow::wheelEvent(QWheelEvent *event)
 	{
 		kernel::comu_control::weapon=4;
 	}
+}
+
+void mainwindow::focusOutEvent(QFocusEvent *event)
+{
+	QWidget::focusOutEvent(event);
+	QKeyEvent keyevent(QEvent::KeyPress,Qt::Key::Key_Escape,Qt::NoModifier);
+	this->keyPressEvent(&keyevent);
 }

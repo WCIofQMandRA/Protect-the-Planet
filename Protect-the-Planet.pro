@@ -38,6 +38,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000	# disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ako.box.cpp \
+    ako.effect.cpp \
+    ako.food.cpp \
+    ako.meteorite.cpp \
+    ako.weapon.cpp \
         dialog_difficulty.cpp \
     dialog_help.cpp \
         dialog_load.cpp \
@@ -71,6 +76,7 @@ HEADERS += \
         dialog_start.hpp \
         file.hpp \
         kernel.hpp \
+        kernel.init.hpp \
         orbit.hpp \
         paint.hpp \
         include.hpp \
