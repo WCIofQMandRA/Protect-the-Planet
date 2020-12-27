@@ -86,6 +86,7 @@ void init()
 	load_resources(3,planet_resources,"planet");
 	load_resources(2,pill_resources,"pill_item");
 	load_resources(2,box_resources,"box");
+	load_resources(2,dropped_box_resources,"dbox");
 }
 
 void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
@@ -141,17 +142,17 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	}
 	////////////////////////
 	//绘制掉落的补给箱
-	painter.setPen(QPen(QColor(58,70,128)));
-	painter.setBrush(QColor(58,70,128));
 	for(const auto &i:dropped_box_list)
 	{
-		painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
+		auto tmp=dropped_box_resources[box_view[i.type]].scaled(trs(i.size)*2,trs(i.size)*2);
+		auto point=trp(i.x,i.y);
+		painter.drawPixmap(point.x()-tmp.width()/2,point.y()-tmp.height()/2,tmp);
 	}
 	//////////////////////
 	//绘制玩家
 	{
 		int which=(animate++)%9/3;
-		int ysize=trs(attribute::player_height)*3/2;
+		int ysize=trs(attribute::player_height)*2;
 		int xsize=player_resources[which].size().width()*ysize/player_resources[which].size().height();
 		int y_=height/2-trs(planet.size)-trs(attribute::player_height);
 		painter.drawPixmap(width/2-xsize/2,y_,player_resources[which].scaled(xsize,ysize));

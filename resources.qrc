@@ -51,5 +51,7 @@
         <file>resources/planet1.png</file>
         <file>resources/planet2.png</file>
         <file>resources/ranklist.png</file>
+        <file>resources/dbox0.png</file>
+        <file>resources/dbox1.png</file>
     </qresource>
 </RCC>

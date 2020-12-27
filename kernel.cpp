@@ -48,7 +48,7 @@ std::pair<double,double> planet_size={8e6,1.5e7};
 std::pair<double,double> planet_GM={0.99e17,1.01e17};
 //地图属性
 double map_size=2e8;
-double player_height=8e6;
+double player_height=5e6;
 
 uint64_t minimum_keyboard_operating_skip=10;
 uint64_t maximum_dropped_box_stay_time=750;
