@@ -616,9 +616,15 @@ void prepare_data_for_painting()
 //移动陨石和补给箱
 void move_mete_and_box()
 {
-	for(auto &i:meteorite_list)
+	for(auto i=meteorite_list.begin();i!=meteorite_list.end();)
 	{
-		i.second.theta=i.second.orbit.calc_theta(i.second.orbit.calc_time(i.second.theta)+i.second.combined_effect.speed_rate);
+		if(i->second.strength_left>0)
+		{
+			i->second.theta=i->second.orbit.calc_theta(i->second.orbit.calc_time(i->second.theta)+i->second.combined_effect.speed_rate);
+			++i;
+		}
+		else//清理IV效果可能将陨石的strength_left设为0
+			i=meteorite_list.erase(i);
 	}
 	for(auto &i:box_list)
 	{
