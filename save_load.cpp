@@ -302,6 +302,9 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 	else
 	{
 		using namespace std;
+		last_play_user=tmp->second.first;
+		//更新用户最后一次进行游戏时的难度
+		user_list[name].second=difficulty;
 		string filename=trpath("[storage]/user.")+to_string(tmp->second.first)+"-"+to_string(difficulty);
 		if(fs::is_regular_file(filename+".bak"))
 		{
@@ -408,7 +411,6 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 	else
 	{
 		using namespace std;
-		last_play_user=tmp->second.first;
 		string filename=trpath("[storage]/user.")+to_string(tmp->second.first)+"-"+to_string(difficulty);
 		if(fs::is_regular_file(filename))
 		{
@@ -422,8 +424,6 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 			cerr<<"写入存档失败"<<endl;
 			return false;
 		}
-		//更新用户最后一次进行游戏时的难度
-		user_list[name].second=difficulty;
 		auto write64=[&fout](uint64_t x){fout.write(reinterpret_cast<char*>(&x),8);};
 		auto writedb=[&fout](double x){fout.write(reinterpret_cast<char*>(&x),8);};
 		auto write32=[&fout](uint32_t x){fout.write(reinterpret_cast<char*>(&x),4);};

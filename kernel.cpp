@@ -1236,8 +1236,9 @@ void remove_timeout_effect()
 		else
 			++it;
 	}
-	for(auto &i:player.weapon)
+	if(player.weapon[player.chosen_weapon].type!=65535)
 	{
+		auto &i=player.weapon[player.chosen_weapon];
 		for(auto it=i.received_effect.begin();it!=i.received_effect.end();)
 		{
 			if(it->second--==0)
