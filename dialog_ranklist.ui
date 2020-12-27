@@ -13,10 +13,10 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="but_easy">
+  <widget class="QRadioButton" name="but_easy">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>80</x>
      <y>220</y>
      <width>93</width>
      <height>28</height>
@@ -26,10 +26,10 @@
     <string>简单</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="but_normal">
+  <widget class="QRadioButton" name="but_normal">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>170</x>
      <y>220</y>
      <width>93</width>
      <height>28</height>
@@ -39,10 +39,10 @@
     <string>普通</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="but_hard">
+  <widget class="QRadioButton" name="but_hard">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>270</x>
      <y>220</y>
      <width>93</width>
      <height>28</height>
