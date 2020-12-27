@@ -37,11 +37,21 @@ std::vector<QPixmap> player_resources;
 std::vector<QPixmap> food_resources;
 std::vector<QPixmap> weapon_resources;
 std::vector<QPixmap> effect_resources;
-std::vector<size_t> meteorite_view={0,0,0,0,0,0,0};
-std::vector<size_t> effect_view={0,0,0,0,0,1,1,1};
-std::vector<std::u32string> food_namelist={U"糖果"};
-std::vector<std::u32string> weapon_namelist={U"手枪"};
-std::vector<std::u32string> effect_namelist={U"快速射击I"};
+std::vector<QPixmap> pill_resources;
+std::vector<QPixmap> box_resources;
+std::vector<QPixmap> planet_resources;
+std::vector<size_t> meteorite_view={0,0,0,3,2,4,5};
+std::vector<size_t> effect_view={0,0,0,0,0,1,1,1,4,4,4,4,4,5,5,5,5,9,9,6,8,8,8,2,2,2,2,2,7,7,7,10,10,3,3,7};
+std::vector<std::u32string> food_namelist={U"糖果",U"面包",U"牛排",U"数学分析教程"};
+std::vector<std::u32string> weapon_namelist={U"手枪",U"机关枪",U"大炮",U"小型激光枪",U"中型激光枪",U"大型激光枪",
+											 U"连续型激光枪",U"衰变之枪",U"强化的衰变之枪",U"二分之枪",U"开方之枪",
+											 U"对数之枪",U"反向调分之枪",U"随机打乱之枪"};
+std::vector<std::u32string> effect_namelist={U"快速射击I",U"快速射击II",U"快速射击III",U"快速射击IV",U"快速射击V",
+											 U"保护盾I",U"保护盾II",U"保护盾III",U"修补I",U"修补II",U"修补III",
+											 U"修补IV",U"修补V",U"冻结I",U"冻结II",U"冻结III",U"冻结IV",U"速捷I",
+											 U"速捷II",U"饱和",U"坚硬I",U"坚硬II",U"坚硬III",U"生命恢复I",U"生命恢复II",
+											 U"生命恢复III",U"生命恢复IV",U"生命恢复V",U"清理I",U"清理II",U"清理III",U"无限I",
+											 U"无限II",U"穿透I",U"穿透II",U"清理IV"};
 uint64_t animate;
 bool inited=false;
 
@@ -61,17 +71,20 @@ void drawText(QPainter &painter,qreal x,qreal y,Qt::Alignment flags,const QStrin
 //QPixmap: Must construct a QGuiApplication before a QPixmap
 void init()
 {
-	meteorite_resources.resize(1);
-	meteorite_resources[0].load(":/pictures/resources/meteorite0.png");
-	player_resources.resize(3);
-	player_resources[0].load(":/pictures/resources/player0.png");
-	player_resources[1].load(":/pictures/resources/player1.png");
-	player_resources[2].load(":/pictures/resources/player2.png");
-	weapon_resources.resize(1);
-	weapon_resources[0].load(":/pictures/resources/weapon0.png");
-	effect_resources.resize(2);
-	effect_resources[0].load(":/pictures/resources/effect0.png");
-	effect_resources[1].load(":/pictures/resources/effect1.png");
+	auto load_resources=[](size_t s,std::vector<QPixmap> &r,const QString &name)
+	{
+		r.resize(s);
+		for(size_t i=0;i<s;++i)
+			r[i].load(QString(":/pictures/resources/%1%2.png").arg(name).arg(i));
+	};
+	load_resources(9,meteorite_resources,"meteorite");
+	load_resources(3,player_resources,"player");
+	load_resources(12,weapon_resources,"weapon");
+	load_resources(11,effect_resources,"effect");
+	load_resources(3,planet_resources,"planet");
+	load_resources(2,pill_resources,"pill_item");
+	load_resources(2,box_resources,"box");
+	inited=true;//之前忘了加这行，导致每一次绘图都init，非常影响速度
 }
 
 void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)

@@ -878,7 +878,7 @@ void weapon_shoot()
 						(player.combined_effect.stop_hunger_decrease||player.hunger>=HD_SHOOT))
 				{
 					player.weapon[player.chosen_weapon].last_use_time=game_clock;
-					if(weap.combined_effect.infinate_pill_speed)
+					if(weap.combined_effect.infinate_pill_speed||weap.combined_effect.infinate_pill_speed)
 					{
 						std::cerr<<"暂不支持infinate_pill_speed"<<std::endl;
 					}
