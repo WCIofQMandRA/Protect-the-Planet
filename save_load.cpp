@@ -223,8 +223,8 @@ save_load_class::save_load_class()
 
 save_load_class::~save_load_class()
 {
-	save_user_list();
-	save_ranking_list();
+	//save_user_list();
+	//save_ranking_list();
 }
 
 std::vector<std::u32string> save_load_class::get_userlist()

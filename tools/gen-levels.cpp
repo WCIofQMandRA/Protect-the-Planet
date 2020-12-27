@@ -24,8 +24,14 @@
 #include <string>
 #include <fstream>
 #include <tuple>
+#include <array>
 #include <map>
 using namespace std;
+
+#define CONTAIN_TYPE_WEAPON 1//武器
+#define CONTAIN_TYPE_FOOD 2//食物
+#define CONTAIN_TYPE_PILL 3//子弹
+#define CONTAIN_TYPE_EFFECT 4//效果
 
 string outfilename="levels",infilename="levels.in";
 ifstream fin;
@@ -38,7 +44,8 @@ void output_help(string program_name)
 	cout<<"默认的输入文件名为 levels.in\t默认的输出文件名为 levels"<<endl;
 	cout<<"\n或使用\t"<<program_name<<" -h\t查看本帮助\n"<<endl;
 	cout<<"输入文件的格式："<<endl;
-	cout<<"使用l(<关卡编号>){<详细描述>}创建关卡"<<endl;
+	cout<<"使用l(<关卡编号>)[<通过奖励描述>][<通过奖励描述>][<通过奖励描述>]{<详细描述>}创建关卡"<<endl;
+	cout<<"通关奖励描述的格式为：<类型><编号>,<数量>\n其中，<类型>为w、f、p、e中的一个字母，分别表示武器、食物、子弹、效果"<<endl;
 	cout<<"详细描述中，使用m(<最早出现游戏刻>,<最晚出现游戏刻>,<陨石类型>)添加一个陨石，\n使用b(<最早出现游戏刻>,<最晚出现游戏刻>,<补给箱类型>)添加一个补给箱\n"<<endl;
 	cout<<"在所有的关卡描述结束后，使用d(<难度>){<详细描述>}定义关卡转换方式"<<endl;
 	cout<<"详细描述中，使用<内部关卡编号>(<显示的关卡编号>)定义一条转换规则"<<endl;
@@ -101,7 +108,7 @@ char readchar()
 	while(true)
 	{
 		fin.read(&ch,1);
-		if(ch=='{'||ch=='}'||ch=='('||ch==')'||ch==','||ch>='0'&&ch<='9'||ch=='l'||ch=='m'||ch=='b'||ch=='d')
+		if(ch=='{'||ch=='}'||ch=='('||ch==')'||ch==','||ch>='0'&&ch<='9'||ch=='l'||ch=='m'||ch=='b'||ch=='d'||ch=='w'||ch=='p'||ch=='e'||ch=='f'||ch=='['||ch==']')
 			break;
 		if(!('\0'<=ch&&ch<' '))
 		{
@@ -144,14 +151,14 @@ int main(int argc,char **argv)
 		cerr<<"打开文件失败"<<endl;
 		exit(3);
 	}
-	map<int,pair<vector<tuple<uint64_t,uint64_t,uint16_t>>,vector<tuple<uint64_t,uint64_t,uint16_t>>>> levels;
+	map<int,tuple<vector<tuple<uint64_t,uint64_t,uint16_t>>,vector<tuple<uint64_t,uint64_t,uint16_t>>,array<pair<uint32_t,uint64_t>,3>>> levels;
 	map<int,uint16_t> trans[3];
 	char ch=readchar();
 	while(!ended)
 	{
 		if(ch=='l')
 		{
-			pair<vector<tuple<uint64_t,uint64_t,uint16_t>>,vector<tuple<uint64_t,uint64_t,uint16_t>>> this_level;
+			tuple<vector<tuple<uint64_t,uint64_t,uint16_t>>,vector<tuple<uint64_t,uint64_t,uint16_t>>,array<pair<uint32_t,uint64_t>,3>> this_level;
 			if((ch=readchar())!='(')
 			{
 				format_error(1);
@@ -165,6 +172,41 @@ int main(int argc,char **argv)
 				else
 					format_error(2);
 				ch=readchar();
+			}
+			for(int i=0;i<3;++i)
+			{
+				uint16_t category=0,type=0;
+				uint64_t number=0;
+				if((ch=readchar())!='[')
+					format_error(20);
+				ch=readchar();
+				switch(ch)
+				{
+				case 'e':category=CONTAIN_TYPE_EFFECT;break;
+				case 'p':category=CONTAIN_TYPE_PILL;break;
+				case 'f':category=CONTAIN_TYPE_FOOD;break;
+				case 'w':category=CONTAIN_TYPE_WEAPON;break;
+				default:format_error(21);
+				}
+				ch=readchar();
+				while(ch!=',')
+				{
+					if(ch>='0'&&ch<='9')
+						type=type*10+(ch-48);
+					else
+						format_error(22);
+					ch=readchar();
+				}
+				ch=readchar();
+				while(ch!=']')
+				{
+					if(ch>='0'&&ch<='9')
+						number=number*10+(ch-48);
+					else
+						format_error(22);
+					ch=readchar();
+				}
+				get<2>(this_level)[i]=make_pair((uint32_t)type<<16|(uint32_t)category,number);
 			}
 			if((ch=readchar())!='{')
 				format_error(3);
@@ -216,9 +258,9 @@ int main(int argc,char **argv)
 					ch=readchar();
 				}
 				if(m_or_b=='b')
-					this_level.second.push_back({from,to,type});
+					get<1>(this_level).push_back({from,to,type});
 				else
-					this_level.first.push_back({from,to,type});
+					get<0>(this_level).push_back({from,to,type});
 				ch=readchar();
 			}
 			levels[x]=this_level;
@@ -270,7 +312,9 @@ int main(int argc,char **argv)
 			format_error(14);
 		ch=readchar();
 	}
+////////////////////////////////////////////////////
 	fout.open(outfilename,ios_base::binary);
+	write<uint64_t>(1);//levels文件的版本
 	write(levels.size());
 	for(int i=0;i<levels.size();++i)
 	{
@@ -280,14 +324,19 @@ int main(int argc,char **argv)
 			cerr<<"不得跳过关卡的定义"<<endl;
 			exit(6);
 		}
-		write(it->second.first.size());
-		for(auto &j:it->second.first)
+		write(get<0>(it->second).size());
+		for(auto &j:get<0>(it->second))
 		{
 			write(j);
 		}
-		write(it->second.second.size());
-		for(auto &j:it->second.second)
+		write(get<1>(it->second).size());
+		for(auto &j:get<1>(it->second))
 			write(j);
+		for(int i=0;i<3;++i)
+		{
+			write(get<2>(it->second)[i].first);
+			write(get<2>(it->second)[i].second);
+		}
 	}
 	for(int i=0;i<3;++i)
 	{

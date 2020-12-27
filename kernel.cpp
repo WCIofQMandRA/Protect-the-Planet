@@ -154,6 +154,7 @@ uint16_t difficulty;//游戏难度
 //meteorites[k]是第k关(编号从0开始)计划生成的所有陨石，get<0>是可能生成的最早时刻，get<1>是可能生成的最晚时刻，get<2>是计划生成的陨石
 std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> meteorites;
 std::vector<std::vector<std::tuple<uint64_t,uint64_t,uint16_t>>> boxes;
+std::vector<std::array<std::pair<uint32_t,uint64_t>,3>> presents;
 
 //根据难度换算关卡
 //为了方便，游戏只预制了一套关卡，但难度较高时，玩家每通过一关，预制关卡号会增加大于1
@@ -235,10 +236,19 @@ void init()
 			std::cerr<<"无法读取配置文件："<<trpath("[program]/config/levels")<<std::endl;
 			abort();
 		}
+		uint64_t version;
+		configin.read(reinterpret_cast<char*>(&version),8);
+		if(version>1)
+		{
+			std::cerr<<"levels文件的版本过新，请升级游戏或使用旧版的gen-levels工具生成levels文件。\n\
+本游戏支持的levels文件的最高版本为1。"<<std::endl;
+			abort();
+		}
 		uint64_t n;//预制的关卡数，每个关卡先存陨石，再存补给箱
 		configin.read(reinterpret_cast<char*>(&n),8);
 		meteorites.resize(n);
 		boxes.resize(n);
+		presents.resize(n);
 		for(uint64_t i=0;i<n;++i)
 		{
 			uint64_t m;
@@ -263,6 +273,11 @@ void init()
 				boxes[i][j]=std::make_tuple(a,b,c);
 			}
 			///////////////////
+			for(int j=0;j<3;++j)
+			{
+				configin.read(reinterpret_cast<char*>(&presents[i][j].first),4);
+				configin.read(reinterpret_cast<char*>(&presents[i][j].second),8);
+			}
 		}
 		for(size_t i=0;i<3;++i)
 		{
@@ -384,10 +399,58 @@ void stop_game()
 	comu_paint::dropped_item.first=0xFFFFFFFF;
 	if(succeeded==1)
 	{
-		//仅测试
-		auto [choice,is_continue]=menu::show_congrat({std::make_pair(compress16(CONTAIN_TYPE_WEAPON,1),1),
-					std::make_pair(compress16(CONTAIN_TYPE_WEAPON,2),1),std::make_pair(compress16(CONTAIN_TYPE_WEAPON,3),1)});
-		std::cout<<choice<<" "<<is_continue<<std::endl;
+		//TODO: 处理is_continue
+		auto [choice,is_continue]=menu::show_congrat(presents[trans_level[difficulty][level-1]]);
+		auto &tmp=presents[trans_level[difficulty][level-1]][choice];
+		switch(tmp.first&0xFFFF)
+		{
+		case CONTAIN_TYPE_PILL:
+			player.pills+=tmp.second;
+			break;
+		case CONTAIN_TYPE_FOOD:
+			player.hunger+=tmp.second*ako_food[tmp.first>>16].add_hunger;
+			break;
+		case CONTAIN_TYPE_WEAPON:
+		{
+			bool flag=false;//是否成功获得武器
+			for(size_t i=0;i<10;++i)
+			{
+				if(player.weapon[i].type==65535)
+				{
+					player.weapon[i].from_0(ako_weapon[tmp.first>>16]);
+					flag=true;
+					break;
+				}
+			}
+			if(!flag)
+			{
+				//TODO
+				std::cout<<"背包已满，无法获得武器"<<std::endl;
+			}
+			break;
+		}
+		case CONTAIN_TYPE_EFFECT:
+		{
+			for(uint64_t k=0;k<tmp.second;++k)
+			{
+				for(uint16_t i=0;true;++i)
+				{
+					for(uint16_t j=0;j<5;++j)
+					{
+						if(player.effect.count(compress16(i,j))==0)
+						{
+							player.effect[compress16(i,j)]=tmp.first>>16;
+							goto endfor;
+						}
+					}
+				}
+				endfor:;
+			}
+			break;
+		}
+		default:
+			assert(0);
+		}//switch(tmp.first&0xFFFF)
 		if(save_load->save(player.name,difficulty,level,counter,score,player,planet))
 			std::cout<<"保存成功"<<std::endl;
 	}

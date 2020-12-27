@@ -33,9 +33,9 @@ void get_ako_weapon()
 						  {
 							  x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);
 						  },2e6});
-	ako_weapon.push_back({10,6,1,1,false,[](intmp_t &x,const intmp_t &,double power_rate_pill,double power_rate_meteorite/*or power_rate_box*/)
+	ako_weapon.push_back({10,4,1,1,false,[](intmp_t &x,const intmp_t &,double power_rate_pill,double power_rate_meteorite/*or power_rate_box*/)
 						  {
-							  x-=static_cast<intmp_t>(3*power_rate_pill*power_rate_meteorite);
+							  x-=static_cast<intmp_t>(1*power_rate_pill*power_rate_meteorite);
 						  },4e6});
 	ako_weapon.push_back({15,60,1,2,false,[](intmp_t &x,const intmp_t &,double power_rate_pill,double power_rate_meteorite/*or power_rate_box*/)
 						  {
