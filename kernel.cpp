@@ -318,6 +318,7 @@ void start_game(const std::u32string &name,uint16_t difficulty)
 		///////////
 		planet.size=frand_between(attribute::planet_size);
 		planet.GM=frand_between(attribute::planet_GM);
+		planet.type=urand_between(0,2);
 		planet.health=attribute::planet_init_health[difficulty];
 		planet.received_effect.clear();
 		planet.combined_effect=received_effect_planet_t();

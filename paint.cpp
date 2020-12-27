@@ -39,9 +39,11 @@ std::vector<QPixmap> weapon_resources;
 std::vector<QPixmap> effect_resources;
 std::vector<QPixmap> pill_resources;
 std::vector<QPixmap> box_resources;
+std::vector<QPixmap> dropped_box_resources;
 std::vector<QPixmap> planet_resources;
 std::vector<size_t> meteorite_view={0,0,0,3,2,4,5};
 std::vector<size_t> effect_view={0,0,0,0,0,1,1,1,4,4,4,4,4,5,5,5,5,9,9,6,8,8,8,2,2,2,2,2,7,7,7,10,10,3,3,7};
+std::map<size_t,size_t> box_view={{0,1}};
 std::vector<std::u32string> food_namelist={U"糖果",U"面包",U"牛排",U"数学分析教程"};
 std::vector<std::u32string> weapon_namelist={U"手枪",U"机关枪",U"大炮",U"小型激光枪",U"中型激光枪",U"大型激光枪",
 											 U"连续型激光枪",U"衰变之枪",U"强化的衰变之枪",U"二分之枪",U"开方之枪",
@@ -111,27 +113,31 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	int width=pix->width(),height=pix->height();
 	////////////////////////////////////
 	//绘制行星
-	painter.setPen(QPen(QColor(128,64,0)));
-	painter.setBrush(QColor(128,64,0));
-	painter.drawEllipse(trp(0,0),trs(planet.size),trs(planet.size));
+	{
+		auto tmp=planet_resources[planet.type].scaled(trs(planet.size)*2,trs(planet.size)*2);
+		painter.translate(width/2,height/2);
+		painter.rotate(player.position*180/M_PI);
+		painter.drawPixmap(-tmp.width()/2,-tmp.height()/2,tmp);
+		painter.rotate(-player.position*180/M_PI);
+		painter.translate(-width/2,-height/2);
+	}
 	///////////////////////////////////
 	//绘制陨石
 	painter.setPen(QPen(QColor(146,139,129)));
 	painter.setBrush(QColor(146,139,129));
 	for(const auto &i:meteorite_list)
 	{
-		//painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
 		auto tmp=meteorite_resources[meteorite_view[i.type]].scaled(trs(i.size)*2,trs(i.size)*2);
 		auto point=trp(i.x,i.y);
 		painter.drawPixmap(point.x()-tmp.width()/2,point.y()-tmp.height()/2,tmp);
 	}
 	////////////////////////
 	//绘制补给箱
-	painter.setPen(QPen(QColor(58,70,216)));
-	painter.setBrush(QColor(58,70,216));
 	for(const auto &i:box_list)
 	{
-		painter.drawEllipse(trp(i.x,i.y),trs(i.size),trs(i.size));
+		auto tmp=box_resources[box_view[i.type]].scaled(trs(i.size)*2,trs(i.size)*2);
+		auto point=trp(i.x,i.y);
+		painter.drawPixmap(point.x()-tmp.width()/2,point.y()-tmp.height()/2,tmp);
 	}
 	////////////////////////
 	//绘制掉落的补给箱
@@ -188,7 +194,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		}
 		case CONTAIN_TYPE_PILL:
 		{
-			//TODO：绘制图标
+			painter.drawPixmap(width/2-icon_size/2,height/2-icon_size/2,pill_resources[0].scaled(icon_size,icon_size));
 			name=QString::fromUtf8("子弹 ×%1").arg(item.second);
 			break;
 		}

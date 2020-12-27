@@ -382,6 +382,7 @@ bool save_load_class::load(const std::u32string &name,uint16_t difficulty,uint64
 			readdb(planet.combined_effect.hurt_rate);
 			readdb(planet.combined_effect.health_mul);
 			readmp(planet.combined_effect.health_add);
+			read16(planet.type);
 		}
 		if(fin)
 		{
@@ -479,6 +480,7 @@ bool save_load_class::save(const std::u32string &name,uint16_t difficulty,uint64
 			writedb(planet.combined_effect.hurt_rate);
 			writedb(planet.combined_effect.health_mul);
 			writemp(planet.combined_effect.health_add);
+			write16(planet.type);
 		}
 		if(fout)
 		{
