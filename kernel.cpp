@@ -48,12 +48,12 @@ intmp_t planet_init_health[4]={400,300,250};
 std::pair<double,double> planet_size={8e6,1.5e7};
 std::pair<double,double> planet_GM={0.99e17,1.01e17};
 //地图属性
-double map_size=2e8;
+double map_size=3e8;
 double player_height=5e6;
 
 uint64_t minimum_keyboard_operating_skip=10;
 uint64_t maximum_dropped_box_stay_time=750;
-uint64_t infinate_speed_pill_exsit_time=3;
+uint64_t infinate_speed_pill_exsit_time=0;
 uint64_t hint_subtitle_exsit_time=75;
 }//namespace attribute
 
@@ -136,6 +136,7 @@ std::map<uint64_t,pill_t> pill_list;
 //子弹速度为无穷大的武器在使用时产生一条红线，持续时间为0.15s(3tk)
 //值得注意的是，map.first是使用武器的游戏刻，而非绝对编号
 std::multimap<uint64_t,std::tuple<double,double,double,double>> infinate_speed_weapon_path_list;
+std::vector<pill_t> infinate_speed_pill_list;
 //游戏状态提示，显示在行星下方，这是接近玩家视野中心的位置，同样map.first是提示字幕被触发的游戏刻
 //一条提示词显示1.5s
 std::multimap<uint64_t,std::u32string> hint_subtitle;
@@ -499,9 +500,15 @@ std::tuple<orbit_t,double,double> generate_orbit(double t,double msize)
 	};
 	auto result=generate_0();
 	double tmp;
+	size_t try_times=1;
 	while(tmp=std::get<0>(result).calc_r(std::get<1>(result)),tmp>attribute::map_size*0.5||tmp<planet.size*4)
 	{
 		result=generate_0();
+		if(++try_times>20)
+		{
+			std::cerr<<"无法生成满足要求的轨道 t="<<t<<" r="<<tmp<<std::endl;
+			break;
+		}
 	}
 	return result;
 }
@@ -740,6 +747,7 @@ void check_shooted_by_pill()
 	//game_clock-1~game_clock时间段内，与一个子弹相遇的陨石和补给箱的列表
 	//first: 绝对编号 second: 第一个交点与(x1,y1)的距离
 	std::vector<std::pair<uint64_t,double>> cross_points;
+	//有限速度的子弹
 	for(auto i=pill_list.begin();i!=pill_list.end();)
 	{
 		cross_points.clear();
@@ -848,9 +856,141 @@ void check_shooted_by_pill()
 					}
 				}
 			}
-		}
+		}//for(auto &j:cross_points)
 		if(flag)i=pill_list.erase(i);
 		else ++i;
+	}//for(auto i=pill_list.begin();i!=pill_list.end();)
+	//无限速度的子弹
+	for(auto &i:infinate_speed_pill_list)
+	{
+		cross_points.clear();
+		double x1=i.x,y1=i.y,x2=i.x+i.dx,y2=i.y+i.dy;
+		double theta=atan2(i.dy,i.dx);
+		for(auto &j:meteorite_list)
+		{
+			double r=j.second.orbit.calc_r(j.second.theta);
+			circle_cross_line(x1,y1,x2,y2,r*cos(j.second.theta),r*sin(j.second.theta),j.second.size);
+			if(num==1)
+			{
+				cross_points.push_back({j.first,hypot(x1-ret[0].first,y1-ret[0].second)});
+			}
+			else if(num==2)
+			{
+				double dis1=sqr(x1-ret[0].first)+sqr(y1-ret[0].second);
+				double dis2=sqr(x1-ret[1].first)+sqr(y1-ret[1].second);
+				cross_points.push_back({j.first,sqrt(std::min(dis1,dis2))});
+			}
+		}
+		for(auto &j:box_list)
+		{
+			double r=j.second.orbit.calc_r(j.second.theta);
+			circle_cross_line(x1,y1,x2,y2,r*cos(j.second.theta),r*sin(j.second.theta),j.second.size);
+			if(num==1)
+			{
+				cross_points.push_back({j.first,hypot(x1-ret[0].first,y1-ret[0].second)});
+			}
+			else if(num==2)
+			{
+				double dis1=sqr(x1-ret[0].first)+sqr(y1-ret[0].second);
+				double dis2=sqr(x1-ret[1].first)+sqr(y1-ret[1].second);
+				cross_points.push_back({j.first,sqrt(std::min(dis1,dis2))});
+			}
+		}
+		{
+			circle_cross_line(x1,y1,x2,y2,0,0,planet.size);
+			if(num==1)
+			{
+				cross_points.push_back({0xFFFFFFFFFFu,hypot(x1-ret[0].first,y1-ret[0].second)});
+			}
+			else if(num==2)
+			{
+				double dis1=sqr(x1-ret[0].first)+sqr(y1-ret[0].second);
+				double dis2=sqr(x1-ret[1].first)+sqr(y1-ret[1].second);
+				cross_points.push_back({0xFFFFFFFFFFu,sqrt(std::min(dis1,dis2))});
+			}
+		}
+		std::sort(cross_points.begin(),cross_points.end(),
+				  [](const std::pair<uint64_t,double> &a,const std::pair<uint64_t,double> &b)->bool
+		{
+			return a.second<b.second;
+		});
+		bool flag=true;//子弹没有打中目标
+		for(auto &j:cross_points)
+		{
+			//如果打中行星
+			if(j.first==0xFFFFFFFFFFu)
+			{
+				infinate_speed_weapon_path_list.insert({game_clock,{x1,y1,x1+j.second*cos(theta),y1+j.second*sin(theta)}});
+				flag=false;
+				break;
+			}
+			//如果打中陨石
+			else if(auto k=meteorite_list.find(j.first);k!=meteorite_list.end())
+			{
+				if(i.combined_effect.infinate_power||k->second.combined_effect.kill_after_shooted)
+					k->second.strength_left=0;
+				else
+					ako_weapon[i.type].use(k->second.strength_left,k->second.strength,i.combined_effect.power_rate,k->second.combined_effect.power_rate);
+				if(k->second.strength_left<=0)
+				{
+					score+=static_cast<uint64_t>((k->second.strength>64?64+log2(static_cast<floatmp_t>(k->second.strength-63)):k->second.strength));
+					meteorite_list.erase(k);
+					boxes_and_meteorites_left--;
+					meteorites_left--;
+					if(!boxes_and_meteorites_left)
+						last_destroy_clock=game_clock;
+				}
+				if(!i.combined_effect.infinate_hurt_count&&--i.hurt_count==0)
+				{
+					infinate_speed_weapon_path_list.insert({game_clock,{x1,y1,x1+j.second*cos(theta),y1+j.second*sin(theta)}});
+					flag=false;
+					break;
+				}
+			}
+			//如果打中补给箱
+			else
+			{
+				auto l=box_list.find(j.first);
+				if(l->second.combined_effect.hurt_by_weapon)
+				{
+					if(i.combined_effect.infinate_power)
+						l->second.strength_left=0;
+					else
+						ako_weapon[i.type].use(l->second.strength_left,l->second.strength,i.combined_effect.power_rate,l->second.combined_effect.power_rate);
+					if(l->second.strength_left<=0)
+					{
+						box_list.erase(l);
+						boxes_and_meteorites_left--;
+						if(!boxes_and_meteorites_left)
+							last_destroy_clock=game_clock;
+					}
+					if(!i.combined_effect.infinate_hurt_count&&--i.hurt_count==0)
+					{
+						infinate_speed_weapon_path_list.insert({game_clock,{x1,y1,x1+j.second*cos(theta),y1+j.second*sin(theta)}});
+						flag=false;
+						break;
+					}
+				}
+			}
+		}//for(auto &j:cross_points)
+		if(flag)
+		{
+			infinate_speed_weapon_path_list.insert({game_clock,{x1,y1,x2,y2}});
+		}
+	}//for(auto &i:infinate_speed_pill_list)
+	infinate_speed_pill_list.clear();
+}
+
+void remove_timeout_infinate_speed_weapon_path()
+{
+	for(auto i=infinate_speed_weapon_path_list.begin();i!=infinate_speed_weapon_path_list.end();)
+	{
+		//using std::get;
+		//std::cout<<get<0>(i->second)<<" "<<get<1>(i->second)<<" "<<get<2>(i->second)<<" "<<get<3>(i->second)<<" "<<std::endl;
+		if(game_clock-i->first>attribute::infinate_speed_pill_exsit_time)
+			i=infinate_speed_weapon_path_list.erase(i);
+		else
+			++i;
 	}
 }
 
@@ -954,9 +1094,15 @@ void weapon_shoot()
 						(player.combined_effect.stop_hunger_decrease||player.hunger>=HD_SHOOT))
 				{
 					player.weapon[player.chosen_weapon].last_use_time=game_clock;
-					if(weap.combined_effect.infinate_pill_speed||weap.combined_effect.infinate_pill_speed)
+					if(ako_weapon[weap.type].infinate_speed||weap.combined_effect.infinate_pill_speed)
 					{
-						std::cerr<<"暂不支持infinate_pill_speed"<<std::endl;
+						infinate_speed_pill_list.
+								push_back({(planet.size+attribute::player_height)*cos(player.position),
+								(planet.size+attribute::player_height)*sin(player.position),
+								attribute::map_size*2*cos(player.position+player.weapon_direct),
+								attribute::map_size*2*sin(player.position+player.weapon_direct),
+								weap.type,uint16_t(weap0.hurt_count*weap.combined_effect.hurt_count_rate),weap.combined_effect});
+						//std::cerr<<"暂不支持infinate_pill_speed"<<std::endl;
 					}
 					else
 					{
@@ -1424,6 +1570,7 @@ void process_oneround()
 	move_pill();
 	add_and_mul_health();
 	check_shooted_by_pill();
+	remove_timeout_infinate_speed_weapon_path();
 	check_hit_planet();
 	change_weapon();
 	change_effect();

@@ -110,7 +110,7 @@ char readchar()
 		fin.read(&ch,1);
 		if(ch=='{'||ch=='}'||ch=='('||ch==')'||ch==','||ch>='0'&&ch<='9'||ch=='l'||ch=='m'||ch=='b'||ch=='d'||ch=='w'||ch=='p'||ch=='e'||ch=='f'||ch=='['||ch==']')
 			break;
-		if(!('\0'<=ch&&ch<' '))
+		if(!('\0'<=ch&&ch<=' '))
 		{
 			cout<<"已忽略文件中的非法字符 `"<<ch<<"'"<<endl;
 		}

@@ -91,13 +91,13 @@ void get_ako_effect()
 						  std::function<void(void*)>()});
 	ako_effect.push_back({1,15,EFFECT_RECIVER_PLANET,8,1,false,
 						  std::function<void(void*)>()});
-	ako_effect.push_back({1,20,EFFECT_RECIVER_PLANET,9,1,false,
+	ako_effect.push_back({1,20,EFFECT_RECIVER_PLANET,9,2,false,
 						  std::function<void(void*)>()});
-	ako_effect.push_back({1,30,EFFECT_RECIVER_PLANET,10,1,false,
+	ako_effect.push_back({1,30,EFFECT_RECIVER_PLANET,10,3,false,
 						  std::function<void(void*)>()});
-	ako_effect.push_back({1,50,EFFECT_RECIVER_PLANET,11,1,false,
+	ako_effect.push_back({1,50,EFFECT_RECIVER_PLANET,11,4,false,
 						  std::function<void(void*)>()});
-	ako_effect.push_back({1,80,EFFECT_RECIVER_PLANET,12,1,false,
+	ako_effect.push_back({1,80,EFFECT_RECIVER_PLANET,12,5,false,
 						  std::function<void(void*)>()});
 	ako_effect.push_back({250,17,EFFECT_RECIVER_METE,13,0,false,
 						 std::function<void(void*)>()});

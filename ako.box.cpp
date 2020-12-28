@@ -40,5 +40,29 @@ void get_ako_box()
 					   {compress16(CONTAIN_TYPE_FOOD,0),compress16(CONTAIN_TYPE_PILL,0)},
 					   {{compress16(CONTAIN_TYPE_EFFECT,0),1}},
 					   1,15,2.3e6});
+	ako_box.push_back({std::make_pair(50,100),std::make_pair(0,0),
+					   {},
+					   {{compress16(CONTAIN_TYPE_EFFECT,15),1}},
+					  2,5,5.0e6});
+	ako_box.push_back({std::make_pair(100,150),std::make_pair(15,20),
+					   {compress16(CONTAIN_TYPE_EFFECT,8),compress16(CONTAIN_TYPE_EFFECT,9)},
+					   {},
+					  3,20,4.0e6});
+	ako_box.push_back({std::make_pair(100,150),std::make_pair(40,50),
+					   {compress16(CONTAIN_TYPE_FOOD,1),compress16(CONTAIN_TYPE_PILL,0)},
+					   {{compress16(CONTAIN_TYPE_FOOD,0),5}},
+					  4,20,5.0e6});
+	ako_box.push_back({std::make_pair(200,200),std::make_pair(15,36),
+					   {compress16(CONTAIN_TYPE_EFFECT,9),compress16(CONTAIN_TYPE_EFFECT,24),compress16(CONTAIN_TYPE_EFFECT,23)},
+					   {},
+					  5,10,5.0e6});
+	ako_box.push_back({std::make_pair(100,200),std::make_pair(0,0),
+					   {},
+					   {{compress16(CONTAIN_TYPE_WEAPON,12),1}},
+					  6,10,5.0e6});
+	ako_box.push_back({std::make_pair(150,250),std::make_pair(40,50),
+					   {compress16(CONTAIN_TYPE_EFFECT,19),compress16(CONTAIN_TYPE_EFFECT,2),compress16(CONTAIN_TYPE_EFFECT,28)},
+					   {},
+					  6,10,5.0e6});
 }
 }

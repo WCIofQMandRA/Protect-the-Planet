@@ -101,9 +101,13 @@ const QPixmap& get_image_resource(uint32_t item)
 	case CONTAIN_TYPE_PILL:
 		return pill_resources[0];
 	case CONTAIN_TYPE_EFFECT:
-		return effect_resources[effect_view[item>>16]];
+		if((item>>16)<effect_view.size())
+			return effect_resources[effect_view[item>>16]];
+		else return *null_image;
 	case CONTAIN_TYPE_WEAPON:
-		return weapon_resources[item>>16];
+		if((item>>16)<weapon_resources.size())
+			return weapon_resources[item>>16];
+		else return *null_image;
 	default:
 		return *null_image;
 	}
@@ -214,6 +218,10 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	for(const auto &i:pill_list)
 	{
 		painter.drawEllipse(trp(i.x,i.y),trs(1e6),trs(1e6));
+	}
+	for(const auto &i:infinate_speed_weapon_path_list)
+	{
+		painter.drawLine(trp(std::get<0>(i),std::get<1>(i)),trp(std::get<2>(i),std::get<3>(i)));
 	}
 	///////////////////
 	//绘制选择补给箱内物品的界面
