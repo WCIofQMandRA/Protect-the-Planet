@@ -139,7 +139,7 @@ void init();
 void clear();
 void start_game(const std::u32string &name,uint16_t difficulty);
 void continue_game();
-void stop_game();
+std::pair<std::u32string,uint16_t> stop_game();
 void process_oneround();
 void process_thread_main();
 void prepare_data_for_painting();

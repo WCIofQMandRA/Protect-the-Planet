@@ -67,8 +67,8 @@ ItalicFont=*bto,BoldFont=*tb,BoldItalicFont=*tx]
 7&衰变之枪&75&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(1.2))*power_rate_pill*power_rate_meteorite));|\\\hline
 8&强化的衰变之枪&95&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(1.7))*power_rate_pill*power_rate_meteorite));|\\\hline
 9&二分之枪&120&20&$2\times10^6$&1&\lstinline|x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(2))*power_rate_pill*power_rate_meteorite));|\\\hline
-10&开方之枪&200&100&$3\times10^6$&2&\lstinline|x=static_cast<intmp_t>(pow(floatmp_t(x),1/(2*power_rate_pill*power_rate_meteorite)));|\\\hline
-11&对数之枪&400&300&$5\times10^5$&10&\lstinline|x=static_cast<intmp_t>(log(floatmp_t(x))/(log(floatmp_t(2))*power_rate_pill*power_rate_meteorite))|\\\hline
+10&开方之枪&200&40&$3\times10^6$&2&\lstinline|x=static_cast<intmp_t>(pow(floatmp_t(x),1/(2*power_rate_pill*power_rate_meteorite)));|\\\hline
+11&对数之枪&400&60&$5\times10^5$&10&\lstinline|x=static_cast<intmp_t>(log(floatmp_t(x))/log(floatmp_t(2)))|\\\hline
 12&反向调分之枪&100&10&$2\times10^6$&1&\lstinline|x=x*x/y;|\\\hline
 13&随机打乱之枪&20&5&$1\times10^7$&1&\lstinline|auto tmp=x.str();std::shuffle(tmp.begin(),tmp.end(),rand64);x=intmp_t(tmp.substr(rand64()%10?0:1));|\\\hline
 \end{longtable}
@@ -153,9 +153,14 @@ ItalicFont=*bto,BoldFont=*tb,BoldItalicFont=*tx]
 1&400-500&10&$5\times10^6$&0&\lstinline|health-=static_cast<intmp_t>(150*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);|\\\hline
 2&200-250&8&$4\times10^6$&0&\lstinline|health-=static_cast<intmp_t>(80*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);|\\\hline
 3&200-250&3&$5\times10^6$&3&\lstinline|health-=static_cast<intmp_t>(150*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);|\\\hline
-4&1380-1500&60&$6.8\times10^6$&2&\lstinline|health-=static_cast<intmp_t>(1000*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);|\\\hline
+4&1380-1500&100&$6.8\times10^6$&2&\lstinline|health-=static_cast<intmp_t>(1000*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);|\\\hline
 5&150-170&10&$3\times10^6$&4&\lstinline|health-=static_cast<intmp_t>(30*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);|\\\hline
-6&2000-2130&1000&$9\times10^6$&5&\lstinline|health=intmp_t(exp(log(floatmp_t(health))-log(floatmp_t>(1.2))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));|\\\hline
+6&1800-1900&1000&$9\times10^6$&5&\lstinline|health=intmp_t(exp(log(floatmp_t(health))-log(floatmp_t>(3))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));|\\\hline
+7&1800-1900&$2^{80}$&$8.5\times10^6$&6&\lstinline|double tmp=complete_rate*hurt_rate_planet*hurt_rate_meteorite;if(!is_neg){if(tmp>0.7)health=intmp_t(log(floatmp_t(health))/log(2));else if(tmp>0.3)health=intmp_t(sqrt(floatmp_t(health)));else health/=2;}|\\\hline
+8&500-600&30&$4\times10^6$&7&\lstinline|health-=static_cast<intmp_t>(500*complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);|\\\hline
+9&900-1000&70&$5\times10^6$&8&\lstinline|health=intmp_t(exp(log(floatmp_t(health))-log(floatmp_t(10))*complete_rate*hurt_rate_planet*hurt_rate_meteorite*(is_neg?-1:1)));|\\\hline
+10&1300-1400&5000&$6\times10^6$&9&\lstinline|if(is_neg){auto s=health.str();std::shuffle(s.begin(),s.end(),rand64);health=intmp_t(s);}else{auto s=health.str();std::shuffle(s.begin(),s.end(),rand64);health=intmp_t(s.substr(rand64()%2?1:0));}|\\\hline
+11&1700-1800&100&$7\times10^6$&10&\lstinline|health-=static_cast<intmp_t>(10/complete_rate*hurt_rate_planet*hurt_rate_meteorite)*(is_neg?-1:1);|\\\hline
 \end{longtable}
 \section{补给箱}
 \begin{longtable}{|c|c|c|c|c|c|>{\centering\arraybackslash}m{10cm}|}

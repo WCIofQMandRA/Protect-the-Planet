@@ -69,13 +69,13 @@ void get_ako_weapon()
 						  {
 							  x=static_cast<intmp_t>(exp(log(floatmp_t(x))-log(floatmp_t(2))*power_rate_pill*power_rate_meteorite));
 						  },2e6});
-	ako_weapon.push_back({200,100,2,10,false,[](intmp_t &x,const intmp_t &,double power_rate_pill,double power_rate_meteorite/*or power_rate_box*/)
+	ako_weapon.push_back({200,50,2,10,false,[](intmp_t &x,const intmp_t &,double power_rate_pill,double power_rate_meteorite/*or power_rate_box*/)
 						  {
 							  x=static_cast<intmp_t>(pow(floatmp_t(x),1/(2*power_rate_pill*power_rate_meteorite)));
 						  },3e6});
-	ako_weapon.push_back({400,300,10,11,false,[](intmp_t &x,const intmp_t &,double power_rate_pill,double power_rate_meteorite/*or power_rate_box*/)
+	ako_weapon.push_back({400,60,10,11,false,[](intmp_t &x,const intmp_t &,double,double/*or power_rate_box*/)
 						  {
-							  x=static_cast<intmp_t>(log(floatmp_t(x))/(log(floatmp_t(2))*power_rate_pill*power_rate_meteorite));
+							  x=static_cast<intmp_t>(log(floatmp_t(x))/log(floatmp_t(2)));
 						  },5e5});
 	ako_weapon.push_back({100,10,1,12,false,[](intmp_t &x,const intmp_t &y,double ,double)
 						  {

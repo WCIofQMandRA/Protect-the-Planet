@@ -43,7 +43,7 @@ std::vector<QPixmap> box_resources;
 std::vector<QPixmap> dropped_box_resources;
 std::vector<QPixmap> planet_resources;
 std::unique_ptr<QPixmap> null_image;
-std::vector<size_t> meteorite_view={0,0,0,3,2,4,5};
+std::vector<size_t> meteorite_view={0,0,0,3,2,4,5,6,7,8,9,10};
 std::vector<size_t> effect_view={0,0,0,0,0,1,1,1,4,4,4,4,4,5,5,5,5,9,9,6,8,8,8,2,2,2,2,2,7,7,7,10,10,3,3,7};
 std::map<size_t,size_t> box_view={{0,1}};
 std::vector<std::u32string> food_namelist={U"糖果",U"面包",U"牛排",U"数学分析教程"};
@@ -80,7 +80,7 @@ void init()
 		for(size_t i=0;i<s;++i)
 			r[i].load(QString(":/pictures/resources/%1%2.png").arg(name).arg(i));
 	};
-	load_resources(9,meteorite_resources,"meteorite");
+	load_resources(11,meteorite_resources,"meteorite");
 	load_resources(3,player_resources,"player");
 	load_resources(12,weapon_resources,"weapon");
 	load_resources(11,effect_resources,"effect");
@@ -153,7 +153,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 	font.setFamily("Microsoft Yahei");
 	painter.setFont(font);
 #endif
-	int icon_size=std::min(64,trs(1.5e7));
+	int icon_size=std::min(64,trs(2.2e7));
 	int width=pix->width(),height=pix->height();
 	////////////////////////////////////
 	//绘制行星

@@ -74,6 +74,7 @@ volatile std::atomic<int16_t> move;//玩家移动，取1/-1/0
 //10：不使用
 //11：射击
 //12：丢弃当前武器
+//13：尝试丢弃武器，但未确认
 //1/2：通过按键选择武器
 //3/4：通过滚轮选择武器
 volatile std::atomic<int16_t> weapon;
@@ -381,7 +382,7 @@ void continue_game()
 	process_thread=std::thread(process_thread_main);
 }
 
-void stop_game()
+std::pair<std::u32string,uint16_t> stop_game()
 {
 	std::cout<<"kernel:终止游戏"<<std::endl;
 	comu_menu::should_pause=true;
@@ -454,12 +455,15 @@ void stop_game()
 		}//switch(tmp.first&0xFFFF)
 		if(save_load->save(player.name,difficulty,level,counter,score,player,planet))
 			std::cout<<"保存成功"<<std::endl;
+		return {player.name,is_continue?difficulty:65535};
 	}
 	else if(succeeded==-1)
 	{
 		if(save_load->remove(player.name,difficulty,level,score))
 			std::cout<<"保存成功"<<std::endl;
+		return {player.name,65535};
 	}
+	return {player.name,65535};
 }
 
 void clear()
@@ -504,7 +508,7 @@ std::tuple<orbit_t,double,double> generate_orbit(double t,double msize)
 	while(tmp=std::get<0>(result).calc_r(std::get<1>(result)),tmp>attribute::map_size*0.5||tmp<planet.size*4)
 	{
 		result=generate_0();
-		if(++try_times>20)
+		if(++try_times>100)
 		{
 			std::cerr<<"无法生成满足要求的轨道 t="<<t<<" r="<<tmp<<std::endl;
 			break;
@@ -1027,7 +1031,7 @@ void check_hit_planet()
 	}
 }
 
-void change_weapon()
+void change_and_throw_weapon()
 {
 	static uint64_t last_change_clock=0;
 	if(uint16_t tmp=comu_control::weapon;tmp!=10
@@ -1044,6 +1048,8 @@ void change_weapon()
 		lb1:
 			if(player.chosen_weapon)
 				--player.chosen_weapon;
+			else
+				player.chosen_weapon=9;
 			break;
 		case 4:
 			comu_control::weapon=10;
@@ -1052,6 +1058,12 @@ void change_weapon()
 		lb2:
 			if(player.chosen_weapon<9)
 				++player.chosen_weapon;
+			else
+				player.chosen_weapon=0;
+			break;
+		case 12:
+			player.weapon[player.chosen_weapon].type=65535;
+			player.weapon[player.chosen_weapon].received_effect.clear();
 			break;
 		}
 	}
@@ -1572,7 +1584,7 @@ void process_oneround()
 	check_shooted_by_pill();
 	remove_timeout_infinate_speed_weapon_path();
 	check_hit_planet();
-	change_weapon();
+	change_and_throw_weapon();
 	change_effect();
 	weapon_shoot();
 	player_move();

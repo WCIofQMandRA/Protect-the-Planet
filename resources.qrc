@@ -54,5 +54,7 @@
         <file>resources/dbox0.png</file>
         <file>resources/dbox1.png</file>
         <file>resources/null_image.png</file>
+        <file>resources/meteorite9.png</file>
+        <file>resources/meteorite10.png</file>
     </qresource>
 </RCC>

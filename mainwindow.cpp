@@ -108,6 +108,11 @@ void mainwindow::mousePressEvent(QMouseEvent *event)
 	{
 		kernel::comu_control::weapon=11;
 	}
+	else if(event->button()==Qt::RightButton)
+	{
+		if(kernel::comu_control::weapon==13)
+			kernel::comu_control::weapon=12;
+	}
 }
 
 void mainwindow::mouseReleaseEvent(QMouseEvent *event)
@@ -115,6 +120,10 @@ void mainwindow::mouseReleaseEvent(QMouseEvent *event)
 	if(is_choosing)return;
 	//QWidget::mouseReleaseEvent(event);
 	if(event->button()==Qt::LeftButton)
+	{
+		kernel::comu_control::weapon=10;
+	}
+	else if(event->button()==Qt::RightButton)
 	{
 		kernel::comu_control::weapon=10;
 	}
@@ -163,6 +172,7 @@ void mainwindow::keyPressEvent(QKeyEvent *event)
 	case Qt::Key::Key_E:kernel::comu_control::active_effect=2;break;
 	case Qt::Key::Key_F:kernel::comu_control::active_effect=5;break;
 	case Qt::Key::Key_F11:if(full)showNormal(),full=false;else showFullScreen(),full=true;break;
+	case Qt::Key::Key_Space:kernel::comu_control::weapon=13;break;
 	}
 }
 
@@ -183,6 +193,7 @@ void mainwindow::keyReleaseEvent(QKeyEvent *event)
 		break;
 	case Qt::Key::Key_1:
 	case Qt::Key::Key_2:
+	case Qt::Key::Key_Space:
 		kernel::comu_control::weapon=10;
 		break;
 	case Qt::Key::Key_W:
@@ -205,13 +216,16 @@ void mainwindow::auto_repaint()
 
 void mainwindow::stop_game()
 {
+	std::u32string name;
+	uint16_t difficulty;
 	state=STATE_STOP;
 	is_choosing=false;
-	kernel::stop_game();
+	std::tie(name,difficulty)=kernel::stop_game();
 	autoupdate_timer->stop();
 	hide();
 	is_choosing=true;
-	auto [name,difficulty]=menu::show_welcome();
+	if(difficulty==65535)
+		std::tie(name,difficulty)=menu::show_welcome();
 	is_choosing=false;
 	if(difficulty!=65535)
 	{
