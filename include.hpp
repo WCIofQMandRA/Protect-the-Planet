@@ -58,4 +58,16 @@ constexpr inline uint64_t compress32(uint32_t a,uint32_t b)
 {
 	return static_cast<uint64_t>(a)|(static_cast<uint64_t>(b)<<32);
 }
+
+//将ASCII string转为u32string
+inline std::u32string to_u32(const std::string &s)
+{
+	std::u32string u;
+	u.resize(s.length());
+	for(size_t i=0;i<s.length();++i)
+	{
+		u[i]=s[i];
+	}
+	return u;
+}
 #endif

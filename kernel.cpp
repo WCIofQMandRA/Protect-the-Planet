@@ -23,11 +23,13 @@
 #include "save_load.hpp"
 #include "kernel.init.hpp"
 #include "file.hpp"
+#include "paint.hpp"
 #include "menu.hpp"
 #include <fstream>
 #include <random>
 #include <ctime>
 #include <cmath>
+#include <QMessageBox>
 #include "mainwindow.hpp"
 
 //HD=hunger decrease
@@ -55,6 +57,7 @@ uint64_t minimum_keyboard_operating_skip=10;
 uint64_t maximum_dropped_box_stay_time=750;
 uint64_t infinate_speed_pill_exsit_time=0;
 uint64_t hint_subtitle_exsit_time=75;
+uint64_t nearly_timeout_time=50;
 }//namespace attribute
 
 namespace kernel
@@ -401,7 +404,13 @@ std::pair<std::u32string,uint16_t> stop_game()
 	comu_paint::dropped_item.first=0xFFFFFFFF;
 	if(succeeded==1)
 	{
-		//TODO: 处理is_continue
+		if(level>=trans_level[difficulty].size())
+		{
+			QMessageBox::about(nullptr,"",QString::fromUtf8("通关！"));
+			if(save_load->remove(player.name,difficulty,level-1,score))
+				std::cout<<"保存成功"<<std::endl;
+			return {player.name,65535};
+		}
 		auto [choice,is_continue]=menu::show_congrat(presents[trans_level[difficulty][level-1]]);
 		auto &tmp=presents[trans_level[difficulty][level-1]][choice];
 		switch(tmp.first&0xFFFF)
@@ -459,7 +468,7 @@ std::pair<std::u32string,uint16_t> stop_game()
 	}
 	else if(succeeded==-1)
 	{
-		if(save_load->remove(player.name,difficulty,level,score))
+		if(save_load->remove(player.name,difficulty,level-1,score))
 			std::cout<<"保存成功"<<std::endl;
 		return {player.name,65535};
 	}
@@ -672,8 +681,8 @@ void prepare_data_for_painting()
 		{
 			comu_paint::pill_list[i]=(it->second);
 		}
-		i=0;
-		for(auto it=hint_subtitle.begin();it!=hint_subtitle.end();++it,++i)
+		i=hint_subtitle.size()-1;
+		for(auto it=hint_subtitle.begin();it!=hint_subtitle.end();++it,--i)
 		{
 			comu_paint::hint_subtitle[i]=it->second;
 		}
@@ -704,7 +713,11 @@ void move_mete_and_box()
 			++i;
 		}
 		else//清理IV效果可能将陨石的strength_left设为0
+		{
 			i=meteorite_list.erase(i);
+			meteorites_left--;
+			boxes_and_meteorites_left--;
+		}
 	}
 	for(auto &i:box_list)
 	{
@@ -821,6 +834,7 @@ void check_shooted_by_pill()
 					k->second.strength_left=0;
 				else
 					ako_weapon[i->second.type].use(k->second.strength_left,k->second.strength,i->second.combined_effect.power_rate,k->second.combined_effect.power_rate);
+				hint_subtitle.insert({game_clock,std::u32string(U"击中陨石 陨石剩余强度: ")+to_u32(k->second.strength_left.str())});
 				if(k->second.strength_left<=0)
 				{
 					score+=static_cast<uint64_t>((k->second.strength>64?64+log2(static_cast<floatmp_t>(k->second.strength-63)):k->second.strength));
@@ -846,6 +860,7 @@ void check_shooted_by_pill()
 						l->second.strength_left=0;
 					else
 						ako_weapon[i->second.type].use(l->second.strength_left,l->second.strength,i->second.combined_effect.power_rate,l->second.combined_effect.power_rate);
+					hint_subtitle.insert({game_clock,std::u32string(U"击中补给箱 补给箱剩余强度: ")+to_u32(k->second.strength_left.str())});
 					if(l->second.strength_left<=0)
 					{
 						box_list.erase(l);
@@ -935,6 +950,7 @@ void check_shooted_by_pill()
 					k->second.strength_left=0;
 				else
 					ako_weapon[i.type].use(k->second.strength_left,k->second.strength,i.combined_effect.power_rate,k->second.combined_effect.power_rate);
+				hint_subtitle.insert({game_clock,std::u32string(U"击中陨石 陨石剩余强度: ")+to_u32(k->second.strength_left.str())});
 				if(k->second.strength_left<=0)
 				{
 					score+=static_cast<uint64_t>((k->second.strength>64?64+log2(static_cast<floatmp_t>(k->second.strength-63)):k->second.strength));
@@ -961,6 +977,7 @@ void check_shooted_by_pill()
 						l->second.strength_left=0;
 					else
 						ako_weapon[i.type].use(l->second.strength_left,l->second.strength,i.combined_effect.power_rate,l->second.combined_effect.power_rate);
+					hint_subtitle.insert({game_clock,std::u32string(U"击中补给箱 补给箱剩余强度: ")+to_u32(k->second.strength_left.str())});
 					if(l->second.strength_left<=0)
 					{
 						box_list.erase(l);
@@ -1009,6 +1026,7 @@ void check_hit_planet()
 			{
 				i->second.hurt(planet.health,(double)i->second.strength_left/(double)i->second.strength,planet.combined_effect.negtive_hurt,
 							   planet.combined_effect.hurt_rate,i->second.combined_effect.hurt_rate);
+				hint_subtitle.insert({game_clock,std::u32string(U"行星完整度：")+to_u32(planet.health.str())});
 			}
 			i=meteorite_list.erase(i);
 			--boxes_and_meteorites_left;
@@ -1050,6 +1068,8 @@ void change_and_throw_weapon()
 				--player.chosen_weapon;
 			else
 				player.chosen_weapon=9;
+			if(player.weapon[player.chosen_weapon].type!=65535)
+			hint_subtitle.insert({game_clock,U"选中"+paint::get_name(compress16(CONTAIN_TYPE_WEAPON,player.weapon[player.chosen_weapon].type))});
 			break;
 		case 4:
 			comu_control::weapon=10;
@@ -1060,10 +1080,16 @@ void change_and_throw_weapon()
 				++player.chosen_weapon;
 			else
 				player.chosen_weapon=0;
+			if(player.weapon[player.chosen_weapon].type!=65535)
+			hint_subtitle.insert({game_clock,U"选中"+paint::get_name(compress16(CONTAIN_TYPE_WEAPON,player.weapon[player.chosen_weapon].type))});
 			break;
 		case 12:
-			player.weapon[player.chosen_weapon].type=65535;
-			player.weapon[player.chosen_weapon].received_effect.clear();
+			if(player.weapon[player.chosen_weapon].type!=65535)
+			{
+				hint_subtitle.insert({game_clock,U"丢弃"+paint::get_name(compress16(CONTAIN_TYPE_WEAPON,player.weapon[player.chosen_weapon].type))});
+				player.weapon[player.chosen_weapon].type=65535;
+				player.weapon[player.chosen_weapon].received_effect.clear();
+			}
 			break;
 		}
 	}
@@ -1085,7 +1111,14 @@ void change_effect()
 		case 3:if(j<4)++j;break;
 		case 4:if(j)--j;break;
 		}
-		player.chosen_effect=compress16(i,j);
+		if(tmp>=1&&tmp<=4)
+		{
+			player.chosen_effect=compress16(i,j);
+			if(auto it=player.effect.find(player.chosen_effect);it!=player.effect.end())
+			{
+				hint_subtitle.insert({game_clock,U"选中"+paint::get_name(compress16(CONTAIN_TYPE_EFFECT,it->second))});
+			}
+		}
 	}
 }
 
@@ -1467,7 +1500,13 @@ void remove_timeout_effect()
 		if(it->second--==0)
 			it=player.received_effect.erase(it);
 		else
+		{
+			if(it->second==attribute::nearly_timeout_time)
+			{
+				hint_subtitle.insert({game_clock,U"效果"+paint::get_name(compress16(CONTAIN_TYPE_EFFECT,it->first))+U"即将失效"});
+			}
 			++it;
+		}
 	}
 	if(player.weapon[player.chosen_weapon].type!=65535)
 	{

@@ -342,7 +342,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 			if(auto weapon_id=player.weapon[player.chosen_weapon].type;weapon_id!=65535)
 			{
 				painter.setPen(Qt::white);
-				drawText(painter,int(width*0.65),height-12-icon_size,Qt::AlignBottom|Qt::AlignHCenter,
+				drawText(painter,int(width*0.6),height-12-icon_size,Qt::AlignBottom|Qt::AlignHCenter,
 						 QString::fromStdU32String(get_name(compress16(CONTAIN_TYPE_WEAPON,weapon_id))));
 			}
 		}
@@ -390,7 +390,7 @@ void draw_pixmap(QPixmap *pix,int maxsize,int deltax,int deltay)
 		painter.setPen(Qt::white);
 		for(int i=0,psize=trs(planet.size);i+di<int(hint_subtitle.size());++i)
 		{
-			drawText(painter,width/2,height/2+psize+10+i*20,Qt::AlignTop|Qt::AlignHCenter,QString::fromStdU32String(hint_subtitle[i]));
+			drawText(painter,width/2,height/2+psize+40+i*20,Qt::AlignTop|Qt::AlignHCenter,QString::fromStdU32String(hint_subtitle[i]));
 		}
 	}
 }
