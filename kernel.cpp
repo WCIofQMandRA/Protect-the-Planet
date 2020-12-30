@@ -860,7 +860,7 @@ void check_shooted_by_pill()
 						l->second.strength_left=0;
 					else
 						ako_weapon[i->second.type].use(l->second.strength_left,l->second.strength,i->second.combined_effect.power_rate,l->second.combined_effect.power_rate);
-					hint_subtitle.insert({game_clock,std::u32string(U"击中补给箱 补给箱剩余强度: ")+to_u32(k->second.strength_left.str())});
+					hint_subtitle.insert({game_clock,std::u32string(U"击中补给箱 补给箱剩余强度: ")+to_u32(l->second.strength_left.str())});
 					if(l->second.strength_left<=0)
 					{
 						box_list.erase(l);
