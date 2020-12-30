@@ -222,10 +222,17 @@ void mainwindow::stop_game()
 	is_choosing=false;
 	std::tie(name,difficulty)=kernel::stop_game();
 	autoupdate_timer->stop();
-	hide();
 	is_choosing=true;
 	if(difficulty==65535)
+	{
+		hide();
 		std::tie(name,difficulty)=menu::show_welcome();
+	}
+//	else
+//	{
+//		using namespace std::chrono_literals;
+//		std::this_thread::sleep_for(10ms);
+//	}
 	is_choosing=false;
 	if(difficulty!=65535)
 	{
