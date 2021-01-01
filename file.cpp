@@ -21,7 +21,7 @@
 #include "file.hpp"
 #include <QCoreApplication>
 #include <QStandardPaths>
-#include <filesystem>
+#include <QFileInfo>
 
 std::string program_dir;
 std::string storage_dir;
@@ -46,7 +46,7 @@ static void init_dir()
 	//for(i=tmp_dir.length()-1;tmp_dir[i]!='\\'&&tmp_dir[i]!='/';--i);
 	//tmp_dir=tmp_dir.substr(0,i)+"/ProtectPlanet";
 	//在原始的、不始终使用Unicode的Mircrosoft Windows上，路径中含有非ASCII字符可能导致无法访问，这时直接用“.”代替可执行文件所在的目录
-	if(!std::filesystem::is_directory(program_dir))
+	if(!QFileInfo(program_dir.c_str()).isDir())
 		program_dir=".";
 	dir_inited=true;
 }

@@ -20,14 +20,43 @@
 //	If not, see https://www.gnu.org/licenses/.
 #include "save_load.hpp"
 #include "file.hpp"
-#include <QFileDialog>
+#include <QFileInfo>
+#include <QFile>
+#include <QDir>
 #include <fstream>
-#include <filesystem>
-namespace fs=std::filesystem;
 //QCoreApplication::applicationDirPath函数必须在主函数中定义，
 //而save_load_class的构造函数中调用的trpath函数会调用QCoreApplication::applicationDirPath
 //故不能定义save_load_class的全局变量
 save_load_class *save_load;
+
+namespace fs
+{
+bool is_regular_file(const std::string &name)
+{
+	return QFileInfo(name.c_str()).isFile();
+}
+
+bool remove(const std::string &name)
+{
+	return QFile::remove(name.c_str());
+}
+
+bool rename(const std::string &from,const std::string &to)
+{
+	return QFile::rename(from.c_str(),to.c_str());
+}
+
+bool is_directory(const std::string &name)
+{
+	return QFileInfo(name.c_str()).isDir();
+}
+
+bool create_directory(const std::string &name)
+{
+	return QDir(name.c_str()).mkpath(".");
+}
+
+}
 
 void save_load_class::load_user_list()
 {

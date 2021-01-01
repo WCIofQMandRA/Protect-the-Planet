@@ -61,7 +61,7 @@ SOURCES += \
 	save_load.cpp \
 	type.cpp
 
-LIBS += -lstdc++fs -Wl,-Bstatic -lmpfr -lgmp -Wl,-Bdynamic
+LIBS += -Wl,-Bstatic -lmpfr -lgmp -Wl,-Bdynamic
 
 CONFIG(release,debug|release):DEFINES += NDEBUG
 
